@@ -130,6 +130,7 @@
                 local area = this:get("area")
                 this.opentime = GetTime()
                 this.units = {}
+				this.effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\LightningShield\\LightningShieldTarget.mdl", this.unit, "origin")
                 this.timer = Loop(0.25,
                     function()
                         local t = this:get(2)
@@ -192,6 +193,7 @@
                     MoveSpeed(u, ms)
                 end
                 DestroyTimer(this.timer)
+				DestroyEffect(this.effect)
                 Event("-伤害效果", this.skillfunc)
                 this.freshcool = GetTime() - this.opentime
             end
@@ -211,8 +213,8 @@
 |cffffcc00技能强度|r: %s\
 |cffffcc00友方法力恢复|r: %s%% (|cffffcc00%.2f|r)\
 |cffffcc00友方技能强度|r: %s%% (|cffffcc00%.2f|r)\n\
-|cff888888死亡状态时失效",
-        researchtip = "可以重复弹射同一个单位",
+|cff888888死亡状态时光环效果失效",
+        researchtip = "不再为队友提供法力恢复,提供的技能强度翻倍",
         data = {
             {0.75, 1.5, 2.25, 3}, --法力恢复1
             {10, 20, 30, 40}, --技能强度2
@@ -243,6 +245,10 @@
 							mp = mp * this:get(3) / 100
                             ap = GetAP(this.unit) * this:get(5) / 100
                         end
+						if this.research then
+							mp = 0
+							ap = ap * 2
+						end
                         this.data[4], this.data[6] = mp, ap
                         for _, p in ipairs(ps) do
                             if this.player ~= p then
