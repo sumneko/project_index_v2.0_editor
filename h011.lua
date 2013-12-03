@@ -198,81 +198,91 @@
         end
     }
     
-    --风之钝器-散裂
+    --御坂网络代理演算
     InitSkill{
-        name = "风之钝器-散裂",
+        name = "御坂网络代理演算",
         type = {"被动"},
-        art = {"BTNBash.blp"},
-        area = 500,
+        art = {"BTNBrilliance.blp"},
+        area = "全地图",
         tip = "\
-前方之风的攻击有几率产生弹射,对附近的其他单位也造成同样的伤害.在击中减速或晕眩的单位时,该几率将增加.\n\
-|cff00ffcc技能|r: 武器效果\
-|cff00ffcc伤害|r: 物理\n\
-|cffffcc00弹射几率|r: %s%%\
-|cffffcc00几率增加|r: %s%%\n\
-|cff888888弹射攻击带有攻击效果与武器效果\n可以击中魔免单位或建筑单位",
+连接近1万个御坂妹妹的网络,永久增加自己的法力恢复与技能强度,并为友方英雄提供法力恢复与技能强度加成,数值正比于你自己的法力恢复与技能强度.\n\
+|cff00ffcc技能|r: 被动\n\
+|cffffcc00法力恢复|r: %s\
+|cffffcc00技能强度|r: %s\
+|cffffcc00友方法力恢复|r: %s%% (|cffffcc00%.2f|r)\
+|cffffcc00友方技能强度|r: %s%% (|cffffcc00%.2f|r)\n\
+|cff888888死亡状态时失效",
         researchtip = "可以重复弹射同一个单位",
         data = {
-            {45, 53, 59, 63}, --弹射几率1
-            {13, 14, 15, 16}, --增幅几率2
+            {0.75, 1.5, 2.25, 3}, --法力恢复1
+            {10, 20, 30, 40}, --技能强度2
+            {30, 40, 50, 60}, --友方法力恢复3
+            0, --友方法力恢复显示4
+            {20, 30, 40, 50}, --友方技能强度5
+            0, --友方技能强度显示6
         },
         count = 0,
-        events = {"获得技能", "失去技能"},
+        events = {"获得技能", "失去技能", "升级技能"},
         code = function(this)
             if this.event == "获得技能" then
-                this.skillfunc = Event("伤害效果",
-                    function(damage)
-                        if damage.from == this.unit and (damage.weapon or damage.damageReason == this.name) then
-                            local dg = damage.damagedGroup or {}
-                            if not this.research then
-                                dg[damage.to] = true
-                            end
-                            local a = this:get(1)
-                            if GetUnitAbilityLevel(damage.to, |BPSE|) == 1 or GetUnitAbilityLevel(damage.to, |B02R|) == 1 then
-                                a = a + this:get(2)
-                            end
-                            if Random(a) then
-                                local p = GetOwningPlayer(damage.from)
-                                local g = {}
-                                forRange(damage.to, this:get("area"),
-                                    function(u)
-                                        if u ~= damage.to and not dg[u] and EnemyFilter(p, u, {["魔免"] = true, ["建筑"] = true}) then
-                                            table.insert(g, u)
-                                        end
+                UnitAddAbility(this.unit, |A19R|)
+                UnitMakeAbilityPermanent(this.unit, true, |A19R|)
+                
+                local mp, ap = this:get(1), this:get(2)
+                Recover(this.unit, 0, mp)
+                AddAP(this.unit, ap)
+                this.ups = {mp, ap}
+                
+                this.units = {}
+                this.timer = Loop(1,
+                    function()
+                        local ps = GetAllyUsers(this.player)
+                        local mp, ap = 0, 0
+                        if IsUnitAlive(this.unit) then
+                            _, mp = GetRecover(this.unit)
+							mp = mp * this:get(3) / 100
+                            ap = GetAP(this.unit) * this:get(5) / 100
+                        end
+                        this.data[4], this.data[6] = mp, ap
+                        for _, p in ipairs(ps) do
+                            if this.player ~= p then
+                                local i = GetPlayerId(p)
+                                local hero = Hero[i]
+                                if hero then
+                                    local data = this.units[hero]
+                                    if data == nil then
+                                        data = {0, 0}
+                                        this.units[hero] = data
                                     end
-                                )
-                                local count = #g
-                                local target
-                                if count > 0 then
-                                    target = g[GetRandomInt(1, count)]
-                                else
-                                    return
+                                    --回蓝
+                                    if data[1] ~= mp then
+                                        Recover(hero, 0, mp - data[1])
+                                        data[1] = mp
+                                    end
+                                    --法伤
+                                    if data[2] ~= ap then
+                                        AddAP(hero, ap - data[2])
+                                        data[2] = ap
+                                    end
                                 end
-                                local moved = damage.mover or {}
-                                local u1 = getObj(slk.unit, GetUnitTypeId(damage.from))
-                                local u2 = getObj(slk.unit, GetUnitTypeId(target))
-                                local move = {
-                                    modle = moved.modle or Mark(damage.from, "弹道模型") or u1.Missileart or "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl",
-                                    from = damage.to,
-                                    target = target,
-                                    z = GetUnitZ(damage.to) + (getObj(slk.unit, GetUnitTypeId(damage.to)).impactZ or 0) * GetModleSize(damage.to),
-                                    tz = (u2.impactZ or 0) * GetModleSize(target),
-                                    high = moved.high or GetBetween(damage.to, target) * (u1.Missilearc or 0),
-                                    size = moved.size or GetModleSize(damage.from),
-                                    speed = moved.speed or u1.Missilespeed or 100,
-                                    attack = true,
-                                    code = function(move)
-                                        Damage(move.from, move.target, damage.sdamage, true, false, {damageReason = this.name, attack = true, damagedGroup = dg})
-                                    end
-                                }
-                                MoverEx(move, nil, move.code)
-                                move.from = damage.from
                             end
                         end
+                        SetSkillTip(this.unit, this.name)
+                        RefreshTips(this.unit)
                     end
                 )
+            elseif this.event == "升级技能" then
+                local mp, ap = this:get(1), this:get(2)
+                Recover(this.unit, 0, mp - this.ups[1])
+                AddAP(this.unit, ap - this.ups[2])
+                this.ups = {mp, ap}
             elseif this.event == "失去技能" then
-                Event("-伤害效果", this.skillfunc)
+                UnitRemoveAbility(this.unit, |A19R|)
+                DestroyTimer(this.timer)
+                for u, data in pairs(this.units) do
+                    Recover(u, 0, - data[1])
+                    AddAP(u, - data[2])
+                end
             end
         end
     }
