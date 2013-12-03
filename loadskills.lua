@@ -41,7 +41,7 @@
             if s then
                 if i == "cool" then
                     s = s * (1 - math.min((Mark(data.unit, "冷却缩减") or 0) / 100, 0.5)) --冷却缩减
-                elseif i == "rng" and type(s) == "string" then
+                elseif s == "全地图" then
                     s = 999999
                 end
             end
