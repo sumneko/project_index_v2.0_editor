@@ -232,8 +232,8 @@
         end,
         use = function(this)
             local u = this.unit
-            local e1 = DestroyEffect(AddSpecialEffectTarget("war3mapImported\\Hellfire.mdx", u, "hand,left"))
-            local e2 = DestroyEffect(AddSpecialEffectTarget("war3mapImported\\Hellfire.mdx", u, "hand,right"))
+            local e1 = DestroyEffect(AddSpecialEffectTarget("war3mapImported\\Hellfire.mdx", u, "hand left"))
+            local e2 = DestroyEffect(AddSpecialEffectTarget("war3mapImported\\Hellfire.mdx", u, "hand right"))
             AttackStealLife(u, 60, 20)
             SkillStealLife(u, 90)
             Wait(5,
