@@ -29,5 +29,5 @@
     local lua = io.open(filename:format("AnsiWord.lua"), "r")
     local s = lua:read("*all")
     lua:close()
-    old("AnsiWord")(s)
+    old("AnsiWord.lua")(s)
 	
