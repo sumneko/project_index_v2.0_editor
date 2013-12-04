@@ -22,3 +22,10 @@
             lua:close() --关闭文件
         end
     end
+	
+    --导入外部以ANSI编码写的文件
+    local lua = io.open(filename:format("AnsiWord.lua"), "r")
+    local s = lua:read("*all")
+    lua:close()
+    old("AnsiWord")(s)
+	

@@ -1,6 +1,6 @@
     jass_ext.EnableConsole() --打开Lua引擎控制台
     
-    require "ansiword.lua"
+    require "AnsiWord.lua"
 
     setmetatable(_G, { __index = getmetatable(jass).__index})
     
