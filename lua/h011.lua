@@ -129,8 +129,8 @@
             if this.event == "发动技能" then
                 local area = this:get("area")
                 this.opentime = GetTime()
+                this.effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\LightningShield\\LightningShieldTarget.mdl", this.unit, "origin")
                 this.units = {}
-				this.effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\LightningShield\\LightningShieldTarget.mdl", this.unit, "origin")
                 this.timer = Loop(0.25,
                     function()
                         local t = this:get(2)
@@ -194,7 +194,7 @@
                     MoveSpeed(u, ms)
                 end
                 DestroyTimer(this.timer)
-				DestroyEffect(this.effect)
+                DestroyEffect(this.effect)
                 Event("-伤害效果", this.skillfunc)
                 this.freshcool = GetTime() - this.opentime
             end
@@ -246,7 +246,7 @@
 							mp = mp * this:get(3) / 100
                             ap = GetAP(this.unit) * this:get(5) / 100
                         end
-						if this.research then
+                        if this.research then
 							mp = 0
 							ap = ap * 2
 						end
@@ -294,7 +294,7 @@
         end
     }
     
-	--御坂网络终端命令
+    --御坂网络终端命令
     InitSkill{
         name = "御坂网络终端命令",
         type = {"主动"},
@@ -329,3 +329,4 @@
 			end
 		end
 	}
+    
