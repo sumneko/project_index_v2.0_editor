@@ -324,4 +324,8 @@
         },
         events = {"发动技能"},
         code = function(this)
-		en}
+			if this.event == "发动技能" then
+				
+			end
+		end
+	}
