@@ -8,6 +8,8 @@
     --自动往GitHub目录中更新文件
     local filename = "F:\\GitHub\\project_index_v2.0_editor\\Lua\\%s" --我电脑上脚本存储的位置
     
+    luascripts["BJ.lua"] = nil --不对比或生成BJ.lua,因为该文件太长,比较耗费资源,且不会主动去修改它
+    
     for name, script in pairs(luascripts) do --遍历此次生成的文件
         local nname = filename:format(name) --准备打开的文件
         local lua = io.open(nname, "r") --读取模式打开文件
