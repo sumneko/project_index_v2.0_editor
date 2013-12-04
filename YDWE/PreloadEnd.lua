@@ -6,7 +6,7 @@
     luascripts["FileList.lua"] = script
     
     --自动往GitHub目录中更新文件
-    local filename = "F:\\GitHub\\project_index_v2.0_editor\\lua\\%s" --我电脑上脚本存储的位置
+    local filename = "F:\\GitHub\\project_index_v2.0_editor\\Lua\\%s" --我电脑上脚本存储的位置
     
     for name, script in pairs(luascripts) do --遍历此次生成的文件
         local nname = filename:format(name) --准备打开的文件
