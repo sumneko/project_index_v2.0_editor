@@ -184,6 +184,7 @@
                 this.skillfunc = Event("伤害效果",
                     function(damage)
                         if damage.damageReason ~= this.name and damage.damage > 20 and this.units[damage.to] and this.units[damage.to] > 0 then
+                            DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\ChimaeraLightningMissile\\ChimaeraLightningMissile.mdl", damage.to, "chest"))
                             Damage(this.unit, damage.to, this:get(3) + this:get(4), false, true, {aoe = true, damageReason = this.name})
                         end
                     end
