@@ -304,7 +304,7 @@
         area = 100,
         cool = 150,
         tip = "\
-|cff00ccff向其他御坂妹妹求援,潜伏在战场的御坂妹妹们将分别狙击一个敌方英雄,对一条直线上的单位造成伤害.被重复击中时受到的伤害减半.\n\
+向其他御坂妹妹求援,潜伏在战场的御坂妹妹们将分别狙击一个敌方英雄,对一条直线上的单位造成伤害.被重复击中时受到的伤害减半.\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 物理\n\
 |cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\n\
 |cff888888御坂妹妹在距离敌方英雄%s距离处进行狙击\n狙击总射程为%s,弹道速度为%s",
@@ -320,12 +320,102 @@
 			end,
 			1500, --狙击距离3
 			3000, --狙击射程4
-			2000, --弹道速度
+			2000, --弹道速度5
         },
         events = {"发动技能"},
         code = function(this)
 			if this.event == "发动技能" then
-				
+                local l = this:get(3)
+                local speed = this:get(5)
+                local distance = this:get(4)
+                local area = this:get("area")
+                local d = this:get(1) + this:get(2)
+                local re = this.research and this.research[2]
+                if this.research and this.research[3] then
+                    local r = GetUnitState(this.unit, UNIT_STATE_LIFE) / GetUnitState(this.unit, UNIT_STATE_MAX_LIFE)
+                    r = 2 - r
+                    d = d * r
+                end
+                --记录重复击中
+                local units = {}
+				--先搜寻敌方英雄
+                for i = 1, 10 do
+                    local id = GetPlayerId(P[i])
+                    local hero = Hero[id]
+                    if hero and IsUnitEnemy(hero, this.player) then
+                        local point
+                        for _i = 1, 10 do
+                            local p = MovePoint(hero, {l, GetRandomInt(1, 360)})
+                            if not IsTerrainPathable(p[1], p[2], PATHING_TYPE_FLYABILITY) then
+                                point = p
+                                break --如果随机到的地面为空中可通行则跳出
+                            end
+                        end
+                        if point then
+                            local angle = GetBetween(point, hero,true)
+                            local u = CreateUnitAtLoc(this.player, |h005|, point, angle)
+                            SetUnitAnimation(u, "attack")
+                            Wait(1,
+                                function()
+                                    RemoveUnit(u)
+                                end
+                            )
+                            Wait(0.5,
+                                function()
+                                    Mover({
+                                            from = this.unit,
+                                            source = u,
+                                            z = 75,
+                                            speed = speed,
+                                            distance = distance,
+                                            angle = angle,
+                                            modle = "Abilities\\Weapons\\RocketMissile\\RocketMissile.mdl",
+                                            size = 2,
+                                            aoe = true
+                                        },
+                                        function(move)
+                                            if move.count % 3 == 0 then --每0.6秒,即120距离判定一次
+                                                forRange(move.unit, area,
+                                                    function(u)
+                                                        if EnemyFilter(this.player, u) then
+                                                            local d = d
+                                                            if not (this.research and this.research[1]) and units[u] then
+                                                                d = d / 2
+                                                            end
+                                                            units[u] = true
+                                                            SkillEffect{
+                                                                name = this.name,
+                                                                from = move.from,
+                                                                to = u,
+                                                                data = this,
+                                                                aoe = true,
+                                                                code = function(data)
+                                                                    --麻痹目标
+                                                                    if re then
+                                                                        BenumbUnit{
+                                                                            from = data.from,
+                                                                            to = data.to,
+                                                                            time = 1.5,
+                                                                            aoe = true,
+                                                                        }
+                                                                    end
+                                                                    --造成伤害
+                                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name})
+                                                                end
+                                                            }
+                                                        end
+                                                    end
+                                                )
+                                            end
+                                        end
+                                    )
+                                end
+                            )
+                        else
+                            print(("<ERROR>%s:%s"):format(this.name, "没有找到马甲创建位置"))
+                        end
+                    end
+                end
 			end
 		end
 	}
