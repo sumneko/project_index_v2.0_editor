@@ -161,15 +161,6 @@
         return enumGroup, G2T(g), 0
     end
     
-    --获取当前游戏时间
-    local timeTimer = CreateTimer()
-    
-    TimerStart(timeTimer, 999999, false, nil)
-    
-    GetTime = function()
-        return TimerGetElapsed(timeTimer)
-    end
-    
     local gameTime = 0
     
     Loop(1, function()
