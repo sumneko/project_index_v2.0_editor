@@ -1,4 +1,4 @@
-    
+
     --type location = {0, 0}
 
     DefineStartLocationLoc = function(a, b)
@@ -242,164 +242,86 @@
     
     SquareRoot = math.sqrt
     
-    --重载计时器
-    do        
-        local timers = {} --计时器队列
-        local top = 0 --队列顶部
-        local truetimer = jass.CreateTimer() --真计时器,用于计算队列顶部计时器的到期情况
-        local lasttime = 0 --上一次计时器到期的时间
-        local lasttimer --上一次到期的计时器
-        local timered = false
-        
-        --刷新核心计时器   
-        local freshTimer
-        local timerFunc
-        
-        freshTimer = function()
-            local timer = timers[top] --提取顶部的计时器
-            local time = timer.at - GetTime() --计算顶部的计时器还有多久才到期
-            timered = nil
-            jass.TimerStart(truetimer, time, false, timerFunc)
-        end
-        
-        timerFunc = function(time)
-            local timer = timers[top] --提取顶部的计时器
-            if time == nil then --由核心计时器到期发起的事件
-                time = timer.at
-            end
-            if timer.at == time then --如果顶部计时器的到期时间等于当前时间
-                timer.state = "到期" --将该计时器的状态更改为到期
-                lasttime = timer.at --记录上一次计时器到期的时间
-                timered = lasttime --表示当前时间就是lasttime
-                lasttimer = timer --记录上一次到期的计时器
-                timers[top] = nil --将计时器从顶部移除
-                top = top - 1
-                if timer.func then --运行计时器到期的函数
-                    timer.func()
-                end
-                if timer.state == "到期" then --状态没有进行更改
-                    if timer.loop then --如果是循环计时器
-                        TimerStart(timer, timer.time, timer.loop, timer.func)
-                    else
-                        timer.state = "空闲"
-                    end    
-                end
-                timerFunc(time) --递归
-            else
-                freshTimer() --刷新计时器
-            end
-        end
-        
-        --获取当前游戏时间        
-        GetTime = function()
-            return timered or lasttime + jass.TimerGetElapsed(truetimer)
-        end
+    --重载所有计时器相关的函数
+    do
+        local timerTable = {} --用来存放没有引用的计时器
+        local timerCount = 0 --表示空闲计时器的计数
+        local count = 0 --正在运行的计时器计数
         
         --创建计时器
         CreateTimer = function()
-            return {
-                time = 0, --计时器周期
-                loop = false, --是否循环
-                func = nil, --计时器到期时运行的函数
-                start = 0, --计时器启动时间
-                at = 0, --计时器预期的结束时间
-                state = "空闲", --计时器状态
-            }
-        end
-        
-        --放一个计时器在队列底部
-        do
-            local timer = CreateTimer()
-            timers[1] = timer
-            top = 1
-            timer.time = 999999
-            timer.loop = false
-            timer.func = nil
-            timer.start = 0
-            timer.at = 999999
-            timer.state = "运行"
-            freshTimer() --刷新计时器
-        end            
-        
-        --启动计时器
-        TimerStart = function(timer, r, b, func)
-            PauseTimer(timer)
-            timer.time = math.max(0, r)
-            timer.loop = b
-            timer.func = func
-            timer.start = GetTime()
-            timer.at = timer.start + r
-            timer.state = "运行"
-            top = top + 1 --计时器计数+1
-            for i = top - 1, 1, -1 do --从顶部开始向下检查
-                local at = timers[i].at --当前计时器的到期时间
-                if at > timer.at then --到期时间大的放在下面
-                    table.insert(timers, i + 1, timer)
-                    if i + 1 == top then --如果比顶部的计时器还要小
-                        freshTimer() --刷新真计时器
-                    end
-                    break
-                end
+            local t
+            if timerCount == 0 then
+                --没有空闲计时器,新建
+                t = jass.CreateTimer()
+            else
+                t = timerTable[timerCount]
+                timerCount = timerCount - 1 --空闲timer计数
             end
-        end
-        
-        --暂停计时器
-        PauseTimer = function(timer)
-            if timer.state == "运行" then
-                timer.state = "空闲"
-                for i = top, 1, -1 do
-                    local that = timers[i]
-                    if that == timer then
-                        top = top - 1
-                        table.remove(timers, i)
-                        if i == top + 1 then --如果计时器之前就是位于队列顶部
-                            freshTimer() --刷新真计时器
-                        end
-                        break
-                    end
-                end
-            elseif timer.state == "到期" then
-                timer.state = "空闲"
+            local timer = {t} --用table把timer包起来
+            timerTable[t] = timer --记录该timer所使用的table
+            count = count + 1
+            if count > 150 then
+                Debug("<DEBUG>正在运行的计时器计数:" .. count)
             end
+            return timer
         end
         
         --删除计时器
         DestroyTimer = function(timer)
-            PauseTimer(timer)
-            timer.state = "删除"
+            if timer == nil then return end
+            local t = timer[1]
+            if t == nil then return end --如果table内没有timer就返回
+            jass.PauseTimer(t) --暂停timer,并不摧毁它
+            timerCount = timerCount + 1 --空闲timer计数
+            timerTable[timerCount] = t --把timer放入空闲timer组中
+            timerTable[t] = nil --释放timer所使用的table
+            timer[1] = nil --将table内的timer移除,因为外部依然是使用table来指向timer的,因此可以避免反复删除同一个timer造成的错误
+            count = count - 1
+        end
+        
+        --暂停计时器
+        PauseTimer = function(timer)
+            local t = timer[1]
+            if t == nil then return end
+            jass.PauseTimer(t)
+        end
+        
+        --启动计时器
+        TimerStart = function(timer, r, b, func)
+            local t = timer[1]
+            if t == nil then return end
+            timer[2] = r
+            timer[3] = b
+            timer[4] = func
+            jass.TimerStart(t, r, b, func)
+        end
+        
+        --重新启动计时器
+        TimerRestart = function(timer)
+            local t, r, b, func = timer[1], timer[2], timer[3], timer[4]
+            if t == nil or r == nil then return end
+            jass.TimerStart(t, r, b, func)
         end
         
         --获取到期计时器
         GetExpiredTimer = function()
-            return lasttimer --上一次到期的计时器
+            return timerTable[jass.GetExpiredTimer()] --找到这个timer的table
         end
         
         TimerGetElapsed = function(timer)
-            return GetTime() - timer.start
+            return jass.TimerGetElapsed(timer[1])
         end
         
         TimerGetRemaining = function(timer)
-            return timer.at - GetTime()
+            return jass.TimerGetRemaining(timer[1])
         end
         
         TimerGetTimeout = function(timer)
-            return timer.time
-        end
-        
-        TimerRestart = function(timer)
-            TimerStart(timer, timer.time, timer.loop, timer.func)
+            return jass.TimerGetTimeout(timer[1])
         end
         
         ResumeTimer = TimerRestart
-        
-        --立即运行计时器
-        ExcuteTimer = function(timer)
-            PauseTimer(timer)
-            timer.at = GetTime()
-            top = top + 1
-            timers[top] = timer --把计时器放在队列顶部
-            timerFunc()
-        end
     end
     
     --创建闪电效果
@@ -443,3 +365,4 @@
         toEvent("获得经验", data)
         jass.AddHeroXP(data.unit, data.xp, b)
     end
+    
