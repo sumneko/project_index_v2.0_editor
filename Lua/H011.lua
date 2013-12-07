@@ -320,11 +320,12 @@
 			end,
 			1500, --狙击距离3
 			3000, --狙击射程4
-			2000, --弹道速度5
+			3000, --弹道速度5
         },
         events = {"发动技能"},
         code = function(this)
 			if this.event == "发动技能" then
+                StartSound(gg_snd_lo_dazhao)
                 local l = this:get(3)
                 local speed = this:get(5)
                 local distance = this:get(4)
@@ -370,11 +371,11 @@
                                             distance = distance,
                                             angle = angle,
                                             modle = "Abilities\\Weapons\\RocketMissile\\RocketMissile.mdl",
-                                            size = 2,
+                                            size = 1,
                                             aoe = true
                                         },
                                         function(move)
-                                            if move.count % 3 == 0 then --每0.6秒,即120距离判定一次
+                                            if move.count % 2 == 0 then --每0.4秒,即180距离判定一次
                                                 forRange(move.unit, area,
                                                     function(u)
                                                         if EnemyFilter(this.player, u) then
@@ -390,6 +391,8 @@
                                                                 data = this,
                                                                 aoe = true,
                                                                 code = function(data)
+                                                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Other\\Stampede\\StampedeMissileDeath.mdl", data.to, "chest"))
+                                                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\RocketMissile\\RocketMissile.mdl", data.to, "chest"))
                                                                     --麻痹目标
                                                                     if re then
                                                                         BenumbUnit{
