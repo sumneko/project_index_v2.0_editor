@@ -60,8 +60,12 @@
         if not data.mana then
             data.mana = 0
         end
-        if (data.type[1] == "开关" and not data.time) or data.time == 0 then
-            data.time = 0.01
+        if not data.time or data.time == 0 then
+            if data.type[1] == "主动" then
+                data.time = 0.5 + data.cast --主动技能后摇默认0.5
+            else
+                data.time = 0.001
+            end
         end
     end
     
@@ -539,9 +543,7 @@
                         function()
                             if skill.ani then
                                 SetUnitAnimation(data.unit, skill.ani)
-                                if not skill:get("time") then
-                                    QueueUnitAnimation(data.unit, "stand")
-                                end
+                                --QueueUnitAnimation(data.unit, "stand")
                             end
                             --返还法力
                             SetUnitState(data.unit, UNIT_STATE_MANA, GetUnitState(data.unit, UNIT_STATE_MANA) + skill:get("mana"))
