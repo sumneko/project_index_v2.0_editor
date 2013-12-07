@@ -577,6 +577,29 @@
         end
     ))
     
+    --触发器发布的点目标smart指令转化
+    do
+        local move = OrderId("move")
+        local old1 = IssuePointOrder
+        local old2 = IssuePointOrderById
+        
+        IssuePointOrder = function(u, o, x, y)
+            if o == "smart" then
+                old1(u, "move", x, y)
+            else
+                old1(u, o, x, y)
+            end
+        end
+        
+        IssuePointOrderById = function(u, o, x, y)
+            if o == smart then
+                old2(u, move, x, y)
+            else
+                old2(u, o, x, y)
+            end
+        end
+    end
+    
     --加载物品数据
     
     require "Item1.lua"
