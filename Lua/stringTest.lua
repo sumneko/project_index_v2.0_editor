@@ -7,7 +7,7 @@
         elseif s[1] == ".startgame" then
             StartGameIn(s[2] or 0)
         elseif s[1] == ".cd" then
-            UnitResetCooldown(Hero[1])
+            UnitResetCooldown(Hero[i])
         elseif s[1] == ".hp" then
             SetUnitState(Hero[i], UNIT_STATE_LIFE, s[2] or 1000000)
             SetUnitState(Hero[i], UNIT_STATE_MANA, s[3] or 1000000)
