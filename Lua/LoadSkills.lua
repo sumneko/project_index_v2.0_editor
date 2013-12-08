@@ -60,12 +60,14 @@
         if not data.mana then
             data.mana = 0
         end
-        if not data.time or data.time == 0 then
+        if not data.time then
             if data.type[1] == "主动" then
                 data.time = 0.5 + data.cast --主动技能后摇默认0.5
             else
                 data.time = 0.001
             end
+        elseif data.time == 0 then
+            data.time = 0.001
         end
     end
     
