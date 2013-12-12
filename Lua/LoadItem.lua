@@ -78,7 +78,7 @@
         local ob = getObj(slk.item, item.id)
         item.gold = item.gold or tonumber(ob.goldcost or 0)
         item.art = ob.Art or "ReplaceableTextures\\CommandButtons\\BTNSelectHeroOn.blp"
-        Preload(item.art) --预读图片
+        Preloader(item.art) --预读图片
         item.coststring = "|cffffff11" .. item.gold .. "|r"
         item.tip = ob.Ubertip
         if ob.abilList then
@@ -576,6 +576,36 @@
             end
         end
     ))
+    
+    --将鼠标右击视野外的建筑指令转化为攻击
+    do
+        local smart = OrderId("smart")
+        local trg = CreateTrigger()
+        
+        TriggerRegisterAnyUnitEventBJ(smart2attack, EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER)
+        TriggerAddCondition(smart2attack, Condition(
+            function()
+                if GetIssuedOrderId() == smart then
+                    local p = GetTriggerPlayer()
+                    local loc = GetOrderPointLoc()
+                    if IsLocationVisibleToPlayer(loc, p) == false then
+                        forRange(loc, 1,
+                            function(u2)
+                                if GetUnitX(u2) == loc[1] and GetUnitY(u2) == loc[2] and IsUnitType(u2, UNIT_TYPE_STRUCTURE) then
+                                    local u1 = GetTriggerUnit()
+                                    if IsUnitAlly(u2, p) then
+                                        IssueTargetOrder(u1, "move", u2)
+                                    else
+                                        IssueTargetOrder(u1, "attack", u2)
+                                    end
+                                end
+                            end
+                        )
+                    end
+                end
+            end
+        ))
+    end
     
     --触发器发布的点目标smart指令转化
     do
