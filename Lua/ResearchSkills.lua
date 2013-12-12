@@ -768,8 +768,7 @@
         name = "斩杀",
         art = "BTNcoupdegrace.blp",
         tip = "\
-|cffff00ff英雄:|r 普通攻击对英雄造成其最大生命值20%的神圣伤害.该效果每10秒只能触发一次\n\
-|cffff00ff团队:|r ",
+|cffff00ff英雄:|r 普通攻击对英雄造成其最大生命值20%的神圣伤害.该效果每10秒只能触发一次",
         code = function(this)
             --英雄效果
             local lastTime = -60
