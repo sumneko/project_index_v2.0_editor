@@ -589,7 +589,7 @@
                     local p = GetTriggerPlayer()
                     local loc = GetOrderPointLoc()
                     if IsLocationVisibleToPlayer(loc, p) == false then
-                        forRange(loc, 1,
+                        forRange(loc, 0,
                             function(u2)
                                 if GetUnitX(u2) == loc[1] and GetUnitY(u2) == loc[2] and IsUnitType(u2, UNIT_TYPE_STRUCTURE) then
                                     local u1 = GetTriggerUnit()
