@@ -15,7 +15,7 @@
         art = {"BTNTransmute.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = {50, 75, 100, 125},
         cool = 5,
-        rng = {300, 400, 500, 600},
+        rng = {450, 500, 550, 600},
         icon = 3,
         cast = 0.1,
         time = 6,
@@ -28,19 +28,67 @@
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00每秒伤害|r: %s(|cff0000ff+%d|r)\
 |cffffcc00恢复比例|r: %s%%\n\
-|cff888888当距离超过施法距离的2倍后技能被打断\n必须通过该技能杀死单位才能获得对应的伪装\n伪装不使用的话可以一直保存,使用后消失\n伪装状态下使用此技能无法获得新的伪装",
+|cff888888每0.5秒吸取一次生命\n当距离超过施法距离的1.5倍后技能被打断\n必须通过该技能杀死单位才能获得对应的伪装\n伪装不使用的话可以一直保存,使用后消失\n伪装状态下使用此技能无法获得新的伪装",
         researchtip = "伪装状态下也可以获得新的伪装",
         data = {
             {20, 30, 40, 50}, --每秒伤害1   
             function(ap) --伤害加成2
                 return ap * 0.25
             end,
-            75, --恢复比例
+            100, --恢复比例
         },
-        events = {"发动技能"},
+        events = {"获得技能", "发动技能", "停止施放"},
         code = function(this)
             if this.event == "发动技能" then
-                
+                local u1 = this.unit
+                local u2 = this.target
+                local l = AddLightningEx("DRAL", true, 0, 0, 0, 0, 0, 0)
+                local e1 = AddSpecialEffectTarget("Abilities\\Spells\\Other\\Drain\\DrainCaster.mdl", u1, "overhead")
+                local e2 = AddSpecialEffectTarget("Abilities\\Spells\\Other\\Drain\\DrainTarget.mdl", u2, "overhead")
+                local d = this:get(1) + this:get(2)
+                d = d * 0.5
+                local s = this:get(3) / 100
+                local ml = 1.5 * this:get("rng")
+                local count = 0
+                local t = LoopRun(0.05,
+                    function()
+                        if GetBetween(u1, u2) > ml then
+                            IssueImmediateOrder(u1, "stop")
+                            return
+                        end
+                        local x1, y1, z1 = GetUnitX(u1), GetUnitY(u1), GetUnitZ(u1) + 75
+                        local x2, y2, z2 = GetUnitX(u2), GetUnitY(u2), GetUnitZ(u2) + 75
+                        MoveLightningEx(l, true, x1, y1, z1, x2, y2, z2)
+                        count = count + 1
+                        if count % 10 == 0 then
+                            SkillEffect{
+                                name = this.name,
+                                from = u1,
+                                to = u2,
+                                data = this,
+                                dot = true,
+                                code = function(data)
+                                    local damage = Damage(data.from, data.to, d, false, true, {dot = true, damageReason = this.name})
+                                    local dd = damage.damage
+                                    if dd > 0 then
+                                        Heal(data.from, data.from, dd * s, {healReason = this.name})
+                                    end
+                                end
+                            }
+                        end
+                    end
+                )
+                this.flush = function()
+                    DestroyLightning(l)
+                    DestroyEffect(e1)
+                    DestroyEffect(e2)
+                    DestroyTimer(t)
+                end
+            elseif this.event == "停止施放" then
+                if this.spellflag then --表示已经发动了技能
+                    this.flush() 
+                end
+            elseif this.event == "获得技能" then
             end
         end
     }
