@@ -16,11 +16,11 @@
     
     InitSkill = function(data)
         Y = Y + 1
-        SkillTable[X*10+Y] = data --先把技能数据完整的记录在表中
+        SkillTable[X*1000+Y] = data --先把技能数据完整的记录在表中
         if SkillTable[data.name] then
             print("<加载技能错误:技能名重复>" .. data.name)
         else
-            SkillTable[data.name] = X*10+Y
+            SkillTable[data.name] = X*1000+Y
         end
         for _, event in ipairs(data.events) do
             data.events[event] = true --建立事件反向表
@@ -412,7 +412,7 @@
                 UnitRemoveAbility(u, |A0TN|)
             end
         else --安装技能
-            GetSkill2(u, x*10+y, nil, true)
+            GetSkill2(u, x*1000+y, nil, true)
         end
     end
     
