@@ -58,22 +58,31 @@
     Event("停止施放",
         function(data)
             local hero = data.unit
-            local last = last[hero]
-            if last == nil then
+            if not IsHero(hero) then
                 return
-            elseif last == false then
-                QueueUnitAnimation(hero, "stand")
-            else
-                if lasttype[hero] == "nil" then
-                    IssueImmediateOrderById(hero, last)
-                elseif lasttype[hero] == "target" then
-                    if IsUnitVisible(lasttarget[hero], GetOwningPlayer(hero)) then
-                        IssueTargetOrderById(hero, last, lasttarget[hero])
-                    end
-                else
-                    IssuePointOrderByIdLoc(hero, last, lasttarget[hero])
-                end
             end
+            Wait(0,
+                function()
+                    if GetUnitCurrentOrder(hero) == 0 then
+                        local last = last[hero]
+                        if last == nil then
+                            return
+                        elseif last == false then
+                            QueueUnitAnimation(hero, "stand")
+                        else
+                            if lasttype[hero] == "nil" then
+                                IssueImmediateOrderById(hero, last)
+                            elseif lasttype[hero] == "target" then
+                                if IsUnitVisible(lasttarget[hero], GetOwningPlayer(hero)) then
+                                    IssueTargetOrderById(hero, last, lasttarget[hero])
+                                end
+                            else
+                                IssuePointOrderByIdLoc(hero, last, lasttarget[hero])
+                            end
+                        end
+                    end
+                end
+            )
         end
     )
     
