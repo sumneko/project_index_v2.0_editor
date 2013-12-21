@@ -177,7 +177,7 @@
                     local data = Mark(this.unit, this.skillname)
                     Mark(this.unit, this.skillname, false)
                     DestroyTimer(data.timer)
-                    SetCoolDown(this.unit - data.c)
+                    SetCoolDown(this.unit, - data.c)
                 end
             end
         },
