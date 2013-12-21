@@ -201,7 +201,7 @@
                                     end
                                     --优先攻击小兵
                                     
-                                    if IsHero(this.to) then
+                                    if IsHero(this.to) and Mark(this.from, "反击目标") ~= this.to then
                                         local rng = GetUnitState(this.from, ConvertUnitState(0x16))
                                         local t = {}
                                         forRange(this.from, rng + 200,
@@ -238,7 +238,8 @@
                         
                         Mark(this.unit, this.skillname .. 1, Event("伤害后", 
                             function(this)
-                                if this.from and IsHero(this.to) and IsUnitAlly(this.to, p) and IsUnitInRange(this.from, u, GetUnitState(u, ConvertUnitState(0x16))) and EnemyFilter(p, this.from, {["魔免"] = true, ["建筑"] = true}) then
+                                if this.from and IsHero(this.to) and IsUnitAlly(this.to, p) and IsPlayer(GetOwningPlayer(this.from)) and IsUnitInRange(this.from, u, GetUnitState(u, ConvertUnitState(0x16))) and EnemyFilter(p, this.from, {["魔免"] = true, ["建筑"] = true}) then
+                                    Mark(u, "反击目标", this.from)
                                     if not IssueTargetOrder(u, "attack", this.from) then
                                         Debug("<防御塔反击目标失败>" .. GetUnitName(this.from))
                                     end
@@ -280,6 +281,7 @@
                                                 elseif a then
                                                     MoveLightningEx(ln, false, 0, 0, 999999, 0, 0, 999999)
                                                     Mark(this.from, "攻击目标", false)
+                                                    Mark(this.from, "反击目标", false)
                                                     a = false
                                                 end
                                             end
