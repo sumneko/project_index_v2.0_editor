@@ -17,7 +17,7 @@
         cool = 5,
         rng = {450, 500, 550, 600},
         icon = 3,
-        cast = 0.1,
+        cast = 0.3,
         time = 6,
         dur = 6,
         targs = GetTargs("地面,空中,敌人,有机生物"),
@@ -28,7 +28,7 @@
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00每秒伤害|r: %s(|cff0000ff+%d|r)\
 |cffffcc00恢复比例|r: %s%%\n\
-|cff888888每0.5秒吸取一次生命\n当距离超过施法距离的1.5倍后技能被打断\n必须通过该技能杀死单位才能获得对应的伪装\n伪装不使用的话可以一直保存,使用后消失\n伪装状态下使用此技能无法获得新的伪装",
+|cff888888每0.5秒吸取一次生命\n当距离超过施法距离的1.5倍后技能被打断\n伪装不使用的话可以一直保存,使用后消失\n伪装状态下使用此技能无法获得新的伪装",
         researchtip = "伪装状态下也可以获得新的伪装",
         data = {
             {20, 30, 40, 50}, --每秒伤害1   
@@ -52,12 +52,15 @@
                 local count = 0
                 local t = LoopRun(0.05,
                     function()
-                        if GetBetween(u1, u2) > ml then
+                        if GetBetween(u1, u2) > ml or IsUnitDead(u2) then
                             IssueImmediateOrder(u1, "stop")
+                            if IsUnitDead(u2) then
+                                
+                            end
                             return
                         end
-                        local x1, y1, z1 = GetUnitX(u1), GetUnitY(u1), GetUnitZ(u1) + 75
-                        local x2, y2, z2 = GetUnitX(u2), GetUnitY(u2), GetUnitZ(u2) + 75
+                        local x1, y1, z1 = GetUnitX(u1), GetUnitY(u1), GetUnitZ(u1) + 125
+                        local x2, y2, z2 = GetUnitX(u2), GetUnitY(u2), GetUnitZ(u2) + 125
                         MoveLightningEx(l, true, x1, y1, z1, x2, y2, z2)
                         count = count + 1
                         if count % 10 == 0 then
@@ -89,6 +92,7 @@
                     this.flush() 
                 end
             elseif this.event == "获得技能" then
+                
             end
         end
     }
@@ -197,6 +201,32 @@
         code = function(this)
             if this.event == "发动技能" then
                 
+            end
+        end
+    }
+    
+    --伪装
+    InitSkill{
+        name = "伪装",
+        type = {"主动"},
+        ani = "stand",
+        art = {"BTNInvisibility.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        mana = {50},
+        cool = 0,
+        cast = 3,
+        tip = "\
+经过3秒的伪装,艾扎力变化为 |cffffcc00%s|r 的外观并拥有技能 |cffffcc00%s|r.\
+如果你全程在敌方的视野外完成伪装,敌方将视你为友方单位,同时你的位置不会显示在敌方的小地图上.\
+如果你在伪装状态下对敌方单位造成伤害或使用英雄技能,则会被敌方识破.\n\
+|cff888888对野怪造成伤害不会暴露\n使用 |cffffcc00%s|r 不会暴露\n在敌方视野外造成伤害不会暴露\n在敌方视野外使用英雄技能不会暴露\
+        ",
+        data = {
+            "未知单位类型",
+            "未知技能"
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
             end
         end
     }
