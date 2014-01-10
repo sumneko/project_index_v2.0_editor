@@ -582,8 +582,8 @@
         local smart = OrderId("smart")
         local trg = CreateTrigger()
         
-        TriggerRegisterAnyUnitEventBJ(smart2attack, EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER)
-        TriggerAddCondition(smart2attack, Condition(
+        TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER)
+        TriggerAddCondition(trg, Condition(
             function()
                 if GetIssuedOrderId() == smart then
                     local p = GetTriggerPlayer()
