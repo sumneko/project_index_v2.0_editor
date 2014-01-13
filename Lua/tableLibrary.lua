@@ -69,10 +69,8 @@
     
     --创建有默认值的表
     table.new = function(v)
-        local nt = {}
-        setmetatable(nt, {__index = function()
+        return setmetatable({}, {__index = function()
             return v
         end})
-        return nt
     end
     

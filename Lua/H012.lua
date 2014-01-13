@@ -122,6 +122,7 @@
             if this.event == "发动技能" then
                 local move = this:get(1)
                 local time = this:get("dur")
+                TempEffect(this.target, "Abilities\\Spells\\Other\\Silence\\SilenceAreaBirth.mdl")
                 forRange(this.target, this:get("area"),
                     function(u)
                         if EnemyFilter(this.player, u) then
@@ -194,7 +195,7 @@
 |cffffcc00反击伤害|r: %s(|cff0000ff+%d|r)\
 |cffffcc00对同一单位的反击间隔|r: %s\n\
 |cff888888艾扎力必须处于原典保护范围内才会生效\n弹道速率为%d",
-        researchtip = "",
+        researchtip = "不再能吸收伤害,但是反击间隔减少1秒",
         data = {
             {50, 60, 70, 80}, --吸收比例1
             {150, 275, 400, 525}, --吸收上限2
@@ -205,13 +206,81 @@
             function(ap) --反击伤害加成5
                 return ap * 0.75
             end,
-            {1, 0.75, 0.5, 0.25}, --反击间隔6
+            {2, 1.75, 1.5, 1.25}, --反击间隔6
             750, --弹道速率7
         },
         events = {"发动技能"},
         code = function(this)
             if this.event == "发动技能" then
-                
+                local time = this:get("dur")
+                local target = this.target
+                local flag = false
+                local effect
+                local dis = this:get("area")
+                local mod = CreateModle("Doodads\\BlackCitadel\\Props\\RuneArt\\RuneArt2.mdl", target, {size = 5, time = time, remove = true})
+                LoopRun(0.1,
+                    function()
+                        if GetBetween(this.unit, target) < dis then
+                            if not flag then
+                                flag = true
+                                effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\Drain\\ManaDrainTarget.mdl", this.unit, "origin")
+                            end
+                        end
+                    end
+                )
+                local s = this:get(1)
+                local hp = this:get(2) + this:get(3)
+                local dam = this:get(4) + this:get(5)
+                local cd = this:get(6)
+                if this.research then
+                    cd = cd - 1
+                end
+                local speed = this:get(7)
+                local lasttime = table.new(0)
+                local func = Event("伤害减免",
+                    function(damage)
+                        if damage.to == this.unit and flag then
+                            if not this.research then
+                                local d = damage.odamage * s / 100
+                                d = math.min(d, damage.damage, hp)
+                                damage.damage = damage.damage - d
+                                hp = hp - d
+                                if hp <= 0 then
+                                    KillUnit(mod)
+                                end
+                            end
+                            local time = GetTime()
+                            if damage.from and EnemyFilter(this.player, damage.from) and time - lasttime[damage.from] > cd then
+                                lasttime[damage.from] = time
+                                MoverEx(
+                                    {
+                                        source = MovePoint(target, {GetRandomInt(0, dis), GetRandomInt(1, 360)}),
+                                        from = this.unit,
+                                        modle = "Abilities\\Spells\\Undead\\DeathCoil\\DeathCoilMissile.mdl",
+                                        speed = speed,
+                                        target = damage.from,
+                                        z = 100,
+                                        tz = 100,
+                                    },
+                                    nil,
+                                    function(move)
+                                        Damage(move.from, move.target, dam, false, true, {damageReason = this.name})
+                                    end
+                                )
+                            end
+                        end
+                    end
+                )
+                local func2
+                func2 = Event("死亡",
+                    function(data)
+                        if data.unit == mod then
+                            Event("-伤害减免", func)
+                            Event("-死亡", func2)
+                            DestroyEffect(effect)
+                        end
+                    end
+                )
             end
         end
     }
