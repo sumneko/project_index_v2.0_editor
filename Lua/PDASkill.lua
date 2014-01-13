@@ -2,7 +2,7 @@
 |cffffcc00生命值|r     %d/%d (|cff11ff11%+.2f|r)\
 |cffffcc00法力值|r     %d/%d (|cff11ff11%+.2f|r)\
 \
-|cffffcc00攻击速度|r  %.2f (最大400)\
+|cffffcc00攻击速度|r  %.2f (最大500)\
 |cffffcc00移动速度|r  %.2f (|cff11ff11%+.2f|r) (最大1000)\
 \
 |cffffcc00护甲|r       %d (|cff11ff11%.2f%%|r)\
@@ -36,7 +36,7 @@
         local str = string.format(stateString,
             GetUnitState(u, UNIT_STATE_LIFE), GetUnitState(u, UNIT_STATE_MAX_LIFE), hp,--生命值
             GetUnitState(u, UNIT_STATE_MANA), GetUnitState(u, UNIT_STATE_MAX_MANA), mp,--法力值
-            (Mark(u, "额外攻击速度") or 0) * 100, --额外攻击速度
+            (Mark(u, "额外攻击速度") or 0) * 100 + 100, --额外攻击速度
             GetUnitMoveSpeed(u), Mark(u, "额外移动速度") or 0, --额外移动速度
             def, dr, --护甲
             ant, ar, --抗性
