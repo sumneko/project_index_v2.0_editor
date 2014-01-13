@@ -112,15 +112,64 @@
 使用原典的力量让一个区域内的敌人被迫放弃武装,使他们|cffffcc00缴械|r并|cffffcc00减速|r.\n\
 |cff00ffcc技能|r: 点目标\n\
 |cffffcc00降低移速|r: %s%%\n\
-|cff888888缴械效果可以驱散",
-        researchtip = "",
+|cff888888缴械与减速效果可以驱散",
+        researchtip = "受影响的英雄/非英雄提供给你25%的攻击力与10%/5%的移动速度",
         data = {
             {25, 30, 35, 40} --降低移速1
         },
         events = {"发动技能"},
         code = function(this)
             if this.event == "发动技能" then
-                
+                local move = this:get(1)
+                local time = this:get("dur")
+                forRange(this.target, this:get("area"),
+                    function(u)
+                        if EnemyFilter(this.player, u) then
+                            SkillEffect{
+                                from = this.unit,
+                                to = u,
+                                name = this.name,
+                                data = this,
+                                aoe = true,
+                                code = function(data)
+                                    if this.research then
+                                        local attack = (GetUnitState(data.to, ConvertUnitState(0x14)) + GetUnitState(data.to, ConvertUnitState(0x15))) / 2
+                                        local ms = GetUnitMoveSpeed(data.to)
+                                        if IsHero(data.to) then
+                                            attack = attack * 0.25
+                                            ms = ms * 0.1
+                                        else
+                                            attack = attack * 0.25
+                                            ms = ms * 0.05
+                                        end
+                                        
+                                        Attack(data.from, attack)
+                                        MoveSpeed(data.from, ms)
+                                        Wait(time,
+                                            function()
+                                                Attack(data.from, - attack)
+                                                MoveSpeed(data.from, -ms)
+                                            end
+                                        )
+                                    end
+                                    SlowUnit{
+                                        from = data.from,
+                                        to = data.to,
+                                        time = time,
+                                        aoe = true,
+                                        move = move,
+                                    }
+                                    DisarmUnit{
+                                        from = data.from,
+                                        to = data.to,
+                                        aoe = true,
+                                        time = time
+                                    }
+                                end
+                            }
+                        end
+                    end
+                )
             end
         end
     }

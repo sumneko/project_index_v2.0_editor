@@ -497,6 +497,42 @@
         end
     end
     
+    --缴械单位
+    DisarmUnit = function(data)
+        if toEvent("debuff", "缴械", data) then return end
+        local t = Mark(data.to, "缴械")
+        if not t then
+            t = {
+                timer = CreateTimer(),
+                targettime = 0,
+                func = function()
+                    DestroyTimer(t.timer)
+                    Mark(data.to, "缴械", false)
+                    EnableAttack(data.to)
+                    DestroyEffect(t.effect)
+                end,
+                effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\TalkToMe\\TalkToMe.mdl", data.to, "overhead")
+            }
+            Mark(data.to, "缴械", t)
+            EnableAttack(data.to, false)
+        end
+        local target = data.time + GetTime()
+        if target > t.targettime then
+            TimerStart(t.timer, data.time, false, t.func)
+        end
+    end
+    
+    Event("驱散",
+        function(this)
+            if this.debuff then
+                local that = Mark(data.to, "缴械")
+                if that then
+                    that.func()
+                end
+            end
+        end
+    )
+    
     --无敌
     EnableGod = function(u, b)
         if b == false then
