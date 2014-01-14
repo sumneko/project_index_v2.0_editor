@@ -69,6 +69,9 @@
         elseif data.time == 0 then
             data.time = 0.001
         end
+        if data.researchtip then
+            data.research = {}
+        end
     end
     
     require "SkillLibrary.lua"
