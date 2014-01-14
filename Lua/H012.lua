@@ -107,6 +107,7 @@
         mana = {120, 130, 140, 150},
         dur = {2, 2.5, 3, 3.5},
         cool = 15,
+        rng = 400,
         area = {250, 300, 350, 400},
         tip = "\
 使用原典的力量让一个区域内的敌人被迫放弃武装,使他们|cffffcc00缴械|r并|cffffcc00减速|r.\n\
@@ -184,8 +185,9 @@
         cast = 0.3,
         mana = 125,
         dur = 10,
-        cool = 20,
+        cool = 30,
         area = 400,
+        rung = 400,
         tip = "\
 将原典抄写在地面上,利用原典的特质来保护自己,为艾扎力吸收伤害并反击伤害来源.当原典吸收到一定的伤害后会自行崩溃.\n\
 |cff00ffcc技能|r: 点目标\
@@ -195,7 +197,7 @@
 |cffffcc00反击伤害|r: %s(|cff0000ff+%d|r)\
 |cffffcc00对同一单位的反击间隔|r: %s\n\
 |cff888888艾扎力必须处于原典保护范围内才会生效\n弹道速率为%d",
-        researchtip = "不再能吸收伤害,但是反击间隔减少1秒",
+        researchtip = "不再能吸收伤害,但是反击间隔减少3秒",
         data = {
             {50, 60, 70, 80}, --吸收比例1
             {150, 275, 400, 525}, --吸收上限2
@@ -206,7 +208,7 @@
             function(ap) --反击伤害加成5
                 return ap * 0.75
             end,
-            {2, 1.75, 1.5, 1.25}, --反击间隔6
+            {6, 5.5, 5, 4.5}, --反击间隔6
             750, --弹道速率7
         },
         events = {"发动技能"},
@@ -233,7 +235,7 @@
                 local dam = this:get(4) + this:get(5)
                 local cd = this:get(6)
                 if this.research then
-                    cd = cd - 1
+                    cd = cd - 3
                 end
                 local speed = this:get(7)
                 local lasttime = table.new(0)
@@ -288,14 +290,15 @@
     --金星之枪
     InitSkill{
         name = "金星之枪",
-        type = {"主动", 1},
+        type = {"主动", 2},
         ani = "spell 1",
         art = {"BTNJXR Ico.blp"},
         cast = 0.1,
         mana = {150, 200, 250},
         time = 0.75,
         cool = {30, 20, 10},
-        area = 100,
+        area = 50,
+        rng = 2000,
         tip = "\
 用黑曜石匕首反射金星的光芒,分解被照射到的单位或建筑,造成大量伤害,此外还会根据对方最大生命值造成额外伤害.\n\
 |cff00ffcc技能|r: 点目标\
@@ -304,9 +307,9 @@
 |cffffcc00伤害(固定部分)|r: %s(|cff0000ff+%d|r)\n\
 |cff888888轨迹线仅友方可见\n施法延迟0.75秒\n伤害在4秒内分5段造成",
         researchtip = {
-            "",
-            "",
-            "",
+            "伤害持续期间目标单位无法恢复生命值",
+            "每段伤害会溅射给附近的敌方单位,溅射范围由100逐渐扩大至200",
+            "金星之枪可以穿透第一个单位,对第二个单位也照成同样的效果",
         },
         data = {
             {30, 40, 50}, --最大生命值部分1
@@ -315,10 +318,133 @@
                 return ap * 2
             end
         },
-        events = {"发动技能"},
+        events = {"发动技能", "停止施放", "施放结束"},
         code = function(this)
             if this.event == "发动技能" then
-                
+                local a = GetBetween(this.unit, this.target, true)
+                local x1, y1 = GetXY(this.unit)
+                local p2 = MovePoint(this.unit, {this:get("rng"), a})
+                local x2, y2 = GetXY(p2)
+                local dam = this:get(2) + this:get(3)
+                local s = this:get(1)
+                local l = AddLightningEx("LN01", false, x1, y1, 100, x2, y2, 100)
+                if IsPlayerAlly(this.player, SELFP) then
+                    SetLightningColor(l, 1, 0, 0, 0.5)
+                else
+                    SetLightningColor(l, 1, 0, 0, 0)
+                end
+                this.stopfunc = function()
+                    DestroyLightning(l)
+                end
+                this.spellfunc = function()
+                    local l = Lightning{
+                        from = this.unit,
+                        name = 'AFOD',
+                        check = false,
+                        x1 = x1,
+                        y1 = y1,
+                        z1 = 100,
+                        x2 = x2,
+                        y2 = y2,
+                        z2 = 100,
+                        cut = true,
+                        time = 0.25
+                    }
+                    local g = {}
+                    local p1 = {l.x1, l.y1}
+                    forSeg(p1, p2, this:get("area") * 2,
+                        function(u)
+                            if EnemyFilter(this.player, u, {["建筑"] = true}) then
+                                table.insert(g, u)
+                            end
+                        end
+                    )
+                    local round = 1
+                    if this.research[3] then
+                        round = 2
+                    end
+                    for i = 1, round do
+                        local u = table.getone(g,
+                            function(u1, u2)
+                                return GetBetween(p1, u1) < GetBetween(p1, u2)
+                            end
+                        )
+                        if u then
+                            SkillEffect{
+                                name = this.name,
+                                from = this.unit,
+                                to = u,
+                                data = this,
+                                code = function(data)
+                                    local dam = dam + s * GetUnitState(data.to, UNIT_STATE_MAX_LIFE) / 100
+                                    dam = dam / 5
+                                    local count = 0
+                                    local mhp = GetRecover(data.to)
+                                    local fakeend
+                                    if this.research[1] then
+                                        Recover(data.to, -mhp)
+                                        local func = Event("治疗减免",
+                                            function(heal)
+                                                if heal.to == data.to then
+                                                    heal.heal = 0
+                                                end
+                                            end
+                                        )
+                                        local oldRecover = Recover
+                                        Recover = function(u, hp, mp)
+                                            if u == data.to then
+                                                mhp = mhp + hp
+                                                hp = 0
+                                            end
+                                            oldRecover(u, hp, mp)
+                                        end
+                                        fakeend = function()
+                                            Event("-治疗减免", func)
+                                            Recover = oldRecover
+                                        end
+                                    end
+                                    local aoearea = 100
+                                    local p = GetOwningPlayer(data.from)
+                                    LoopRun(1,
+                                        function()
+                                            if IsUnitAlive(data.to) then
+                                                DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Demon\\DemonBoltImpact\\DemonBoltImpact.mdl", data.to, "origin"))
+                                                Damage(data.from, data.to, dam, true, true, {damageReason = this.name})
+                                                if this.research[2] then
+                                                    forRange(data.to, aoearea,
+                                                        function(u)
+                                                            if u ~= data.to and EnemyFilter(p, u, {["建筑"] = true}) then
+                                                                DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Demon\\DemonBoltImpact\\DemonBoltImpact.mdl", u, "origin"))
+                                                                Damage(data.from, u, dam, true, true, {damageReason = this.name, aoe = true})
+                                                            end
+                                                        end
+                                                    )
+                                                    aoearea = aoearea + 25
+                                                end
+                                            end
+                                            count = count + 1
+                                            if count == 5 then
+                                                EndLoop()
+                                                if fakeend then
+                                                    fakeend()
+                                                end
+                                            end
+                                        end
+                                    )
+                                end
+                            }
+                            local x2, y2 = GetXY(u)
+                            MoveLightningEx(l.l, false, l.x1, l.y1, 100, x2, y2, 100)
+                            table.remove2(g, u)
+                        end
+                    end
+                end
+            elseif this.event == "施放结束" then
+                this.spellfunc()
+            elseif this.event == "停止施放" then
+                if this.spellflag then
+                    this.stopfunc()
+                end
             end
         end
     }
