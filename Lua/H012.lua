@@ -7,6 +7,8 @@
     HeroSize[12] = 1.1
     LearnSkillId = {|A19S|, |A19T|, |A19U|, |A19V|}
     
+    local skilltable = {}
+    
     --剥离
     InitSkill{
         name = "剥离",
@@ -55,7 +57,12 @@
                         if GetBetween(u1, u2) > ml or IsUnitDead(u2) then
                             IssueImmediateOrder(u1, "stop")
                             if IsUnitDead(u2) then
-                                
+                                local name = GetUnitName(u2)
+                                local skill = skilltable[name]
+                                if skill then
+                                    RemoveSkill(this.unit, "伪装")
+                                    AddSkill(this.unit, "伪装", {data = {name, skill, skill}, unittype = GetUnitTypeId(u2)})
+                                end
                             end
                             return
                         end
@@ -92,7 +99,7 @@
                     this.flush() 
                 end
             elseif this.event == "获得技能" then
-                
+                AddSkill(this.unit, "伪装", {type = {"被动"}})
             end
         end
     }
@@ -452,9 +459,9 @@
     --伪装
     InitSkill{
         name = "伪装",
-        type = {"主动"},
+        type = {"开关"},
         ani = "stand",
-        art = {"BTNInvisibility.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNInvisibility.blp", "BTNInvisibility.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = {50},
         cool = 0,
         cast = 3,
@@ -462,16 +469,97 @@
 经过3秒的伪装,艾扎力变化为 |cffffcc00%s|r 的外观并拥有技能 |cffffcc00%s|r.\
 如果你全程在敌方的视野外完成伪装,敌方将视你为友方单位,同时你的位置不会显示在敌方的小地图上.\
 如果你在伪装状态下对敌方单位造成伤害或使用英雄技能,则会被敌方识破.\n\
-|cff888888对野怪造成伤害不会暴露\n使用 |cffffcc00%s|r 不会暴露\n在敌方视野外造成伤害不会暴露\n在敌方视野外使用英雄技能不会暴露\
-        ",
+|cff888888对野怪造成伤害不会暴露\n使用 |cffffcc00%s|r |cff888888不会暴露\n在敌方视野外造成伤害不会暴露\n在敌方视野外使用英雄技能不会暴露",
         data = {
             "未知单位类型",
+            "未知技能",
             "未知技能"
         },
-        events = {"发动技能"},
+        events = {"发动技能", "获得技能", "失去技能", "关闭技能"},
         code = function(this)
             if this.event == "发动技能" then
+                RemoveSkill(this.unit, "伪装技能")
+                AddSkill(this.unit, this:get(2))
+            elseif this.event == "获得技能" then
+                if this.unittype then
+                    local name = this:get(2)
+                    local sid = SkillTable[name]
+                    local skill =  SkillTable[sid]
+                    AddSkill(this.unit, "伪装技能", {tip = skill.tip, data = skill.data})
+                end
+            elseif this.event == "失去技能" then
+                RemoveSkill(this.unit, "伪装技能")
+                RemoveSkill(this.unit, this:get(2))
+            elseif this.event == "关闭技能" then
+                RemoveSkill(this.unit, "伪装技能")
+                RemoveSkill(this.unit, this:get(2))
             end
         end
     }
-        
+    
+    --特殊技能
+    InitSkill{
+        name = "伪装技能",
+        type = {"被动"},
+        art = {"BTNInvisibility.blp"},
+        tip = "\
+在这里显示伪装后的技能说明",
+        data = {},
+        events = {},
+        code = function(this)
+        end
+    }
+    
+    --伪装的技能
+    skilltable["宗教狂热者"] = "狂热"
+    
+    InitSkill{
+        name = "狂热",
+        type = {"被动"},
+        art = {"BTNUnholyFrenzy.blp"},
+        tip = "\
+|cffff00cc武器效果:|r提升自己 |cffffcc00%d|r 点攻击速度,最多提升 |cffffcc00%d|r 点,持续 |cffffcc00%d|r 秒.",
+        data = {
+            15,
+            150,
+            5
+        },
+        events = {"获得技能", "失去技能"},
+        code = function(this)
+            if this.event == "获得技能" then
+                local as = this:get(1)
+                local maxas = this:get(2)
+                local time = this:get(3)
+                this.as = 0
+                this.func = Event("伤害效果",
+                    function(damage)
+                        if damage.from == this.unit and damage.weapon then
+                            if this.as < maxas then
+                                this.as = this.as + as
+                                AttackSpeed(this.unit, as)
+                                if not this.effect then
+                                    this.effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\Bloodlust\\BloodlustTarget.mdl", this.unit, "weapon")
+                                end
+                            end
+                            if not this.timer then
+                                this.timer = CreateTimer()
+                            end
+                            TimerStart(this.timer, time, false, this.flush)
+                        end
+                    end
+                )
+                this.flush = function()
+                    if this.as > 0 then
+                        DestroyEffect(this.effect)
+                        DestroyTimer(this.timer)
+                        this.effect = nil
+                        this.timer = nil
+                        AttackSpeed(this.unit, - this.as)
+                        this.as = 0
+                    end
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            end
+        end
+    }
