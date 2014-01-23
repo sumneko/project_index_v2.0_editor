@@ -69,7 +69,7 @@
         elseif data.time == 0 then
             data.time = 0.001
         end
-        if data.researchtip then
+        if type(data.researchtip) == "table" then
             data.research = {}
         end
     end
