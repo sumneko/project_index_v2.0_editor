@@ -213,3 +213,22 @@
         end
     )
     
+    --发布指令事件
+    trg = CreateTrigger()
+    TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_UNIT_ISSUED_ORDER)
+    TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER)
+    TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER)
+    TriggerAddCondition(trg, Condition(
+        function()
+            local u = GetTriggerUnit()
+            local event = GetTriggerEventId()
+            if event == EVENT_PLAYER_UNIT_ISSUED_ORDER then
+                toEvent("无目标指令", {unit = u})
+            elseif event == EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER then
+                toEvent("物体目标指令", {unit = u})
+            elseif event == EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER then
+                toEvent("点目标指令", {unit = u})
+            end
+        end
+    ))
+    
