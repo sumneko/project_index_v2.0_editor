@@ -57,11 +57,34 @@
                         if GetBetween(u1, u2) > ml or IsUnitDead(u2) then
                             IssueImmediateOrder(u1, "stop")
                             if IsUnitDead(u2) then
+                                local that = findSkillData(this.unit, "伪装")
+                                if that.openflag then
+                                    if this.research then
+                                        local name = GetUnitName(u2)
+                                        local skill = skilltable[name]
+                                        if skill then
+                                            DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIem\\AIemTarget.mdl", this.unit, "origin"))
+                                            that.newdata = {
+                                                lv = this.lv,
+                                                art = {"BTNInvisibility.blp", getObj(slk.unit, GetUnitTypeId(u2), "Art", "\\BTNInvisibility.blp"):match("([^\\]+.blp)"), "BTNWispSplode.blp"},
+                                                data = {name, skill, skill},
+                                                unittype = GetUnitTypeId(u2)
+                                            }
+                                        end
+                                    end
+                                    return
+                                end --如果已经处于伪装状态,则不再获得新的伪装效果
                                 local name = GetUnitName(u2)
                                 local skill = skilltable[name]
                                 if skill then
+                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIem\\AIemTarget.mdl", this.unit, "origin"))
                                     RemoveSkill(this.unit, "伪装")
-                                    AddSkill(this.unit, "伪装", {data = {name, skill, skill}, unittype = GetUnitTypeId(u2)})
+                                    AddSkill(this.unit, "伪装", {
+                                        lv = this.lv,
+                                        art = {"BTNInvisibility.blp", getObj(slk.unit, GetUnitTypeId(u2), "Art", "\\BTNInvisibility.blp"):match("([^\\]+.blp)"), "BTNWispSplode.blp"},
+                                        data = {name, skill, skill},
+                                        unittype = GetUnitTypeId(u2)
+                                    })
                                 end
                             end
                             return
@@ -479,20 +502,233 @@
         code = function(this)
             if this.event == "发动技能" then
                 RemoveSkill(this.unit, "伪装技能")
-                AddSkill(this.unit, this:get(2))
+                AddSkill(this.unit, this:get(2), {lv = this.lv})
+                --判定是否全程处于视野外
+                local stime, ustime = Mark(this.unit, "变为可见的时间"), Mark(this.unit, "变为不可见的时间")
+                this.flush = nil
+                if ustime > stime and GetTime() - ustime > this:get("cast") then
+                    local name = "Units\\NightElf\\Owl\\Owl.mdl"
+                    if IsUnitEnemy(this.unit, SELFP) then
+                        MinimapIcon(this.unit, false)
+                        name = ""
+                    end
+                    
+                    for i = 0, 5 do
+                        SetPlayerAlliance(PA[i], this.player, ALLIANCE_PASSIVE, true)
+                        SetPlayerAlliance(PB[i], this.player, ALLIANCE_PASSIVE, true)
+                    end
+                    
+                    this.effect = AddSpecialEffectTarget(name, this.unit, "overhead")
+                    
+                    local func1 = Event("伤害前",
+                        function(damage)
+                            if damage.from == this.unit then
+                                --如果是野怪则跳过
+                                if GetOwningPlayer(this.to) == Player(12) then return end
+                                --如果是敌方单位
+                                if IsUnitEnemy(damage.to, this.player) then
+                                    --如果在敌方视野内
+                                    if Mark(this.unit, "变为可见的时间") > Mark(this.unit, "变为不可见的时间") then
+                                        this.flush()
+                                    end
+                                end
+                            end
+                        end
+                    )
+                    
+                    local func2 = Event("发动英雄技能",
+                        function(that)
+                            if that.unit == this.unit and that.name ~= this:get(2) then
+                                --如果在敌方视野内
+                                if Mark(this.unit, "变为可见的时间") > Mark(this.unit, "变为不可见的时间") then
+                                    this.flush()
+                                end
+                            end
+                        end
+                    )
+                    
+                    this.flush = function()
+                        Event("-伤害前", func1)
+                        Event("-发动英雄技能", func2)
+                        MinimapIcon(this.unit, true)
+                        local tid = GetPlayerTeam(this.player)
+                        local ps
+                        if tid == 0 then
+                            ps = PB
+                        else
+                            ps = PA
+                        end
+                        for i = 0, 5 do
+                            SetPlayerAlliance(ps[i], this.player, ALLIANCE_PASSIVE, false)
+                        end
+                        DestroyEffect(this.effect)
+                    end
+                end
+                
+                --画面特效
+                local dummy = CreateUnitAtLoc(this.player, this.unittype, GetUnitLoc(this.unit), GetUnitFacing(this.unit))
+                UnitAddAbility(dummy, |Aloc|)
+                UnitAddAbility(dummy, |Abun|)
+                RemoveGuardPosition(dummy)
+                FlyEnable(dummy)
+                local al = 255
+                local alf1 = function()
+                    al = al - 5
+                    return al
+                end
+                local alf2 = function()
+                    al = al + 5
+                    return al
+                end
+                local alf = alf1
+                local x, y = GetXY(this.unit)
+                local flag = GetPlayerTeam(this.player) == GetPlayerTeam(SELFP)
+                --local walkflag = false
+                if flag then
+                    SetUnitVertexColor(dummy, 255, 255, 255, 0)
+                else
+                    SetUnitVertexColor(this.unit, 255, 255, 255, 0)
+                end
+                local timer = Loop(0.02,
+                    function()
+                        if flag then
+                            local al2 = math.min(255, alf())
+                            
+                            SetUnitVertexColor(this.unit, 255, 255, 255, al2)
+                            SetUnitVertexColor(dummy, 255, 255, 255, 255 - al2)
+                            if al == 0 then
+                                alf = alf2
+                            elseif al == 255 * 2 then
+                                alf = alf1
+                            end
+                        end
+                        local x2, y2 = GetXY(this.unit)
+                        SetUnitX(dummy, x2)
+                        SetUnitY(dummy, y2)
+                        SetUnitFacing(dummy, GetUnitFacing(this.unit))
+                        if x == x2 and y == y2 and GetUnitCurrentOrder(dummy) ~= 0 then
+                            IssueImmediateOrder(dummy, "stop")
+                        end
+                        x, y = x2, y2
+                    end
+                )
+                
+                local func1 = Event("无目标指令",
+                    function(data)
+                        if data.unit == this.unit then
+                            IssueImmediateOrder(dummy, "stop")
+                            SetUnitAnimation(dummy, "stand")
+                            
+                        end
+                    end
+                )
+                
+                local func2 = Event("攻击",
+                    function(data)
+                        if data.from == this.unit then
+                            local s = (Mark(this.unit, "额外攻击速度") or 0) + 1
+                            SetUnitTimeScale(dummy, s)
+                            IssueImmediateOrder(dummy, "stop")
+                            SetUnitAnimation(dummy, "attack")
+                            QueueUnitAnimation(dummy, "stand")                           
+                        end
+                    end
+                )
+                
+                local func3 = SetUnitAnimation
+                local func4 = QueueUnitAnimation
+                
+                SetUnitAnimation = function(u, name)
+                    if u == this.unit then
+                        IssueImmediateOrder(dummy, "stop")
+                        SetUnitTimeScale(dummy, 1)
+                        func3(dummy, name)
+                        
+                    end
+                    func3(u, name)
+                end
+                
+                QueueUnitAnimation = function(u, name)
+                    if u == this.unit then
+                        func4(dummy, name)
+                        
+                    end
+                    func4(u, name)
+                end
+                
+                local func5 = AddSpecialEffectTarget
+                
+                if not flag then
+                    AddSpecialEffectTarget = function(m, u, p)
+                        if u == this.unit then
+                            u = dummy
+                        end
+                        return func5(m, u, p)
+                    end
+                end
+                
+                local func6 = Event("物体目标指令",
+                    function(data)
+                        if data.unit == this.unit then
+                            IssueTargetOrder(dummy, "move", GetOrderTarget())
+                        end
+                    end
+                )
+                
+                local func7 = Event("点目标指令",
+                    function(data)
+                        if data.unit == this.unit then
+                            IssuePointOrderLoc(dummy, "move", GetOrderPointLoc())
+                        end
+                    end
+                )
+                
+                local func8 = SetUnitFlyHeight
+                
+                SetUnitFlyHeight = function(u, h, r)
+                    if u == this.unit then
+                        func8(dummy, h, r)
+                    end
+                    func8(u, h, r)
+                end
+                
+                this.flush2 = function()
+                    DestroyTimer(timer)
+                    RemoveUnit(dummy)
+                    SetUnitVertexColor(this.unit, 255, 255, 255, 255)
+                    Event("-无目标指令", func1)
+                    Event("-攻击", func2)
+                    SetUnitAnimation = func3
+                    QueueUnitAnimation = func4
+                    AddSpecialEffectTarget = func5
+                    Event("-物体目标指令", func6)
+                    Event("-点目标指令", func7)
+                    SetUnitFlyHeight = func8
+                end
+                
             elseif this.event == "获得技能" then
                 if this.unittype then
                     local name = this:get(2)
                     local sid = SkillTable[name]
                     local skill =  SkillTable[sid]
-                    AddSkill(this.unit, "伪装技能", {tip = skill.tip, data = skill.data})
+                    AddSkill(this.unit, "伪装技能", {lv = this.lv, art = skill.art, tip = skill.tip, data = skill.data, newname = skill.name})
                 end
             elseif this.event == "失去技能" then
                 RemoveSkill(this.unit, "伪装技能")
                 RemoveSkill(this.unit, this:get(2))
             elseif this.event == "关闭技能" then
+                if this.flush then
+                    this.flush()
+                end
+                this.flush2()
                 RemoveSkill(this.unit, "伪装技能")
                 RemoveSkill(this.unit, this:get(2))
+                Wait(0.01,
+                    function()
+                        RemoveSkill(this.unit, this.name)
+                        AddSkill(this.unit, this.name, this.newdata or {type = {"被动"}})
+                    end
+                )
             end
         end
     }
@@ -505,24 +741,31 @@
         tip = "\
 在这里显示伪装后的技能说明",
         data = {},
-        events = {},
+        events = {"获得技能", "升级技能"},
         code = function(this)
+            if this.event == "获得技能" or this.event == "升级技能" then
+                local ab = japi.EXGetUnitAbility(this.unit, this.id)
+                japi.EXSetAbilityDataString(ab, 1, 215, this.newname .. " - |cffffcc00需要伪装状态下才会生效|r")
+                RefreshTips(this.unit)
+            end
         end
     }
     
     --伪装的技能
-    skilltable["宗教狂热者"] = "狂热"
+    
+    --宗教狂热
+    skilltable["宗教狂热者"] = "宗教狂热"
     
     InitSkill{
-        name = "狂热",
+        name = "宗教狂热",
         type = {"被动"},
         art = {"BTNUnholyFrenzy.blp"},
         tip = "\
-|cffff00cc武器效果:|r提升自己 |cffffcc00%d|r 点攻击速度,最多提升 |cffffcc00%d|r 点,持续 |cffffcc00%d|r 秒.",
+|cffff00cc武器效果:|r提升自己 |cffffcc00%s|r 点攻击速度,最多提升 |cffffcc00%s|r 点,持续 %s 秒.",
         data = {
-            15,
-            150,
-            5
+            10,
+            100,
+            {6, 9, 12, 15}
         },
         events = {"获得技能", "失去技能"},
         code = function(this)
@@ -557,6 +800,85 @@
                         AttackSpeed(this.unit, - this.as)
                         this.as = 0
                     end
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+                Event("-伤害效果", this.func)
+            end
+        end
+    }
+    
+    --魔法师的火球术
+    skilltable["魔法师"] = "魔法师的火球术"
+    
+    InitSkill{
+        name = "魔法师的火球术",
+        type = {"主动", 1},
+        art = {"BTNFireBolt.blp"},
+        cast = 0.1,
+        mana = 50,
+        cool = 10,
+        targs = GetTargs("地面,空中,敌人"),
+        tip = "\
+对一个目标造成 %s(|cff0000ff+%d|r) 点法术伤害.\
+\
+|cff888888弹道速度为%d",
+        data = {
+            {75, 125, 175, 225},
+            function(ap)
+                return ap * 1.2
+            end,
+            1500
+        },
+        events = {"发动技能"},
+        code = function(this)
+            local d = this:get(1) + this:get(2)
+            MoverEx(
+                {
+                    from = this.unit,
+                    target = this.target,
+                    modle = "Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl",
+                    size = 1.5,
+                    speed = this:get(3),
+                    z = 100,
+                    tz = 100,
+                },
+                nil,
+                function(move)
+                    Damage(move.from, move.target, d, false, true, {damageReason = this.name})
+                end
+            )
+        end
+    }
+    
+    --圣歌咏唱
+    skilltable["主教"] = "圣歌咏唱"
+    
+    InitSkill{
+        name = "圣歌咏唱",
+        type = {"被动"},
+        art = {"BTNHolyBolt.blp"},
+        tip = "\
+|cffff00cc武器效果:|r 对建筑物额外造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+        data = {
+            {50, 75, 100, 125},
+            function(ap)
+                return ap * 0.75
+            end
+        },
+        events = {"获得技能", "失去技能"},
+        code = function(this)
+            if this.event == "获得技能" then
+                local func1 = Event("伤害效果",
+                    function(damage)
+                        if damage.from == this.unit and damage.weapon and IsUnitType(damage.to, UNIT_TYPE_STRUCTURE) then
+                            Damage(damage.from, damage.to, this:get(1) + this:get(2), false, true, {damageReason = this.name})
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-伤害效果", func1)
                 end
             elseif this.event == "失去技能" then
                 this.flush()
