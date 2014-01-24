@@ -592,6 +592,9 @@
                                         skill.type2 = skill.type
                                         skill.type = {"开关"}
                                         
+                                        skill.time2, skill.cast2 = skill.time, skill.cast
+                                        skill.time, skill.cast = 0.001, 0
+                                        
                                         --修改耗蓝
                                         skill.mana2 = skill.mana
                                         skill.mana = 0
@@ -610,10 +613,14 @@
                                                 skill.tip, skill.untip = skill.untip, skill.tip
                                                 skill.data, skill.undata = skill.undata, skill.data
                                             end
+                                            
                                             if skill.art[3] then
                                                 skill.art[2], skill.art[3] = skill.art[3], skill.art[2]
                                             end
+                                            
                                             skill.type = skill.type2
+                                            
+                                            skill.time, skill.cast = skill.time2, skill.cast2
                                             
                                             if skill.events["关闭技能"] then
                                                 skill.event = "关闭技能"
