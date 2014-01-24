@@ -669,6 +669,22 @@
         RefreshTips(u)
     end
     
+    --关闭小地图图标
+    SetAltMinimapIcon("null_16_16.blp")
+    
+    MinimapIcon = function(u, b)
+        if b then
+            Mark(u, "小地图图标", (Mark(u, "小地图图标") or 0) - 1)
+        else
+            Mark(u, "小地图图标", (Mark(u, "小地图图标") or 0) + 1)
+        end
+        if Mark(u, "小地图图标") == 0 then
+            UnitSetUsesAltIcon(u, false)
+        else
+            UnitSetUsesAltIcon(u, true)
+        end
+    end
+    
     --创建模型
     CreateModle = function(mod, p, data)
         data = data or {}
