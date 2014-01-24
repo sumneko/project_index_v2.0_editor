@@ -572,6 +572,10 @@
                 local u2 = GetOrderTargetUnit()
                 if IsUnitEnemy(u2, GetOwningPlayer(u1)) then
                     IssueTargetOrder(u1, "attack", u2)
+                elseif u1 == u2 then
+                    IssueImmediateOrder(u1, "stop")
+                else
+                    IssueTargetOrder(u1, "move", u2)
                 end
             end
         end

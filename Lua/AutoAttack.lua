@@ -1,7 +1,6 @@
 
     local stop = OrderId("stop")
     local attack = OrderId("attack")
-    local smart = OrderId("smart")
     local move = OrderId("move")
     
     local mark
@@ -37,7 +36,7 @@
             local s = GetIssuedOrderId()
             if s == stop then
                 StopAttack(GetTriggerUnit(), true)
-            elseif s == attack or s == smart or s == move then
+            elseif s == attack  or s == move then
                 StopAttack(GetTriggerUnit(), false)
             end
         end
