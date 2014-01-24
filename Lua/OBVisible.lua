@@ -40,6 +40,8 @@
             local i = GetPlayerId(GetOwningPlayer(data.unit))
             if i < 12 and i ~= 0 and i ~= 6 and GetUnitAbilityLevel(data.unit, |Aloc|)==0 and not IsUnitType(data.unit, UNIT_TYPE_MECHANICAL) then --属于玩家的,不是马甲的,不是机械的
                 local p = GetOwningPlayer(data.unit)
+                Mark(data.unit, "变为可见的时间", 0)
+                Mark(data.unit, "变为不可见的时间", -1)
                 g[data.unit] = GetPlayerTeam(p)
                 code(data.unit, g[data.unit])
             end
