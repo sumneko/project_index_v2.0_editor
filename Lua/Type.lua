@@ -335,14 +335,14 @@
     
     MoveLightningEx = function(l, b, x1, y1, z1, x2, y2, z2)
         if b then
-            local r, g, b = GetLightningColorR(l), GetLightningColorG(l), GetLightningColorB(l)
+            local r, g, b = 1, 1, 1
             if IsVisibleToPlayer(x1, y1, SELFP) or IsVisibleToPlayer(x2, y2, SELFP) then
                 SetLightningColor(l, r, g, b, 1)
             else
                 SetLightningColor(l, r, g, b, 0)
             end
         end
-        return jass.MoveLightningEx(l, b, x1, y1, z1, x2, y2, z2)
+        return jass.MoveLightningEx(l, false, x1, y1, z1, x2, y2, z2)
     end
     
     --自定义默认值
