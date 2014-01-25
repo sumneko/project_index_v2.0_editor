@@ -6,9 +6,9 @@
         skillOnly = {
             ["健步如飞"] = function(this)
                 if this.event == "获得" then
-                    MoveSpeed(this.unit, 40)
+                    MoveSpeed(this.unit, 30)
                 elseif this.event == "失去" then
-                    MoveSpeed(this.unit, -40)
+                    MoveSpeed(this.unit, -30)
                 end
             end
         }
@@ -95,7 +95,7 @@
         use = function(this)
             local u = this.unit
             AddAP(u, 60)
-            local e = AddSpecialEffectTarget("Abilities\\Spells\\Undead\\AbsorbMana\\AbsorbManaBirthMissile.mdl", this.unit, "head")
+            local e = AddSpecialEffectTarget("Abilities\\Spells\\Undead\\AbsorbMana\\AbsorbManaBirthMissile.mdl", this.unit, "overhead")
             Wait(5,
                 function()
                     AddAP(u, -60)
