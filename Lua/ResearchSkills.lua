@@ -531,7 +531,7 @@
             end
             Event("可见度",
                 function(data)
-                    if data.unit == this.hero and reason == false then
+                    if data.unit == this.hero and data.reason == false then
                         MoveSpeed(data.unit, 100)
                         Wait(3,
                             function()
