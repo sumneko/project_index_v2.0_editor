@@ -441,6 +441,7 @@
         end
         skills[skill.id] = nil
         skills[skill.name] = nil
+        skill.id = 0
         return true
     end
 	
