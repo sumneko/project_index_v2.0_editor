@@ -408,6 +408,7 @@
             )
         end
         japi.EXSetAbilityState(data, 1, c)
+        return c
     end
     
     --增加攻击速度
