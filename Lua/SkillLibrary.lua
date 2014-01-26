@@ -348,7 +348,8 @@
     --燃烧单位
     FireUnit = function(data)
         if toEvent("debuff", "燃烧", data) then return end
-        local flashdamage = data.damage / (data.time + 1)
+        local time = math.floor(data.time)
+        local flashdamage = data.damage / (time + 1)
         local timed = -1
         data.dot = true
         local e = AddSpecialEffectTarget("Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeDamageTarget.mdl", data.to, "origin")
@@ -356,7 +357,7 @@
             function()
                 Damage(data.from, data.to, flashdamage, false, true, data)
                 timed = timed + 1
-                if timed >= data.time then
+                if timed >= time then
                     EndLoop()
                     DestroyEffect(e)
                 end
