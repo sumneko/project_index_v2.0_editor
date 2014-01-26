@@ -3,9 +3,14 @@
         function(damage)
             if damage.missile or not damage.weapon then return end
             
+            damage.attackfuncs = {}
+            
             local u1 = getObj(slk.unit, GetUnitTypeId(damage.from))
             
-            if not u1.Missileart or u1.Missileart == ".mdl" then return end
+            if not u1.Missileart or u1.Missileart == ".mdl" then 
+                toEvent("攻击出手", damage)
+                return 
+            end
             
             local u2 = getObj(slk.unit, GetUnitTypeId(damage.to))
             
@@ -35,6 +40,7 @@
                 attack = true,
                 data = {damage = damage},
                 code = function(move)
+                    
                     Damage(move.from, move.target, move.data.damage.sdamage, true, false, move.data.damage)
                 end
             }
@@ -44,8 +50,20 @@
             MoverEx(table.copy(move), nil, move.code)
             
             toEvent("远程攻击弹道", move)
+            
+            toEvent("攻击出手", damage)
 
             return true --取消此次伤害
         end
     )    
+    
+    Event("伤害效果",
+        function(damage)
+            if damage.attackfuncs then
+                for _, func in ipairs(damage.attackfuncs) do
+                    func(damage)
+                end
+            end
+        end
+    )
     
