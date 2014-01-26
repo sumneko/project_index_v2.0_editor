@@ -261,6 +261,7 @@
                             if flag then
                                 flag = false
                                 DestroyEffect(effect)
+                                effect = nil
                             end
                         end
                     end
@@ -314,7 +315,9 @@
                         if data.unit == mod then
                             Event("-伤害减免", func)
                             Event("-死亡", func2)
-                            DestroyEffect(effect)
+                            if effect then
+                                DestroyEffect(effect)
+                            end
                         end
                     end
                 )
@@ -1379,7 +1382,7 @@
         data = {
             {150, 250, 300, 450},
             function(ap)
-                return ap * 1.5
+                return ap * 2
             end,
             {1.5, 1.75, 2, 2.25}
         },
@@ -1406,6 +1409,7 @@
                             sttime = GetTime()
                             SetUnitAnimation(move.from, "attack slam")
                             QueueUnitAnimation(move.from, "attack slam")
+                            QueueUnitAnimation(move.from, "attack slam")
                             TimerStart(timer, t, false,
                                 function()
                                     MoveSpeed(move.target, 10000)
@@ -1428,3 +1432,214 @@
             end
         end
     }
+    
+    --疗伤
+    skilltable["无能力武装集团小头目"] = "疗伤"
+    
+    InitSkill{
+        name = "疗伤",
+        type = {"开关"},
+        art = {"BTNHealingSalve.blp", "BTNHealingSalve.blp", "BTNWispSplode.blp"},
+        mana = 25,
+        area = 600,
+        tip = "\
+每秒为附近受伤最严重的一个友方英雄进行治疗,为其回复 %s(|cff0000ff+%d|r) 点生命值.每次为英雄治疗需要消耗 |cffffcc00%s|r 点法力.",
+        data = {
+            {15, 20, 25, 30},
+            function(ap)
+                return ap * 0.15
+            end,
+            10
+        },
+        events = {"发动技能", "关闭技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local effect = AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\Tranquility\\TranquilityTarget.mdl", this.unit, "origin")
+                local timer = Loop(1,
+                    function()
+                        local mp = GetUnitState(this.unit, UNIT_STATE_MANA)
+                        if mp < this:get(3) then return end
+                        local g = {}
+                        forRange(this.unit, this:get("area"),
+                            function(u)
+                                if IsHero(u) and IsUnitAlly(u, this.player) and IsUnitAlive(u) and GetUnitState(u, UNIT_STATE_LIFE) < GetUnitState(u, UNIT_STATE_MAX_LIFE) then
+                                    table.insert(g, u)
+                                end
+                            end
+                        )
+                        if #g == 0 then return end
+                        local u = table.getone(g,
+                            function(u1, u2)
+                                return GetUnitState(u1, UNIT_STATE_LIFE) < GetUnitState(u2, UNIT_STATE_LIFE)
+                            end
+                        )
+                        SetUnitState(this.unit, UNIT_STATE_MANA, mp - this:get(3))
+                        Heal(this.unit, u, this:get(1) + this:get(2), {healReason = this.name, modle = "Abilities\\Spells\\Human\\Heal\\HealTarget.mdl"})
+                            
+                    end
+                )
+                
+                this.flush = function()
+                    DestroyEffect(effect)
+                    DestroyTimer(timer)
+                end
+                
+            elseif this.event == "关闭技能" then
+                this.flush()
+            end
+        end
+    }
+    
+    --燃烧弹
+    skilltable["无能力武装集团机枪手"] = "燃烧弹"
+    
+    InitSkill{
+        name = "燃烧弹",
+        type = {"开关"},
+        art = {"BTNFireBolt.blp", "BTNFireBolt.blp", "BTNWispSplode.blp"},
+        tip = "\
+开启后将使用燃烧弹进行攻击,|cffffcc00燃烧|r 并 |cffffcc00减速|r 目标,总计造成 %s(|cff0000ff+%d|r) 点法术伤害并降低其 |cffffcc00%s%%|r 的移动速度,持续 %s 秒.每次攻击消耗 |cffffcc00%s|r 点法力.",
+        data = {
+            {20, 35, 50, 65},
+            function(ap)
+                return ap * 0.3
+            end,
+            35, --减速3
+            {1.5, 2, 2.5, 3}, --持续时间4
+            15, --耗蓝5
+        },
+        events = {"发动技能", "关闭技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                Mark(this.unit, "弹道模型", "Abilities\\Weapons\\RedDragonBreath\\RedDragonMissile.mdl")
+                
+                local func1 = Event("攻击出手",
+                    function(damage)
+                        if damage.from == this.unit then
+                            local mp = this:get(5)
+                            local nmp = GetUnitState(this.unit, UNIT_STATE_MANA)
+                            if nmp < mp then return end
+                            SetUnitState(this.unit, UNIT_STATE_MANA, nmp - mp)
+                            local d = this:get(1) + this:get(2)
+                            local ms = this:get(3)
+                            local t = this:get(4)
+                            
+                            table.insert(damage.attackfuncs,
+                                function(damage)
+                                    SlowUnit{
+                                        from = damage.from,
+                                        to = damage.to,
+                                        time = t,
+                                        move = ms
+                                    }
+                                    
+                                    FireUnit{
+                                        from = damage.from,
+                                        to = damage.to,
+                                        time = t,
+                                        damage = d
+                                    }
+                                end
+                            )
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-攻击出手", func1)
+                    Mark(this.unit, "弹道模型", false)
+                end
+            elseif this.event == "关闭技能" then
+                this.flush()
+            end
+            
+        end
+    }
+    
+    --医疗波
+    skilltable["类人猿"] = "医疗波"
+    
+    InitSkill{
+        name = "医疗波",
+        type = {"主动", 1},
+        art = {"BTNHealingWave.blp"},
+        rng = 600,
+        mana = {75, 100, 125, 150},
+        cool = 15,
+        targs = GetTargs("地面,空中,自己,玩家单位,联盟"),
+        tip = "\
+发射一道可以跳跃 %s 次的医疗波,为友方单位回复 %s(|cff0000ff+%d|r) 的生命值.每次跳跃后治疗效果将比前一次减少 |cffffcc00%s|r%%.",
+        data = {
+            {5, 6, 7, 8},
+            {75, 100, 125, 150},
+            function(ap)
+                return ap * 1.5
+            end,
+            15
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local n = this:get(1)
+                local h = this:get(2) + this:get(3)
+                local s = this:get(4)
+                local lu = this.unit
+                local u = this.target
+                local area = this:get("rng")
+                local units = {}
+                
+                local func1 = function()
+                    local x1, y1 = GetXY(lu)
+                    local x2, y2 = GetXY(u)
+                    local z1, z2 = GetUnitZ(lu) + 75, GetUnitZ(u) + 75
+                    local l = AddLightningEx('HWPB', true, x1, y1, z1, x2, y2, z2)
+                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Orc\\HealingWave\\HealingWaveTarget.mdl", u, "origin"))
+                    Heal(this.unit, u, h, {healReason = this.name})
+                    Wait(0.5,
+                        function()
+                            local a = 1
+                            Loop(0.05,
+                                function()
+                                    a = a - 0.05
+                                    if a > 0 then
+                                        SetLightningColor(l, 1, 1, 1, a)
+                                    else
+                                        DestroyLightning(l)
+                                        EndLoop()
+                                    end
+                                end
+                            )
+                        end
+                    )
+                end
+                
+                LoopRun(0.25,
+                    function()
+                        func1()
+                        if n > 0 then
+                            n = n - 1
+                            h = h - h * s / 100
+                            units[u] = true
+                            local g = {}
+                            forRange(u, area,
+                                function(u)
+                                    if not units[u] and IsUnitAlly(u, this.player) and IsUnitAlive(u) and GetUnitState(u, UNIT_STATE_LIFE) < GetUnitState(u, UNIT_STATE_MAX_LIFE) then
+                                        table.insert(g, u)
+                                    end
+                                end
+                            )
+                            if #g == 0 then
+                                EndLoop()
+                            else
+                                lu = u
+                                u = g[GetRandomInt(1, #g)]
+                            end
+                        else
+                            EndLoop()
+                        end
+                    end
+                )
+            end
+        end
+    }
+    
