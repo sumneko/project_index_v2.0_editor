@@ -431,6 +431,9 @@
         if not skill then return end
         local id = skill.id
         local skills = Mark(u, "技能")
+        if skill.type[1] == "开关" and skill.openflag then
+            skill:closeskill()
+        end
         toEvent("失去技能", {unit = u, skill = id, abil = skill})
         UnitRemoveAbility(u, id)
         for i = 5, 99 do
