@@ -61,7 +61,7 @@
     Event("伤害结算后",
         function(damage)
             if IsUnitDead(damage.to) then
-                toEvent("死亡",  "死亡后", {unit = damage.to, killer = damage.from, data = damage})
+                toEvent("死亡", {unit = damage.to, killer = damage.from, data = damage})
             end
         end
     )
@@ -71,7 +71,7 @@
     TriggerAddCondition(trg, Condition(
         function()
             if not eventDeadFlag then
-                toEvent("死亡",  "死亡后", {unit = GetTriggerUnit(), killer = GetKillingUnit()})
+                toEvent("死亡", {unit = GetTriggerUnit(), killer = GetKillingUnit()})
             end
         end
     ))
@@ -80,17 +80,30 @@
     KillUnit = function(u)
         if u then
             jass.KillUnit(u)
-            toEvent("死亡", "死亡后", {unit = u})
+            toEvent("死亡", {unit = u})
         end
     end
     
-    --删除单位也触发死亡后事件
+    --删除单位事件
     RemoveUnit = function(u)
         if u then
-            toEvent("死亡后", {unit = u})
+            toEvent("删除单位", {unit = u})
             jass.RemoveUnit(u)
         end
     end
+    
+    Event("死亡",
+        function(data)
+            if IsHero(data.unit) then return end
+            local t = tonumber(getObj(slk.unit, GetUnitTypeId(data.unit), "death", 3))
+            if t > 1000 then return end
+            Wait(t,
+                function()
+                    RemoveUnit(data.unit)
+                end
+            )
+        end
+    )
     
     --进入地图事件
     do
@@ -100,7 +113,6 @@
                 print(string.format("<ERROR>没有成功创建单位:(%s,%s,%s,%s,%s)", p, i, x, y, f))
                 return
             end
-            Mark(u)
             toEvent("进入地图", {unit = u})
             return u
         end
@@ -205,11 +217,9 @@
         end
     ))
     
-    Event("死亡后",
+    Event("删除单位",
         function(data)
-            if IsHeroUnitId(GetUnitTypeId(data.unit)) and not IsHero(data.unit) then
-                herolevel[data.unit] = nil
-            end
+            herolevel[data.unit] = nil
         end
     )
     
