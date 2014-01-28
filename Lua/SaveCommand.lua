@@ -63,7 +63,7 @@
             end
             Wait(0,
                 function()
-                    if GetUnitCurrentOrder(hero) == 0 then
+                    if GetUnitCurrentOrder(hero) == 0 and IsUnitAlive(hero) then
                         local last = last[hero]
                         if last == nil then
                             return
