@@ -535,6 +535,42 @@
         end
     )
     
+    --束缚单位
+    BoundUnit = function(data)
+        if toEvent("debuff", "束缚", data) then return end
+        local t = Mark(data.to, "束缚")
+        if not t then
+            t = {
+                timer = CreateTimer(),
+                targettime = 0,
+                func = function()
+                    DestroyTimer(t.timer)
+                    Mark(data.to, "束缚", false)
+                    MoveSpeed(data.to, 10000)
+                    DestroyEffect(t.effect)
+                end,
+                effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\Ensnare\\ensnareTarget.mdl", data.to, "origin")
+            }
+            Mark(data.to, "束缚", t)
+            MoveSpeed(data.to, -10000)
+        end
+        local target = data.time + GetTime()
+        if target > t.targettime then
+            TimerStart(t.timer, data.time, false, t.func)
+        end
+    end
+    
+    Event("驱散",
+        function(this)
+            if this.debuff then
+                local that = Mark(data.to, "束缚")
+                if that then
+                    that.func()
+                end
+            end
+        end
+    )
+    
     --无敌
     EnableGod = function(u, b)
         if b == false then
