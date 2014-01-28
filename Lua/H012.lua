@@ -250,7 +250,7 @@
                 local effect
                 local dis = this:get("area")
                 local mod = CreateModle("Doodads\\BlackCitadel\\Props\\RuneArt\\RuneArt2.mdl", target, {size = 5, time = time, remove = true})
-                LoopRun(0.1,
+                local timer = LoopRun(0.1,
                     function()
                         if GetBetween(this.unit, target) < dis then
                             if not flag then
@@ -318,6 +318,7 @@
                             if effect then
                                 DestroyEffect(effect)
                             end
+                            DestroyTimer(timer)
                         end
                     end
                 )
@@ -598,15 +599,17 @@
                 end
                 local alf = alf1
                 local x, y = GetXY(this.unit)
-                --local walkflag = false
+                local walkflag = false
                 local ordertarget
                 if flag then
                     SetUnitVertexColor(dummy, 255, 255, 255, 0)
                 else
                     SetUnitVertexColor(this.unit, 255, 255, 255, 0)
                 end
+                local count = 0
                 local timer = Loop(0.02,
                     function()
+                        count = count + 1
                         if flag then
                             local al2 = math.min(255, alf())
                             
@@ -625,14 +628,16 @@
                         if x == x2 and y == y2 then
                             if GetUnitCurrentOrder(dummy) ~= 0 then
                                 IssueImmediateOrder(dummy, "stop")
+                                walkflag = false
                             end
                         else
-                            if GetUnitCurrentOrder(dummy) == 0 then
+                            if GetUnitCurrentOrder(dummy) == 0 or (walkflag and count % 5 == 0 and math.A2A(GetUnitFacing(this.unit), GetUnitFacing(dummy)) > 15) then
                                 if type(ordertarget) == "table" then
                                     IssuePointOrderLoc(dummy, "move", ordertarget)
                                 else
                                     IssueTargetOrder(dummy, "move", ordertarget)
                                 end
+                                walkflag = true
                             end
                         end
                         x, y = x2, y2
@@ -644,7 +649,7 @@
                         if data.unit == this.unit then
                             IssueImmediateOrder(dummy, "stop")
                             SetUnitAnimation(dummy, "stand")
-                            
+                            walkflag = false
                         end
                     end
                 )
@@ -656,7 +661,8 @@
                             SetUnitTimeScale(dummy, s)
                             IssueImmediateOrder(dummy, "stop")
                             SetUnitAnimation(dummy, "attack")
-                            QueueUnitAnimation(dummy, "stand")                           
+                            QueueUnitAnimation(dummy, "stand")  
+                            walkflag = false
                         end
                     end
                 )
@@ -698,7 +704,7 @@
                         if data.unit == this.unit then
                             ordertarget = GetOrderTarget()
                             IssueTargetOrder(dummy, "move", ordertarget)
-                            
+                            walkflag = true
                         end
                     end
                 )
@@ -708,7 +714,7 @@
                         if data.unit == this.unit then
                             ordertarget = GetOrderPointLoc()
                             IssuePointOrderLoc(dummy, "move", ordertarget)
-                            
+                            walkflag = true
                         end
                     end
                 )
@@ -1102,12 +1108,20 @@
         events = {"发动技能"},
         code = function(this)
             if this.event == "发动技能" then
-                SlowUnit{
-                    from = this.unit,
-                    to = this.target,
-                    time = this:get("dur"),
-                    attack = this:get(1),
-                    move = this:get(2)
+                SkillEffect{
+                    from = move.from,
+                    to = move.to,
+                    name = this.name,
+                    data = this,
+                    code = function(data)
+                        SlowUnit{
+                            from = data.from,
+                            to = data.to,
+                            time = this:get("dur"),
+                            attack = this:get(1),
+                            move = this:get(2)
+                        }
+                    end
                 }
             end
         end
@@ -1643,3 +1657,301 @@
         end
     }
     
+    --净化
+    skilltable["小混混"] = "净化"
+    
+    InitSkill{
+        name = "净化",
+        type = {"主动", 1},
+        art = {"BTNPurge.blp"},
+        rng = {450, 500, 550, 600},
+        mana = {50},
+        cool = {12, 11, 10, 9},
+        targs = GetTargs("地面,空中"),
+        tip = "\
+|cffff00cc对友方:|r立即移除目标身上的负面效果.\
+|cffff00cc对敌方:|r立即移除目标身上的正面效果,并将其的移动速度降为0.被减少的移动速度将在 %s 秒内逐渐恢复.",
+        data = {
+            {3, 3.5, 4, 4.5}
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local t = this:get(1)
+                SkillEffect{
+                    from = this.unit,
+                    to = this.target,
+                    name = this.name,
+                    data = this,
+                    code = function(data)
+                        local effect = AddSpecialEffectTarget("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", data.to, "origin")
+                        if IsUnitAlly(data.to, GetOwningPlayer(data.from)) then
+                            CleanUnit{
+                                from = data.from,
+                                to = data.to,
+                                debuff = true
+                            }
+                        else
+                            CleanUnit{
+                                from = data.from,
+                                to = data.to,
+                                buff = true
+                            }
+                            
+                            local ms = GetUnitMoveSpeed(data.to)
+                            MoveSpeed(data.to, - ms)
+                            local count = math.floor(t / 0.5)
+                            local fms = math.floor(ms / count)
+                            local mms = 0
+                            Loop(0.5,
+                                function()
+                                    if count == 1 then
+                                        MoveSpeed(data.to, ms - mms) --最后一次直接将速度补满,以免除法引起误差
+                                        EndLoop()
+                                        DestroyEffect(effect)
+                                    else
+                                        mms = mms + fms
+                                        MoveSpeed(data.to, fms)
+                                        count = count - 1
+                                    end
+                                end
+                            )
+                            
+                        end
+                    end
+                }
+            end
+        end
+    }
+    
+    --热血战魂
+    skilltable["流氓"] = "热血战魂"
+    
+    InitSkill{
+        name = "热血战魂",
+        type = {"被动"},
+        art = {"BTNCommand.blp"},
+        tip = "\
+每次攻击击中同一个单位时获得 %s%% 的攻击速度提升,最多提升 %s%% .如果改变攻击目标将损失一半的提升.",
+        data = {
+            {16, 22, 28, 34},
+            {64, 88, 112, 136},
+        },
+        events = {"获得技能", "失去技能"},
+        code = function(this)
+            if this.event == "获得技能" then
+                local as = 0
+                local lastunit
+                
+                local func1 = Event("伤害效果",
+                    function(damage)
+                        if damage.from == this.unit and damage.weapon then
+                            local mas = this:get(2)
+                            local uas = math.min(this:get(1), mas - as)
+                            AttackSpeed(this.unit, uas)
+                            as = as + uas
+                            lastunit = damage.to
+                        end
+                    end
+                )
+                
+                local func2 = Event("攻击",
+                    function(data)
+                        if data.from == this.unit and lastunit and data.to ~= lastunit and as > 0 then
+                            lastunit = nil
+                            local nas = math.floor(as / 2)
+                            AttackSpeed(this.unit, nas - as)
+                            as = nas
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-伤害效果", func1)
+                    Event("-攻击", func2)
+                    AttackSpeed(this.unit, - as)
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            end
+        end
+    }
+    
+    --怒意狂击
+    skilltable["魔法变异熊怪"] = "怒意狂击"
+    
+    InitSkill{
+        name = "怒意狂击",
+        type = {"被动"},
+        art = {"BTNability_druid_rake.blp"},
+        tip = "\
+每次攻击撕开目标的伤口,使其受到比上次攻击更多的伤害.撕裂伤口状态持续 |cffffcc00%s|r 秒.每次累积 %s(|cff0000ff+%d|r) 点物理伤害",
+        data = {
+            6,
+            {10, 15, 20, 25},
+            function(ap)
+                return ap * 0.2
+            end
+        },
+        events = {"获得技能", "失去技能"},
+        code = function(this)
+            if this.event == "获得技能" then
+                local units = {}
+                
+                local func1 = Event("伤害加成",
+                    function(damage)
+                        if damage.attack and damage.from == this.unit then
+                            local data = units[damage.to]
+                            if not data then
+                                data = {
+                                    unit = damage.to,
+                                    effect = AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\BattleRoar\\RoarTarget.mdl", damage.to, "overhead"),
+                                    timer = CreateTimer(),
+                                    damage = 0,
+                                    func = function()
+                                        units[data.unit] = nil
+                                        DestroyEffect(data.effect)
+                                        DestroyTimer(data.timer)
+                                    end
+                                }
+                                units[damage.to] = data
+                            end
+                            data.damage = data.damage + this:get(2) + this:get(3)
+                            damage.damage = damage.damage + data.damage
+                            TimerStart(data.timer, this:get(1), false, data.func)
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-伤害加成", func1)
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            end
+        end
+    }
+    
+    --霜之新星
+    skilltable["雪女"] = "霜之新星"
+    
+    InitSkill{
+        name = "霜之新星",
+        type = {"主动", 2},
+        art = {"BTNGlacier.blp"},
+        ani = "spell",
+        rng = 500,
+        area = 175,
+        cast = 0.1,
+        mana = 75,
+        cool = 15,
+        tip = "\
+发射一道霜冻能量,对一条直线上的单位造成 %s(|cff0000ff+%d|r) 点法术伤害并将其 |cffffcc00击晕|r %s 秒.",
+        data = {
+            {75, 100, 125, 150},
+            function(ap)
+                return ap * 0.8
+            end,
+            {0.75, 1, 1.25, 1.5}
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local loc = GetUnitLoc(this.unit)
+                local a = GetBetween(loc, this.target, true)
+                local d = this:get(1) + this:get(2)
+                local t = this:get(3)
+                local area = this:get("area")
+                local count = 0
+                local g = {}
+                Loop(0.05,
+                    function()
+                        loc = MovePoint(loc, {100, a})
+                        TempEffect(loc, "Abilities\\Spells\\Undead\\FrostNova\\FrostNovaTarget.mdl")
+                        forRange(loc, area,
+                            function(u)
+                                if not g[u] and EnemyFilter(this.player, u) then
+                                    g[u] = true
+                                    SkillEffect{
+                                        from = this.unit,
+                                        to = u,
+                                        name = this.name,
+                                        data = this,
+                                        aoe = true,
+                                        code = function(data)
+                                            StunUnit{
+                                                from = data.from,
+                                                to = data.to,
+                                                time = t,
+                                                aoe = true
+                                            }
+                                            
+                                            Damage(data.from, data.to, d, false, true, {damageReason = this.name, aoe = true})
+                                        end
+                                    }
+                                end                                
+                            end
+                        )
+                        count = count + 1
+                        if count == 5 then
+                            EndLoop()
+                        end
+                    end
+                )
+            end
+        end
+    }
+    
+    --蛛网
+    skilltable["黑蜘蛛"] = "蛛网"
+    
+    InitSkill{
+        name = "蛛网",
+        type = {"主动", 1},
+        art = {"BTNWeb.blp"},
+        ani = "spell",
+        rng = 600,
+        cast = 0.1,
+        mana = 75,
+        cool = 12,
+        targs = GetTargs("地面,空中,敌人"),
+        tip = "\
+发射蛛网将目标 |cffffcc00束缚|r 在原地无法移动,持续 %s 秒.\
+\
+|cff888888可以驱散",
+        data = {
+            {2, 3, 4, 5},
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local t = this:get(1)
+                MoverEx(
+                    {
+                        from = this.unit,
+                        target = this.target,
+                        modle = "Abilities\\Spells\\Undead\\Web\\Webmissile.mdl",
+                        speed = 1000,
+                        z = 50,
+                    },
+                    nil,
+                    function(move)
+                        SkillEffect{
+                            from = move.from,
+                            to = move.target,
+                            name = this.name,
+                            data = this,
+                            code = function(data)
+                                BoundUnit{
+                                    from = data.from,
+                                    to = data.to,
+                                    time = t
+                                }
+                            end
+                        }
+                    end
+                )
+            end
+        end
+    }
+            
