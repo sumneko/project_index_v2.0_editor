@@ -106,7 +106,7 @@
     
     --判断单位是否死亡
     IsUnitDead = function(u)
-        return IsUnit(u, nil) or IsUnitType(u, UNIT_TYPE_DEAD)
+        return GetUnitState(u, UNIT_STATE_LIFE) == 0 or IsUnitType(u, UNIT_TYPE_DEAD)
     end
 
     IsUnitAlive = function(u)
