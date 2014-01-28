@@ -37,11 +37,9 @@
         end
     end
     
-    Event("死亡后",
+    Event("删除单位",
         function(data)
-            if not IsHero(data.unit) and units[data.unit] then
-                units[data.unit] = nil
-            end
+            units[data.unit] = nil
         end
     )
     
