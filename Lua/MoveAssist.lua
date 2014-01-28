@@ -44,3 +44,9 @@
         return jass.GetUnitMoveSpeed(u)
     end
     
+    Event("删除单位",
+        function(data)
+            g[data.unit] = nil
+        end
+    )
+    
