@@ -85,25 +85,40 @@
     end
     
     --删除单位事件
-    RemoveUnit = function(u)
-        if u then
-            toEvent("删除单位", {unit = u})
-            jass.RemoveUnit(u)
+    do
+        units = {}
+        
+        RemoveUnit = function(u)
+            if u then
+                toEvent("删除单位", {unit = u})
+                jass.RemoveUnit(u)
+            end
         end
-    end
-    
-    Event("死亡",
-        function(data)
-            if IsHero(data.unit) then return end
-            local t = tonumber(getObj(slk.unit, GetUnitTypeId(data.unit), "death", 3))
-            if t > 1000 then return end
-            Wait(t,
-                function()
-                    RemoveUnit(data.unit)
+        
+        Event("死亡",
+            function(data)
+                if IsHero(data.unit) then return end
+                local t = tonumber(getObj(slk.unit, GetUnitTypeId(data.unit), "death", 3))
+                if t > 1000 then return end
+                units[data.unit] = CreateTimer()
+                TimerStart(units[data.unit], t, false,
+                    function()
+                        RemoveUnit(data.unit)
+                    end
+                )
+            end
+        )
+        
+        Event("删除单位",
+            function(data)
+                local timer = units[data.unit]
+                if timer then
+                    DestroyTimer(timer)
+                    units[data.unit] = nil
                 end
-            )
-        end
-    )
+            end
+        )
+    end
     
     --进入地图事件
     do
