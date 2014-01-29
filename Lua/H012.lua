@@ -429,17 +429,18 @@
                                                 end
                                             end
                                         )
-                                        local oldRecover = Recover
-                                        Recover = function(u, hp, mp)
-                                            if u == data.to then
-                                                mhp = mhp + hp
-                                                hp = 0
+                                        local func2 = Reload("Recover",
+                                            function(u, hp, mp)
+                                                if u == data.to then
+                                                    mhp = mhp + hp
+                                                    hp = 0
+                                                end
+                                                Recover(u, hp, mp)
                                             end
-                                            oldRecover(u, hp, mp)
-                                        end
+                                        )
                                         fakeend = function()
                                             Event("-治疗减免", func)
-                                            Recover = oldRecover
+                                            Reload("-Recover", func2)
                                             Recover(data.to, mhp)
                                         end
                                     end
@@ -501,8 +502,8 @@
         tip = "\
 经过3秒的伪装,艾扎力变化为 |cffffcc00%s|r 的外观并拥有技能 |cffffcc00%s|r.\
 如果你全程在敌方的视野外完成伪装,敌方将视你为友方单位,同时你的位置不会显示在敌方的小地图上.\
-如果你在伪装状态下对敌方单位造成伤害或使用英雄技能,则会被敌方识破.\n\
-|cff888888伪装后攻击范围将对应变化\n对野怪造成伤害不会暴露\n使用 |cffffcc00%s|r |cff888888不会暴露\n在敌方视野外造成伤害不会暴露\n在敌方视野外使用英雄技能不会暴露",
+如果你在伪装状态下对敌方单位造成伤害,使用英雄技能或暴露在真视范围内,则会被敌方识破.\n\
+|cff888888伪装后攻击范围将对应变化\n对野怪造成伤害不会暴露\n使用 |cffffcc00%s|r |cff888888不会暴露\n在敌方视野外造成伤害不会暴露\n在敌方视野外使用英雄技能不会暴露\n处于真视范围内但是不在敌方视野内不会暴露",
         data = {
             "未知单位类型",
             "未知技能",
@@ -562,6 +563,21 @@
                         end
                     )
                     
+                    local p
+                    if GetPlayerTeam(this.player) == 0 then
+                        p = PB[1]
+                    else
+                        p = PA[1]
+                    end
+                    
+                    local timer = Loop(0.1,
+                        function()
+                            if IsUnitDetected(this.unit, p) and IsUnitVisible(this.unit, p) then
+                                this.flush()
+                            end
+                        end
+                    )
+                    
                     this.flush = function()
                         Event("-伤害前", func1)
                         Event("-发动英雄技能", func2)
@@ -579,6 +595,7 @@
                             SetPlayerAlliance(ps[i], this.player, ALLIANCE_PASSIVE, false)
                         end
                         DestroyEffect(this.effect)
+                        DestroyTimer(timer)
                     end
                 end
                 
@@ -667,37 +684,36 @@
                     end
                 )
                 
-                local func3 = SetUnitAnimation
-                local func4 = QueueUnitAnimation
-                
-                SetUnitAnimation = function(u, name)
-                    if u == this.unit then
-                        IssueImmediateOrder(dummy, "stop")
-                        SetUnitTimeScale(dummy, 1)
-                        func3(dummy, name)
-                        
-                    end
-                    func3(u, name)
-                end
-                
-                QueueUnitAnimation = function(u, name)
-                    if u == this.unit then
-                        func4(dummy, name)
-                        
-                    end
-                    func4(u, name)
-                end
-                
-                local func5 = AddSpecialEffectTarget
-                
-                if not flag then
-                    AddSpecialEffectTarget = function(m, u, p)
+                local func3 = Reload("SetUnitAnimation",
+                    function(u, name)
                         if u == this.unit then
+                            IssueImmediateOrder(dummy, "stop")
+                            SetUnitTimeScale(dummy, 1)
+                            SetUnitAnimation(dummy, name)
+                            
+                        end
+                        SetUnitAnimation(u, name)
+                    end
+                )
+                
+                local func4 = Reload("QueueUnitAnimation",
+                    function(u, name)
+                        if u == this.unit then
+                            SetUnitAnimation(dummy, name)
+                            
+                        end
+                        SetUnitAnimation(u, name)
+                    end
+                )
+                
+                local func5 = Reload("AddSpecialEffectTarget",
+                    function(m, u, p)
+                        if not flag and u == this.unit then
                             u = dummy
                         end
-                        return func5(m, u, p)
+                        return AddSpecialEffectTarget(m, u, p)
                     end
-                end
+                )
                 
                 local func6 = Event("物体目标指令",
                     function(data)
@@ -719,14 +735,14 @@
                     end
                 )
                 
-                local func8 = SetUnitFlyHeight
-                
-                SetUnitFlyHeight = function(u, h, r)
-                    if u == this.unit then
-                        func8(dummy, h, r)
+                local func8 = Reload("SetUnitFlyHeight",
+                    function(u, h, r)
+                        if u == this.unit then
+                            SetUnitFlyHeight(dummy, h, r)
+                        end
+                        SetUnitFlyHeight(u, h, r)
                     end
-                    func8(u, h, r)
-                end
+                )
                 
                 this.flush2 = function()
                     SetUnitState(this.unit, UNIT_STATE_ATTACK_RANGE, GetUnitState(this.unit, UNIT_STATE_ATTACK_RANGE) - r)
@@ -735,12 +751,12 @@
                     SetUnitVertexColor(this.unit, 255, 255, 255, 255)
                     Event("-无目标指令", func1)
                     Event("-攻击", func2)
-                    SetUnitAnimation = func3
-                    QueueUnitAnimation = func4
-                    AddSpecialEffectTarget = func5
+                    Reload("-SetUnitAnimation", func3)
+                    Reload("-QueueUnitAnimation", func4)
+                    Reload("-AddSpecialEffectTarget", func5)
                     Event("-物体目标指令", func6)
                     Event("-点目标指令", func7)
-                    SetUnitFlyHeight = func8
+                    Reload("-SetUnitFlyHeight", func8)
                 end
                 
             elseif this.event == "获得技能" then
@@ -845,11 +861,11 @@
         end
     }
     
-    --魔法师的火球术
-    skilltable["魔法师"] = "魔法师的火球术"
+    --火球术
+    skilltable["魔法师"] = "火球术"
     
     InitSkill{
-        name = "魔法师的火球术",
+        name = "火球术",
         type = {"主动", 1},
         art = {"BTNFireBolt.blp"},
         ani = "spell",
@@ -960,11 +976,11 @@
         end
     }
     
-    --警备员的催泪弹
-    skilltable["警备员"] = "警备员的催泪弹"
+    --震荡手雷
+    skilltable["警备员"] = "震荡手雷"
     
     InitSkill{
-        name = "警备员的催泪弹",
+        name = "震荡手雷",
         type = {"主动", 2, 3},
         art = {"BTNLiquidFire.blp"},
         ani = "spell",
@@ -1578,6 +1594,7 @@
         type = {"主动", 1},
         art = {"BTNHealingWave.blp"},
         rng = 600,
+        cast = 0.3,
         mana = {75, 100, 125, 150},
         cool = 15,
         targs = GetTargs("地面,空中,自己,玩家单位,联盟"),
@@ -1689,7 +1706,8 @@
                             CleanUnit{
                                 from = data.from,
                                 to = data.to,
-                                debuff = true
+                                debuff = true,
+                                good = true
                             }
                         else
                             CleanUnit{
@@ -1954,4 +1972,245 @@
             end
         end
     }
-            
+    
+    --毒性之咬
+    skilltable["巨大蜘蛛"] = "毒性之咬"
+    
+    InitSkill{
+        name = "毒性之咬",
+        type = {"被动"},
+        art = {"BTNSlowPoison.blp"},
+        cool = 6,
+        tip = "\
+|cffff00cc武器效果:|r使目标|cffffcc00中毒|r,在 |cffffcc00%s|r 秒内累计造成 %s(|cff0000ff+%d|r) 点法术伤害.\
+\
+|cff888888可以驱散|r",
+        data = {
+            16,
+            {120, 200, 280, 360},
+            function(ap)
+                return ap * 1.7
+            end
+        },
+        events = {"获得技能", "失去技能"},
+        code = function(this)
+            if this.event == "获得技能" then
+                local enable = true
+                
+                local func1 = Event("伤害效果",
+                    function(damage)
+                        if enable and damage.weapon and damage.from == this.unit then
+                            PoisonUnit{
+                                from = this.unit,
+                                to = damage.to,
+                                damage = this:get(2) + this:get(3),
+                                time = this:get(1)
+                            }
+                            
+                            enable = false
+                            UnitRemoveAbility(this.unit, this.id)
+                            UnitAddAbility(this.unit, this.id)
+                            local cd = this:get("cool")
+                            SetSkillCool(this.unit, this.id, cd, cd)
+                            Wait(cd,
+                                function()
+                                    if this.id ~= 0 then
+                                        UnitRemoveAbility(this.unit, this.id)
+                                        UnitAddAbility(this.unit, this.id)
+                                        enable = true
+                                        SetSkillCool(this.unit, this.id, 10000, 1000000)
+                                    end
+                                end
+                            )
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-伤害效果", func1)
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            end
+        end
+    }
+    
+    --冲击波
+    skilltable["异教徒"] = "冲击波"
+    
+    InitSkill{
+        name = "冲击波",
+        type = {"主动", 2},
+        art = {"BTNShockWave.blp"},
+        ani = "spell",
+        rng = 800,
+        area = 175,
+        cast = 0.1,
+        mana = 75,
+        cool = 15,
+        tip = "\
+发射一道冲击波,对一条直线上的单位造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+        data = {
+            {75, 125, 175, 225},
+            function(ap)
+                return ap * 1.1
+            end
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local d = this:get(1) + this:get(2)
+                local area = this:get("area")
+                local a = GetBetween(this.unit, this.target, true)
+                local g = {}
+                
+                Mover(
+                    {
+                        from = this.unit,
+                        angle = a,
+                        speed = 1000,
+                        distance = this:get("rng"),
+                        modle = "Abilities\\Spells\\Orc\\Shockwave\\ShockwaveMissile.mdl",
+                    },
+                    function(move)
+                        if move.count % 5 == 0 then
+                            forRange(move.unit, area,
+                                function(u)
+                                    if not g[u] and EnemyFilter(this.player, u) then
+                                        g[u] = true
+                                        Damage(move.from, u, d, false, true, {damageReason = this.name, aoe = true})
+                                    end
+                                end
+                            )
+                        end
+                    end
+                )
+            end
+        end
+    }
+    
+    --虚妄诺言
+    skilltable["逃亡魔法师"] = "虚妄诺言"
+    
+    InitSkill{
+        name = "虚妄诺言",
+        type = {"主动", 1},
+        art = {"BTNfalsepromise.blp"},
+        ani = "spell",
+        rng = 600,
+        cast = 0.1,
+        mana = {125, 150, 175, 200},
+        cool = 20,
+        dur = 5,
+        targs = GetTargs("地面,空中"),
+        tip = "\
+暂时篡改一个单位的命运,延缓其受到的所有伤害,治疗以及恢复效果,直到虚妄诺言效果结束.\
+被延缓的伤害,治疗以及恢复效果将在虚妄诺言结束后立即生效.\
+\
+|cffff00cc对友方单位:|r被延缓的治疗以及恢复效果在结算时增加 %s%%\
+|cffff00cc对敌方单位:|r被延缓的伤害效果在结算时增加 %s%%",
+        data = {
+            {25, 50, 75, 100},
+            {10, 20, 30, 40},
+        },
+        events = {"发动技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+                local t = this:get("dur")
+                local a1 = this:get(1)
+                local a2 = this:get(2)
+                local effect = AddSpecialEffectTarget("war3mapImported\\falsepromise.mdx", this.target, "chest")
+                local u = this.target
+                if IsUnitAlly(u, this.player) then
+                    a1 = 1 + a1 / 100
+                    a2 = 1
+                else
+                    a1 = 1
+                    a2 = 1 + a2 / 100
+                end
+                
+                local damages = {}
+                local func1 = Event("伤害无效",
+                    function(damage)
+                        if damage.to == u then
+                            table.insert(damages, damage)
+                            dodgeReason = this.name
+                            return true
+                        end
+                    end
+                )
+                
+                local heals = {}
+                local func2 = Event("治疗无效",
+                    function(heal)
+                        if heal.to == u then
+                            table.insert(heals, heal)
+                            dodgeReason = this.name
+                            return true
+                        end
+                    end
+                )
+                
+                local lasthp = GetRecover(u)
+                local mhp = 0
+                Recover(u, - lasthp)
+                local lasttime = this.spellflag
+                
+                local func3 = Reload("Recover",
+                    function(who, hp, mp)
+                        if who == u then
+                            local nowtime = GetTime()
+                            local passtime = nowtime - lasttime
+                            mhp = mhp + lasthp * passtime --记录这段时间内的总恢复
+                            lasttime = nowtime
+                            lasthp = lasthp + hp --记录新的恢复速度
+                            hp = 0
+                        end
+                        Recover(who, hp, mp)
+                    end
+                )
+                
+                Wait(t,
+                    function()
+                        DestroyEffect(effect)
+                        Recover(u, 0) --刷新一下总恢复
+                        Event("-伤害无效", func1)
+                        Event("-治疗无效", func2)
+                        Reload("-Recover", func3)
+                        Recover(u, lasthp)
+                        
+                        --开始回溯
+                        MaxLife(u, 50000, true) --增加血量上限,维持当前血量
+                        local func = Reload("GetUnitState",
+                            function(who, s)
+                                if who == u then
+                                    if s == UNIT_STATE_MAX_LIFE then
+                                        return GetUnitState(who, s) - 50000
+                                    elseif s == UNIT_STATE_LIFE then
+                                        return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_LIFE) - 50000)
+                                    end
+                                end
+                                return GetUnitState(who, s)
+                            end
+                        )
+                        local heal = Heal(this.unit, u, mhp * a1, {healReason = this.name})
+                        Debug(("<虚妄诺言>生命恢复:%.3f"):format(heal.heal))
+                        for _, heal in ipairs(heals) do
+                            local heal = Heal(heal.from, heal.to, heal.sheal * a1, heal)
+                            Debug(("<虚妄诺言>回溯治疗:%.3f"):format(heal.heal))
+                        end
+                        for _, damage in ipairs(damages) do
+                            local damage = Damage(damage.from, damage.to, damage.sdamage * a2, damage.def, damage.ant, damage)
+                            if damage.result == "死亡" then
+                                break
+                            end
+                            Debug(("<虚妄诺言>回溯伤害:%.3f"):format(damage.damage))
+                        end
+                        MaxLife(u, -50000, true)
+                        Reload("-GetUnitState", func)
+                    end
+                )
+                
+            end
+        end
+    }
