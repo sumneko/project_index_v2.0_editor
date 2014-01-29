@@ -9,7 +9,9 @@
         Data.to = to
         Data.heal = heal
         Data.oheal = heal
-        toHeal(Data)
+        Data.sheal = heal
+        Data.mheal = heal
+        return toHeal(Data)
     end
     
     toHeal = function(heal)
@@ -17,17 +19,37 @@
         
         toEvent("治疗前", heal)
         
-        toEvent("治疗加成", heal)
+        if toEvent("治疗无效", heal) then
+            heal.heal = 0
+            
+        else
         
-        toEvent("治疗减免", heal)
+            toEvent("治疗加成", heal)
+            
+            heal.mheal = heal.heal
+            
+            toEvent("治疗减免", heal)
+            
+            toEvent("治疗效果", heal)
+            
+            toEvent("治疗后", heal)
+        end
         
-        toEvent("治疗效果", heal)
+        if IsUnitDead(heal.to) then
+            heal.heal = 0
+            heal.result = "死亡"
+            return heal
+        end
         
-        toEvent("治疗后", heal)
+        if heal.heal < 0 then
+            heal.heal = 0
+        end
         
         SetUnitState(heal.to, UNIT_STATE_LIFE, GetUnitState(heal.to, UNIT_STATE_LIFE) + heal.heal)
         
         toEvent("治疗结算后", heal)
+        
+        return heal
     end
     
         --记录帮助时间
@@ -51,10 +73,10 @@
             HealStack[HealStackTop] = this
             local p = GetOwningPlayer(this.from)
             if this.heal >= 1 then
+                local heal = this.heal
                 for i = HealStackTop + 999, HealStackTop + 1, -1 do --回溯前999次治疗
                     local that = HealStack[i % 1000]
                     if not that then break end
-                    local heal = this.heal
                     if this.time - that.time > 0.1 then break end
                     if this.to == that.to and IsUnitAlly(that.from, p) then
                         heal = heal + that.heal
