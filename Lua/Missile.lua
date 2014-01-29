@@ -7,6 +7,8 @@
             
             local u1 = getObj(slk.unit, GetUnitTypeId(damage.from))
             
+            if not u1 then return end
+            
             if not u1.Missileart or u1.Missileart == ".mdl" then 
                 toEvent("攻击出手", damage)
                 return 
