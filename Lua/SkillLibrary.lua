@@ -527,7 +527,7 @@
     Event("驱散",
         function(this)
             if this.debuff then
-                local that = Mark(data.to, "缴械")
+                local that = Mark(this.to, "缴械")
                 if that then
                     that.func()
                 end
@@ -563,7 +563,7 @@
     Event("驱散",
         function(this)
             if this.debuff then
-                local that = Mark(data.to, "束缚")
+                local that = Mark(this.to, "束缚")
                 if that then
                     that.func()
                 end
