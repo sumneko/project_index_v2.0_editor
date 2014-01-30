@@ -54,6 +54,26 @@
                 local count = 0
                 local t = LoopRun(0.05,
                     function()
+                        local x1, y1, z1 = GetUnitX(u1), GetUnitY(u1), GetUnitZ(u1) + 125
+                        local x2, y2, z2 = GetUnitX(u2), GetUnitY(u2), GetUnitZ(u2) + 125
+                        MoveLightningEx(l, true, x1, y1, z1, x2, y2, z2)
+                        count = count + 1
+                        if count % 10 == 0 then
+                            SkillEffect{
+                                name = this.name,
+                                from = u1,
+                                to = u2,
+                                data = this,
+                                dot = true,
+                                code = function(data)
+                                    local damage = Damage(data.from, data.to, d, false, true, {dot = true, damageReason = this.name})
+                                    local dd = damage.damage
+                                    if dd > 0 then
+                                        Heal(data.from, data.from, dd * s, {healReason = this.name})
+                                    end
+                                end
+                            }
+                        end
                         if GetBetween(u1, u2) > ml or IsUnitDead(u2) then
                             IssueImmediateOrder(u1, "stop")
                             if IsUnitDead(u2) then
@@ -88,26 +108,6 @@
                                 end
                             end
                             return
-                        end
-                        local x1, y1, z1 = GetUnitX(u1), GetUnitY(u1), GetUnitZ(u1) + 125
-                        local x2, y2, z2 = GetUnitX(u2), GetUnitY(u2), GetUnitZ(u2) + 125
-                        MoveLightningEx(l, true, x1, y1, z1, x2, y2, z2)
-                        count = count + 1
-                        if count % 10 == 0 then
-                            SkillEffect{
-                                name = this.name,
-                                from = u1,
-                                to = u2,
-                                data = this,
-                                dot = true,
-                                code = function(data)
-                                    local damage = Damage(data.from, data.to, d, false, true, {dot = true, damageReason = this.name})
-                                    local dd = damage.damage
-                                    if dd > 0 then
-                                        Heal(data.from, data.from, dd * s, {healReason = this.name})
-                                    end
-                                end
-                            }
                         end
                     end
                 )
@@ -699,10 +699,10 @@
                 local func4 = Reload("QueueUnitAnimation",
                     function(u, name)
                         if u == this.unit then
-                            SetUnitAnimation(dummy, name)
+                            QueueUnitAnimation(dummy, name)
                             
                         end
-                        SetUnitAnimation(u, name)
+                        QueueUnitAnimation(u, name)
                     end
                 )
                 
@@ -900,7 +900,16 @@
                 },
                 nil,
                 function(move)
-                    Damage(move.from, move.target, d, false, true, {damageReason = this.name})
+                    SkillEffect{
+                        from = move.from,
+                        to = move.target,
+                        name = this.name,
+                        data = this,
+                        code = function(data)
+                            Damage(data.from, data.to, d, false, true, {damageReason = this.name})
+                        end
+                    }
+                    
                 end
             )
         end
