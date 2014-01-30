@@ -206,8 +206,8 @@
                 local id2 = GetUnitPointValue(data.u2)
                 local word = {}
                 
-                data.assist.gold = Skill.AssistGold[count] * data.gold
-                data.assist.wood = Skill.AssistGold[count] * data.wood
+                data.assist.gold = Kill.AssistGold[count] * data.gold
+                data.assist.wood = Kill.AssistGold[count] * data.wood
                 for _, p in ipairs(data.assist) do --大家分赃
                     GetGold(p, data.assist.gold, data.assist.wood)
                     local i = GetPlayerId(p)
@@ -255,7 +255,7 @@
                 Kill[i1]["快速连杀"] = qk
                 if qk > 1 then
 --%颜色%英雄名|r %连杀文字
-                    print(string.format("%s%s|r %s"), Color[i1], HeroName[id], Kill["快速连杀文字"][qk])
+                    print(string.format("%s%s|r %s", Color[i1], HeroName[id], Kill["快速连杀文字"][qk]))
                 end
             else
                 Kill[i1]["快速连杀"] = 0
