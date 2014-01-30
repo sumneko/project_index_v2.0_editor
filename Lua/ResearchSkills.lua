@@ -774,7 +774,7 @@
             local lastTime = -60
             Event("伤害效果",
                 function(damage)
-                    if damage.from == this.hero and IsHero(damage.to) and GetTime() - lastTime > 10 then
+                    if damage.weapon and damage.from == this.hero and IsHero(damage.to) and GetTime() - lastTime > 10 then
                         lastTime = GetTime()
                         DestroyEffect(AddSpecialEffectTarget("Objects\\Spawnmodels\\Undead\\UndeadDissipate\\UndeadDissipate.mdl", damage.to, "origin"))
                         Damage(damage.from, damage.to, 0.2 * GetUnitState(damage.to, UNIT_STATE_MAX_LIFE), false, false, {damageReason = this.name})
