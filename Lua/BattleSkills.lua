@@ -61,7 +61,7 @@
                 UnitMakeAbilityPermanent(this.hero, true, |A196|)
             end
             IssuePointOrder(this.hero, "sanctuary", GetXY(this.target))
-            Mark(p, "岗哨守卫花费", this.cost)
+            Mark(this.player, "岗哨守卫花费", this.cost)
             SetPlayerState(this.player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(this.player, PLAYER_STATE_RESOURCE_LUMBER) + this.cost)
         end
     }
