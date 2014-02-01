@@ -336,20 +336,20 @@
         art = "ReplaceableTextures\\CommandButtons\\BTNSpellSteal.blp",
         tip = "在商店翻页系统完成前,其他商店放不下的物品会暂时先放在这里",
         items = {
-            "风之鞭", false, false, false,
-            "风魔之弦",   false, false,      false,
-            false,     false, false,      "#商店主页",
+            "风之鞭",   false, false, false,
+            "风魔之弦", false, false, false,
+            false,      false, false, "#商店主页",
         }
     }
     
     InitShopPage{
         name = "#小卖部",
         art = "ReplaceableTextures\\CommandButtons\\BTNPotionGreen.blp",
-        tip = "消耗品",
+        tip = "消耗品(|cffff1111注意!此页面中的道具单击即可购买|r)",
         items = {
-            "当麻面包", false, false, false,
-            "运动饮料",   false, false,      false,
-            false,     false, false,      "#商店主页",
+            "$当麻面包", "$黑子的电脑配件", false, false,
+            "$运动饮料",   "$体晶", false,      false,
+            "$镇定剂",     "$扰乱之羽", false,      "#商店主页",
         }
     }
     
