@@ -535,6 +535,24 @@
         end
     )
     
+    --沉默单位
+    UnitAddAbility(Dummy, |A19W|)
+    
+    SilentUnit = function(data)
+        if toEvent("debuff", "沉默", "无法施法", data) then return end
+        local skill = japi.EXGetUnitAbility(Dummy, |A19W|)
+        japi.EXSetAbilityDataReal(skill, 1, 111, 0)
+        japi.EXSetAbilityDataReal(skill, 1, 102, data.time or 1) --持续时间
+        japi.EXSetAbilityDataReal(skill, 1, 103, data.time or 1) --持续时间
+        IssueTargetOrder(Dummy, "soulburn", data.to)
+    end
+    
+    Event("驱散",
+        function(this)
+            UnitRemoveAbility(this.to, |BNsi|)
+        end
+    )
+    
     --束缚单位
     BoundUnit = function(data)
         if toEvent("debuff", "束缚", data) then return end
