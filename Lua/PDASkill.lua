@@ -1,4 +1,4 @@
-            local stateString = "\
+    local stateString = "\
 |cffffcc00生命值|r     %d/%d (|cff11ff11%+.2f|r)\
 |cffffcc00法力值|r     %d/%d (|cff11ff11%+.2f|r)\
 \
