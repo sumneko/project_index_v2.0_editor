@@ -7,9 +7,9 @@
         end
         if ms > 522 then
             if g[u] then
-                g[u][3] = ms / 522
+                g[u][3] = ms / 522 - 1
             else
-                g[u] = {GetUnitX(u), GetUnitY(u), ms / 522} --结构为 上次的x坐标, 上次的y坐标, 倍率
+                g[u] = {GetUnitX(u), GetUnitY(u), ms / 522 - 1} --结构为 上次的x坐标, 上次的y坐标, 额外倍率
             end
             ms = 522
         else
@@ -26,7 +26,7 @@
                 local l = GetBetween(now, t)
                 if l > 0.001 and l < 5.3 then
                     local a = GetBetween(t, now, true)
-                    t[1], t[2] = x + l * Cos(a), y + l * Sin(a)
+                    t[1], t[2] = x + l * Cos(a) * t[3], y + l * Sin(a) * t[3]
                     SetUnitX(u, t[1])
                     SetUnitY(u, t[2])
                 else
@@ -39,7 +39,7 @@
     GetUnitMoveSpeed = function(u)
         local t = g[u]
         if t then
-            return jass.GetUnitMoveSpeed(u) * t[3]
+            return jass.GetUnitMoveSpeed(u) * (1 + t[3])
         end
         return jass.GetUnitMoveSpeed(u)
     end
