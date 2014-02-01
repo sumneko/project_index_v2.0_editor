@@ -100,6 +100,13 @@
         return item
     end
     
+    GetItemData = function(name, data)
+        local item = Items[name]
+        if item then
+            return item[data]
+        end
+    end
+    
     --创建合成卷轴
     local InitComplexItem = function(name, gold)
         local nname = "合成卷轴(" .. name .. ")"

@@ -52,6 +52,7 @@
             local id = GetSpellAbilityId()
             local skills = PDASkills[u]
             local skill = skills[id]
+            if not skill then return end
             local wood = GetPlayerState(skill.player, PLAYER_STATE_RESOURCE_LUMBER)
             skill.target = GetSpellTargetUnit() or GetSpellTargetLoc()
             if wood < skill.cost then
