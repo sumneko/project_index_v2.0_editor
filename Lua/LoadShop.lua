@@ -347,9 +347,9 @@
         art = "ReplaceableTextures\\CommandButtons\\BTNPotionGreen.blp",
         tip = "消耗品(|cffff1111注意!此页面中的道具单击即可购买|r)",
         items = {
-            "$当麻面包", "$黑子的电脑配件", false, false,
-            "$运动饮料",   "$体晶", false,      false,
-            "$镇定剂",     "$扰乱之羽", false,      "#商店主页",
+            "$当麻面包", "$运动饮料",       false, false,
+            "$镇定剂",   "$黑子的电脑配件", false, false,
+            "$体晶",     "$扰乱之羽",       false, "#商店主页",
         }
     }
     
