@@ -105,6 +105,7 @@
         if item then
             return item[data]
         end
+        print(("<GetItemData>没有找到名称为<%s>的物品"):format(name))
     end
     
     --创建合成卷轴
@@ -348,6 +349,9 @@
                         SetItemCharges(item.item, item.stack)
                         getnum = getnum - item.stack
                     end
+                    if not item.unit and not IsUnitHasEmptySlot(u) then
+                        toEvent("物品栏已满", {unit = u,item = item})
+                    end
                 end
                 if loot then
                     return true
@@ -400,6 +404,7 @@
                 addItemFlag = false
             else
                 --说明是其他单位直接把物品丢给了该单位
+                if not it then return end --说明该物品被丢弃事件给摧毁了,拾取事件跳过
                 loseItemFlag = true
                 SetItemPosition(it, GetUnitX(u), GetUnitY(u))
                 UnitLootItem(u, it)
@@ -432,6 +437,7 @@
     ))
     
     RemoveItem = function(item)
+        if not item then return end
         if type(item) ~= "table" then
             item = Mark(item, "数据")
         end
