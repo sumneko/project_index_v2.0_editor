@@ -3,6 +3,11 @@
     InitItem{
         name = "当麻面包",
         id = |I0CW|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             if this.isitemtarget then
                 this.target = this.unit
@@ -33,6 +38,10 @@
             data.time = data.time + 10
             
             TimerStart(data.timer, data.time - GetTime(), false, data.func)
+            
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
@@ -41,6 +50,11 @@
     InitItem{
         name = "运动饮料",
         id = |I0CX|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             if this.isitemtarget then
                 this.target = this.unit
@@ -71,6 +85,10 @@
             data.time = data.time + 30
             
             TimerStart(data.timer, data.time - GetTime(), false, data.func)
+            
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
@@ -79,6 +97,11 @@
     InitItem{
         name = "镇定剂",
         id = |I0CZ|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             Heal(this.unit, this.unit, 100, {healReason = this.name, modle = "Abilities\\Spells\\Items\\AIma\\AImaTarget.mdl"})
             CleanUnit{
@@ -87,6 +110,10 @@
                 debuff = true,
                 good = true
             }
+            
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
@@ -95,6 +122,11 @@
     InitItem{
         name = "黑子的电脑配件",
         id = |I0D0|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             AttachSoundToUnit(gg_snd_BerserkerCaster, this.unit)
             StartSound(gg_snd_BerserkerCaster)
@@ -125,6 +157,9 @@
                 end
             )
             
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
@@ -133,6 +168,11 @@
     InitItem{
         name = "体晶",
         id = |I0D1|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             local u = this.unit
             DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIre\\AIreTarget.mdl", u, "origin"))
@@ -184,6 +224,10 @@
                     }
                 end
             )
+            
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
@@ -192,6 +236,11 @@
     InitItem{
         name = "扰乱之羽",
         id = |I0D2|,
+        skill = function(this)
+            if this.event == "获得" then
+                PDARestartHeroItemCool(this, this.name)
+            end
+        end,
         use = function(this)
             TempEffect(this.unit, "Abilities\\Spells\\Other\\Silence\\SilenceAreaBirth.mdl")
             forRange(this.unit, 300,
@@ -215,6 +264,10 @@
                     end
                 end
             )
+            
+            if not this.pda then
+                PDAStartPdaItemCool(this, this.name .. 3)
+            end
         end,
         stack = 1000
     }
