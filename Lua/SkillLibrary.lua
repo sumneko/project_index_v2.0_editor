@@ -63,6 +63,11 @@
         end
     end
     
+    --单位是否可以使用物品
+    CanUseItem = function(u)
+        return not toEvent("是否无法使用物品", {unit = u})
+    end
+    
     --击晕单位   单位,时间,来源
     UnitAddAbility(Dummy, |A143|)
     
@@ -129,6 +134,12 @@
         end
     )
     
+    Event("是否无法使用物品",
+        function(this)
+            return GetUnitAbilityLevel(this.unit, |BPSE|) == 1
+        end
+    )
+    
     --减速单位
     UnitAddAbility(Dummy, |A14A|)
     
@@ -166,6 +177,12 @@
             if this.debuff then
                 UnitRemoveAbility(this.to, |BNdo|)
             end
+        end
+    )
+    
+    Event("是否无法使用物品",
+        function(this)
+            return GetUnitAbilityLevel(this.unit, |BNdo|) == 1
         end
     )
     
@@ -328,6 +345,12 @@
         end
     )
     
+    Event("是否无法使用物品",
+        function(this)
+            return GetUnitAbilityLevel(this.unit, |Bcyc|) == 1
+        end
+    )
+    
     --变羊单位
     UnitAddAbility(Dummy, |A18L|)
     
@@ -342,6 +365,12 @@
     Event("驱散",
         function(this)
             UnitRemoveAbility(this.to, |Bply|)
+        end
+    )
+    
+    Event("是否无法使用物品",
+        function(this)
+            return GetUnitAbilityLevel(this.unit, |Bply|) == 1
         end
     )
     
