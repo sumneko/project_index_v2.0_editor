@@ -177,7 +177,7 @@
         id = |I0C6|,
         skill = function(this)
             if this.event == "获得" then
-                Attack(this.unit, 50)
+                Attack(this.unit, 45)
                 Def(this.unit, 60)
                 this.func = Event("伤害减免",
                     function(damage)
@@ -187,7 +187,7 @@
                     end
                 )
             elseif this.event == "失去" then
-                Attack(this.unit, -50)
+                Attack(this.unit, -45)
                 Def(this.unit, -60)
                 Event("-伤害减免", this.func)
             end

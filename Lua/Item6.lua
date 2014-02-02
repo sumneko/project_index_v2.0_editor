@@ -134,7 +134,7 @@
                         end
                         SetItemCharges(this.item, data.power)
                     end
-                    TimerStart(data.timer, 10, true, func)
+                    TimerStart(data.timer, 20, true, func)
                     data.func = Event("技能效果",
                         function(that)
                             if that.to == data.unit and not that.good then

@@ -175,7 +175,7 @@
         id = |I0CE|,
         skill = function(this)
             if this.event == "获得" then
-                Attack(this.unit, 60)
+                Attack(this.unit, 55)
                 AttackSpeed(this.unit, 15)
                 MaxLife(this.unit, 300, true)
                 this.data = {power = 0}
@@ -222,7 +222,7 @@
                     end
                 )
             elseif this.event == "失去" then
-                Attack(this.unit, -60)
+                Attack(this.unit, -55)
                 AttackSpeed(this.unit, -15)
                 MaxLife(this.unit, -300, true)
                 Event("-伤害效果", this.data.func)

@@ -31,9 +31,9 @@
         id = |I0AO|,
         skill = function(this)
             if this.event == "获得" then
-                Attack(this.unit, 40)
+                Attack(this.unit, 35)
             elseif this.event == "失去" then
-                Attack(this.unit, -40)
+                Attack(this.unit, -35)
             end
         end
     }
@@ -67,11 +67,11 @@
         id = |I0AS|,
         skill = function(this)
             if this.event == "获得" then
-                Attack(this.unit, 70)
-                Crit(this.unit, 10)
+                Attack(this.unit, 65)
+                Crit(this.unit, 5)
             elseif this.event == "失去" then
-                Attack(this.unit, -70)
-                Crit(this.unit, -10)
+                Attack(this.unit, -65)
+                Crit(this.unit, -5)
             end
         end,
         skillOnly = {
