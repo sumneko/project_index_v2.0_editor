@@ -174,7 +174,7 @@
         ani = "stand",
         art = {"BTNWhirlwind.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 75,
-        cool = {20, 15, 10, 5},
+        cool = {18, 17, 16, 15},
         area = {600, 700, 800, 900},
         cast = 0.1,
         tip = "\
@@ -228,6 +228,10 @@
                 local si2 = 0
                 Loop(this:get(2),   
                     function()
+                        if IsUnitDead(this.unit) then
+                            endthis()
+                            return
+                        end
                         local g2 = {} --寻找本次要斩击的目标
                         forRange(loc, area,
                             function(u)
