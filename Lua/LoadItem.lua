@@ -568,6 +568,25 @@
         end
     ))
     
+    --移动物品
+    Event("物体目标指令",
+        function(data)
+            local to = data.id - 852001
+            if to > 0 and to < 7 then
+                local it = GetOrderTargetItem()
+                local item = Mark(it, "数据")
+                if item and item.move then
+                    for i = 0, 5 do
+                        if UnitItemInSlot(item.unit, i) == it then
+                            item:move(i + 1, to)
+                            return
+                        end
+                    end
+                end
+            end
+        end
+    )
+    
     --将鼠标右击指令转化为攻击
     local smart = OrderId("smart")
     local smart2attack = CreateTrigger()
