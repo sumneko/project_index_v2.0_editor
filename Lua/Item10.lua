@@ -193,6 +193,7 @@
         name = "扰乱之羽",
         id = |I0D2|,
         use = function(this)
+            TempEffect(this.unit, "Abilities\\Spells\\Other\\Silence\\SilenceAreaBirth.mdl")
             forRange(this.unit, 300,
                 function(u)
                     if EnemyFilter(this.player, u) then
