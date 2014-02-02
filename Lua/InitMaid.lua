@@ -20,7 +20,8 @@
         InitPDASkill(PDA[i])
         
         --添加物品
-        
+        require "PDAItem.lua"
+        InitPDAItem(PDA[i])
     end
     
     --创建家务女仆
