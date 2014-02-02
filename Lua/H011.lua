@@ -301,7 +301,7 @@
         ani = "spell 2",
         art = {"BTN__landvin__3.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = {150, 300, 450},
-        area = 100,
+        area = 125,
         cool = 150,
         tip = "\
 向其他御坂妹妹求援,潜伏在战场的御坂妹妹们将分别狙击一个敌方英雄,对一条直线上的单位造成伤害.被重复击中时受到的伤害减半.\n\
@@ -375,7 +375,7 @@
                                             aoe = true
                                         },
                                         function(move)
-                                            if move.count % 2 == 0 then --每0.4秒,即180距离判定一次
+                                            if move.count % 2 == 0 then --每0.04秒,即120距离判定一次
                                                 forRange(move.unit, area,
                                                     function(u)
                                                         if EnemyFilter(this.player, u) then
