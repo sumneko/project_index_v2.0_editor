@@ -53,27 +53,3 @@
             SaveInteger(LuaHT, 0, 0, 1) --通报lua引擎启动成功
         end
     end
-    
-    string2id = function(s)
-        local id = 0
-        local i = -1
-        local n = 1
-        while true do
-            local sub = string.byte(s, i)
-            if sub then
-				id = id + sub * n
-                i = i - 1
-                n = n * 256
-            else
-                return id
-            end
-        end
-    end
-    
-    id2string = function(i)
-        local i4 = i%256
-        local i3 = i/256%256
-        local i2 = i/256/256%256
-        local i1 = i/256/256/256%256
-        return string.char(i1, i2, i3, i4)
-    end

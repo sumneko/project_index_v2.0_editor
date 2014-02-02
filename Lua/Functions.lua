@@ -96,6 +96,8 @@
         return string.format("%s%s%s%s", string.char(s1), string.char(s2), string.char(s3), string.char(s4))
     end
     
+    id2string = get256s
+    
     get256n = function(a)
         local n1 = string.byte(a, 1)
         local n2 = string.byte(a, 2)
@@ -103,6 +105,8 @@
         local n4 = string.byte(a, 4)
         return n1*256*256*256+n2*256*256+n3*256+n4
     end
+    
+    string2id = get256n
     
     --判断单位是否死亡
     IsUnitDead = function(u)
