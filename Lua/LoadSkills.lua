@@ -682,7 +682,7 @@
                                         local cd = skill:get("cool")
                                         if cd then
                                             local ab = japi.EXGetUnitAbility(data.unit, skill.id)
-                                            Debug("<handle>" .. GetHandleId(ab) .. "<id>" .. skill.id .. "<cd>" .. cd)
+                                            --Debug("<handle>" .. GetHandleId(ab) .. "<id>" .. skill.id .. "<cd>" .. cd)
                                             japi.EXSetAbilityDataReal(ab, 1, 105, cd)
                                             japi.EXSetAbilityState(ab, 1, cd)
                                             japi.EXSetAbilityDataReal(ab, 1, 105, 0)

@@ -62,12 +62,12 @@
     Event("可见度",  
         function(data)
             if data.reason then --单位变为可见
-                Debug(GetUnitName(data.unit) .. ":可见")
+                --Debug(GetUnitName(data.unit) .. ":可见")
                 UnitRemoveType(data.unit, UNIT_TYPE_ANCIENT) --移除古树类型
                 Mark(data.unit, "变为可见的时间", GetTime())
                 DestroyEffect(Mark(data.unit, "视野特效"))
             else --单位变为不可见
-                Debug(GetUnitName(data.unit) .. ":不可见")
+                --Debug(GetUnitName(data.unit) .. ":不可见")
                 UnitAddType(data.unit, UNIT_TYPE_ANCIENT) --添加古树类型
                 Mark(data.unit, "变为不可见的时间", GetTime())
                 if IsGod() then
