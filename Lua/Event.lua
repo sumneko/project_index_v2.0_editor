@@ -247,12 +247,13 @@
         function()
             local u = GetTriggerUnit()
             local event = GetTriggerEventId()
+            local id = GetIssuedOrderId()
             if event == EVENT_PLAYER_UNIT_ISSUED_ORDER then
-                toEvent("无目标指令", {unit = u})
+                toEvent("无目标指令", {unit = u, id = id})
             elseif event == EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER then
-                toEvent("物体目标指令", {unit = u})
+                toEvent("物体目标指令", {unit = u, id = id})
             elseif event == EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER then
-                toEvent("点目标指令", {unit = u})
+                toEvent("点目标指令", {unit = u, id = id})
             end
         end
     ))
