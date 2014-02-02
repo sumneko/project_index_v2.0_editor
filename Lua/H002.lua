@@ -153,37 +153,28 @@
         cool = {18, 15, 12, 9},
         dur = {3, 4, 5, 6},
         tip = "\
-上条举起右手,抵挡来自前方的法术攻击.在此状态下上条无法进行普通攻击.\
+上条举起右手,抵挡来自前方的法术攻击.\
 \
 |cff00ffcc技能|r: 开关\
 \
 |cff888888可以提前关闭|r",
         untip = "\
 关闭幻象杀手",
-        researchtip = "幻想杀手状态下也可以进行普通攻击",
+        researchtip = "幻想杀手的抵挡判定范围由180°提升至270°",
         data = {},
         undata = {},
         events = {"发动技能", "关闭技能", "获得技能", "失去技能"},
         code = function(this)
             if this.event == "发动技能" then
-                if not this.research then
-                    this.notattack = true
-                    EnableAttack(this.unit, false)
-                else
-                    this.notattack = false
-                end
                 this.effect = AddSpecialEffectTarget("DivineAegis.mdx", this.unit, "chest")
                 Sound(this.unit, gg_snd_Dama_dazhao)
             elseif this.event == "关闭技能" then
-                if this.notattack then
-                    EnableAttack(this.unit)
-                end
                 DestroyEffect(this.effect)
             elseif this.event == "获得技能" then
                 this.skillfunc = Event("抵挡",
                     function(data)
                         if this.unit == data.to and this.openflag then
-                            if math.A2A(GetUnitFacing(data.to), GetBetween(data.from, data.to, true)) > 90 then --夹角大于90
+                            if math.A2A(GetUnitFacing(data.to), GetBetween(data.from, data.to, true)) > this.research and 135 or 90 then --夹角大于90/135
                                 DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\SpellShieldAmulet\\SpellShieldCaster.mdl", data.to, "origin"))
                                 return true
                             end
