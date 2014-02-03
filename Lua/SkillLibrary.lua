@@ -2,6 +2,8 @@
     EnemyFilter = function(p1, u2, t)
         if IsUnitDead(u2) then
             return false
+        elseif t and t["别人"] and GetOwningPlayer(u2) == p1 then
+            return false
         elseif not (t and t["马甲"]) and GetUnitAbilityLevel(u2, |Aloc|) == 1 then
             return false
         elseif not (t and t["友军"]) and IsUnitAlly(u2, p1) then
