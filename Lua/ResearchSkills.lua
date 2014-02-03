@@ -218,13 +218,13 @@
         name = "屠戮",
         art = "BTNClawsOfAttack.blp",
         tip = "\
-|cffff00ff英雄:|r 杀死单位时,你回复该单位最大生命值5%的生命值.你的生命值每损失1%,回复量就提升0.1%\n\
+|cffff00ff英雄:|r 杀死非英雄单位时,你回复该单位最大生命值5%的生命值.你的生命值每损失1%,回复量就提升0.1%\n\
 |cffff00ff团队:|r 攻击吸血+1%,技能吸血+1.5%",
         code = function(this)
             --英雄部分
             Event("死亡",
                 function(data)
-                    if data.killer == this.hero then
+                    if data.killer == this.hero and not IsHero(data.unit) then
                         if IsUnitAlive(this.hero) then
                             local r = 0.05 + 0.1 * (1 - GetUnitState(this.hero, UNIT_STATE_LIFE) / GetUnitState(this.hero, UNIT_STATE_MAX_LIFE))
                             Heal(this.hero, this.hero, r * GetUnitState(data.unit, UNIT_STATE_MAX_LIFE), {healReason = this.name})
@@ -249,7 +249,7 @@
         name = "秘法",
         art = "BTNBrilliance.blp",
         tip = "\
-|cffff00ff英雄:|r 使用英雄技能时,你回复该技能消耗的20%法力值.你的法力值每损失1%,恢复量就提升0.4%\n\
+|cffff00ff英雄:|r 使用英雄技能时,你回复该技能消耗的20%法力值.你的法力值每损失1%,恢复量就提升0.3%\n\
 |cffff00ff团队:|r 冷却缩减+2%",
         code = function(this)
             --英雄
@@ -261,7 +261,7 @@
                         if mana > 0 then
                             local mp = GetUnitState(this.hero, UNIT_STATE_MANA)
                             local mmp = GetUnitState(this.hero, UNIT_STATE_MAX_MANA)
-                            local r = 0.2 + 0.4 * (1 - mp / mmp)
+                            local r = 0.2 + 0.3 * (1 - mp / mmp)
                             SetUnitState(this.hero, UNIT_STATE_MANA, mp + mana * r)
                         end
                     end
@@ -283,7 +283,7 @@
         name = "荒芜",
         art = "BTNAuraOfDarkness.blp",
         tip = "\
-|cffff00ff英雄:|r 敌方英雄身边250范围内没有他的友方单位时,你的普通攻击可以额外造成相当于其最大生命值5%的神圣伤害\n\
+|cffff00ff英雄:|r 敌方英雄身边250范围内没有他的友方单位时,你的普通攻击可以额外造成相当于其最大生命值3%的神圣伤害\n\
 |cffff00ff团队:|r 存在感获得率+10%",
         code = function(this)
             --英雄
@@ -300,7 +300,7 @@
                             end
                         )
                         if flag then
-                            local d = 0.05 * GetUnitState(damage.to, UNIT_STATE_MAX_LIFE)
+                            local d = 0.03 * GetUnitState(damage.to, UNIT_STATE_MAX_LIFE)
                             Damage(damage.from, damage.to, d, false, false, {damageReason = this.name})
                         end
                     end
@@ -616,7 +616,7 @@
         name = "浴火重生",
         art = "BTNVampiricAura.blp",
         tip = "\
-|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在20秒内恢复60%最大生命值.该效果每60秒只能发动一次\n\
+|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在20秒内恢复50%最大生命值.该效果每60秒只能发动一次\n\
 |cffff00ff团队:|r 所受治疗效果增加10%",
         code = function(this)
             --英雄部分
@@ -632,7 +632,7 @@
                                 if count == 0 then
                                     EndLoop()
                                 end
-                                Heal(this.hero, this.hero, 0.03 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
+                                Heal(this.hero, this.hero, 0.025 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
                             end
                         )
                     end
@@ -768,7 +768,7 @@
         name = "斩杀",
         art = "BTNcoupdegrace.blp",
         tip = "\
-|cffff00ff英雄:|r 普通攻击对英雄造成其最大生命值20%的神圣伤害.该效果每10秒只能触发一次",
+|cffff00ff英雄:|r 普通攻击对英雄造成其最大生命值15%的神圣伤害.该效果每15秒只能触发一次",
         code = function(this)
             --英雄效果
             local lastTime = -60
@@ -777,7 +777,7 @@
                     if damage.weapon and damage.from == this.hero and IsHero(damage.to) and GetTime() - lastTime > 10 then
                         lastTime = GetTime()
                         DestroyEffect(AddSpecialEffectTarget("Objects\\Spawnmodels\\Undead\\UndeadDissipate\\UndeadDissipate.mdl", damage.to, "origin"))
-                        Damage(damage.from, damage.to, 0.2 * GetUnitState(damage.to, UNIT_STATE_MAX_LIFE), false, false, {damageReason = this.name})
+                        Damage(damage.from, damage.to, 0.15 * GetUnitState(damage.to, UNIT_STATE_MAX_LIFE), false, false, {damageReason = this.name})
                     end
                 end
             )
