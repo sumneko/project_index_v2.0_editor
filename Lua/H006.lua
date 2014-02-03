@@ -436,7 +436,7 @@
                 )
             elseif this.event == "失去技能" then
                 Event("-伤害效果", "-远程攻击弹道", "-英雄技能回调", this.skillfunc)
-                RemoveSkill(this.unit, "交换位置(御坂标记)")
+                RemoveSkill(this.unit, "交换位置")
             elseif this.event == "发动技能" then
                 local e
                 if IsGod(SELFP) or IsPlayerAlly(GetOwningPlayer(this.unit), SELFP) then
@@ -496,7 +496,7 @@
                 )
             elseif this.event == "研发" then
                 if this.lastResearch == 3 then
-                    AddSkill(this.unit, "交换位置(御坂标记)")
+                    AddSkill(this.unit, "交换位置")
                 end
             end
         end
@@ -504,7 +504,7 @@
     
     --交换位置
     InitSkill{
-        name = "交换位置(御坂标记)",
+        name = "交换位置",
         type = {"主动", 2},
         ani = "stand",
         art = {"BTNReplay-Loop.blp"}, --左边是学习,右边是普通.不填右边视为左边
