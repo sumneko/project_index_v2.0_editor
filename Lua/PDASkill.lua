@@ -64,7 +64,10 @@
             local id = GetPlayerId(GetOwningPlayer(u))
             if GetTriggerEventId() == EVENT_UNIT_SELECTED then
                 isSelect[id] = true
-                RefreshState(id)
+                if SELF == id then
+                    RefreshState(id)
+                end
+                RefreshTips(u)
             else
                 isSelect[id] = false
             end
