@@ -174,7 +174,7 @@
                 this.skillfunc = Event("抵挡",
                     function(data)
                         if this.unit == data.to and this.openflag then
-                            if math.A2A(GetUnitFacing(data.to), GetBetween(data.from, data.to, true)) > this.research and 135 or 90 then --夹角大于90/135
+                            if math.A2A(GetUnitFacing(data.to), GetBetween(data.from, data.to, true)) > (this.research and 135 or 90) then --夹角大于90/135
                                 DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\SpellShieldAmulet\\SpellShieldCaster.mdl", data.to, "origin"))
                                 return true
                             end
