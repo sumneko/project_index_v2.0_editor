@@ -188,117 +188,28 @@
         cast = 0.3,
         time = 10,
         tip = "\
-|cff00ccff主动|r: 茵蒂克丝干扰周围的敌方英雄使用技能,增加他们技能的消耗与冷却.茵蒂克丝吟唱的时间越长效果持续时间越长.\
+|cff00ccff主动|r: 茵蒂克丝干扰周围的敌方英雄使用技能,在使用英雄技能时会被沉默.\
 |cff00ccff被动|r: 茵蒂克丝的技能效果将会造成额外伤害,伤害值取决于对方的法术强度.\n\
+|cffffcc00需要持续施法|r\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00持续时间|r: %s\
-|cffffcc00吟唱一秒增加时间|r: %s\
-|cffffcc00消耗与冷却增加|r: %s%%\
+|cffffcc00沉默时间|r: %s\
+|cffffcc00最大吟唱时间|r: %s\
+%s\
 |cffffcc00每点法术强度造成伤害|r: %s(|cffff00ff+%.2f|r)\n\
 |cff888888吟唱结束时发动效果,最多吟唱10秒\n负面效果可以驱散\n持续性效果造成1/3的伤害",
-        researchtip = "变为开关类技能,技能关闭时发动效果.",
+        researchtip = "变为开关类技能,无需持续施法.",
         data = {
-            {3, 4, 5, 6}, --持续时间1
-            {1.1, 1.4, 1.7, 2}, --吟唱与持续时间的换算2
-            {50, 100, 150, 200}, --消耗与冷却延长3
+            {0.75, 1, 1.25, 1.5}, --沉默时间1
+            10, --最大施法时间2
+            "", --不使用3
             {0.3, 0.4, 0.5, 0.6}, --每点法术强度造成的伤害4
             function(ap, ad) --加成5
                 return ap * 0.003 + ad * 0.003
             end,
         },
-        events = {"注册技能", "停止施放", "发动技能", "获得技能", "失去技能", "关闭技能", "研发"},
+        events = {"停止施放", "发动技能", "获得技能", "失去技能", "关闭技能", "研发"},
         code = function(this)
-            if this.event == "注册技能" then
-                --灭魔
-                KillmanaGet = function(data)
-                    data.skillmana = {}
-                    data.skilldata = {}
-                    for i = 1, 6 do
-                        local this = findSkillData(data.to, i)
-                        if this then
-                            local mana = this.mana
-                            data.skilldata[i] = this
-                            if mana then
-                                if type(mana) == "table" then
-                                    data.skillmana[i] = {}
-                                    for j, mana in ipairs(mana) do
-                                        local cm = mana * data.mana * 0.01
-                                        data.skillmana[i][j] = cm
-                                        this.mana[j] = this.mana[j] + cm
-                                    end
-                                else
-                                    local cm = mana * data.mana * 0.01
-                                    data.skillmana[i] = cm
-                                    this.mana = this.mana + cm
-                                end
-                            end
-                        end
-                    end
-                    SetCoolDown(data.to, -data.cool)
-                end
-                
-                KillmanaLose = function(data)
-                    for i = 1, 6 do
-                        local this = findSkillData(data.to, i)
-                        if this and data.skilldata[i] == this then
-                            if this.mana then
-                                if type(this.mana) == "table" then
-                                    for j in ipairs(this.mana) do
-                                        this.mana[j] = this.mana[j] - data.skillmana[i][j]
-                                    end
-                                else
-                                    this.mana = this.mana - data.skillmana[i]
-                                end
-                            end
-                        end
-                    end
-                    SetCoolDown(data.to, data.cool)
-                end
-                
-                KillmanaUnit = function(data)
-                    if toEvent("debuff", "灭魔", data) then return end
-                    local that = Mark(data.to, "灭魔")
-                    if that then
-                        TimerStart(that.timer, data.time, false, that.func())
-                    else
-                        UnitAddAbility(data.to, |A16F|)
-                        data.timer, data.func = Wait(data.time,
-                            function()
-                                local data = Mark(data.to, "灭魔")
-                                if data then
-                                    Mark(data.to, "灭魔", false)
-                                    UnitRemoveAbility(data.to, |A16F|)
-                                    UnitRemoveAbility(data.to, |B06C|)
-                                    DestroyTimer(data.timer)
-                                    KillmanaLose(data)
-                                end
-                            end
-                        )
-                        Mark(data.to, "灭魔", data)
-                        KillmanaGet(data)
-                    end
-                end
-                
-                Event("死亡", "驱散",
-                    function(this)
-                        local that
-                        if this.event == "死亡" then
-                            that = Mark(this.unit, "灭魔")
-                        elseif this.event == "驱散" then
-                            if this.debuff then
-                                that = Mark(this.to, "灭魔")
-                            end
-                        end
-                        if that then
-                            DestroyTimer(that.timer)
-                            UnitRemoveAbility(that.to, |A16F|)
-                            UnitRemoveAbility(that.to, |B06C|)
-                            Mark(that.to, "致盲", false)
-                            KillmanaLose(that)
-                        end
-                    end
-                )
-            elseif this.event == "获得技能" then
+            if this.event == "获得技能" then
                 --被动效果
                 this.skillfunc = Event("技能效果",
                     function(data)
@@ -317,41 +228,48 @@
             elseif this.event == "失去技能" then
                 Event("-技能效果", this.skillfunc)
             elseif (this.event == "停止施放" and this.type[1] == "主动" and this.spellflag) or this.event == "关闭技能" then
-                RemoveUnit(this.areaunit)
-                local t = GetTime() - this.spellflag --吟唱时间
-                t = this:get(1) + t * this:get(2) --debuff持续时间
-                local p = GetOwningPlayer(this.unit)
-                local mana = this:get(3)
-                local cool = this:get(3)
-                if IsUnitAlive(this.unit) then
-                    forRange(this.unit, this:get("area"),
-                        function(u)
-                            if IsHeroUnitId(GetUnitTypeId(u)) and EnemyFilter(p, u) then
-                                SkillEffect{
-                                    name = this.name,
-                                    from = this.unit,
-                                    to = u,
-                                    data = this,
-                                    aoe = true,
-                                    code = function(data)
-                                        KillmanaUnit{
-                                            from = data.from,
-                                            to = data.to,
-                                            time = t,
-                                            mana = mana,
-                                            cool = cool,
-                                            aoe = true            
-                                        }
-                                    end
-                                }
-                            end
-                        end
-                    )
-                end
+                this.flush()                
             elseif this.event == "发动技能" then
-                this.areaunit = CreateModle("war3mapImported\\unstableconcoctionrangedisplay3.mdl", this.unit, {size = this:get("area") / 710})
+                local modle = CreateModle("war3mapImported\\unstableconcoctionrangedisplay3.mdl", this.unit, {size = this:get("area") / 710})
+                
+                local timer = Loop(0.02,
+                    function()
+                        SetUnitXY(modle, this.unit)
+                    end
+                )
+                
+                local t = this:get(1)
+                local area = this:get("area")
+                local func1 = Event("英雄技能回调",
+                    function(data)
+                        local that = data.skill
+                        if that.spellflag and that.event == "停止施放" and EnemyFilter(this.player, that.unit) and GetBetween(that.unit, this.unit) < area then
+                            SkillEffect{
+                                from = this.unit,
+                                to = that.unit,
+                                name = this.name,
+                                data = this,
+                                code = function(data)
+                                    SilentUnit{
+                                        from = data.from,
+                                        to = data.to,
+                                        time = t
+                                    }
+                                end
+                            }
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    RemoveUnit(modle)
+                    DestroyTimer(timer)
+                    Event("-英雄技能回调", func1)
+                end
             elseif this.event == "研发" then
                 this.type = {"开关"}
+                this.time = 0.01
+                this.dur = 10
             end
         end
     }
