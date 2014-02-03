@@ -11,7 +11,7 @@
         if not u1 or u1 == u2 then --自杀
             toEvent("自杀", kill)
             
-        elseif IsPlayerAlly(u2, p1) then
+        elseif IsUnitAlly(u2, p1) then
             toEvent("队友击杀", kill)
         
         elseif GetPlayerId(p1) > 11 then --被野怪杀
