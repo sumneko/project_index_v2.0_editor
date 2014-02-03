@@ -261,7 +261,7 @@
             local timer = {t} --用table把timer包起来
             timerTable[t] = timer --记录该timer所使用的table
             count = count + 1
-            if count > 300 then
+            if count > 500 then
                 Debug("<DEBUG>正在运行的计时器计数:" .. count)
             end
             return timer
