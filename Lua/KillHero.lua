@@ -267,10 +267,10 @@
             Mark(p2, "复仇生效", false)
             local bi = Board["复仇"][id2]
             if bi then
-                MultiboardSetItemValue(bi, string.format("|cff888888%s|r", PlayerNameHero(p1)))
+                MultiboardSetItemValue(bi, string.format("|cff888888%s|r", HeroName[id] or "没有英雄"))
                 Wait(15,
                     function()
-                        MultiboardSetItemValue(bi, PlayerNameHero(p1, true))
+                        MultiboardSetItemValue(bi, HeroName[id] or "没有英雄")
                         Mark(p2, "复仇生效", true)
                     end
                 )
