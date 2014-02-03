@@ -326,7 +326,7 @@
             elseif this.event == "失去技能" then
                 DestroyTimer(this.timer)
                 for _, u in ipairs(this.group) do
-                    SetAnt(u, -this.nowant)
+                    Ant(u, -this.nowant)
                 end
             elseif this.event == "发动技能" then
                 local area = this:get("area")
