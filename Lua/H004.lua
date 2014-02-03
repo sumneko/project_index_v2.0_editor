@@ -182,6 +182,35 @@
                         high = 500,
                         data = {},
                     }
+                    --跳跃
+                    local moveStart = function()
+                        Mover(move, nil,
+                            function(move)
+                                TempEffect(move.target, "Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl")
+                                forRange(move.target, area,
+                                    function(u2)
+                                        if EnemyFilter(p1, u2) then
+                                            SkillEffect{
+                                                name = "矢量转换(坠落效果)",
+                                                from = move.from,
+                                                to = u2,
+                                                data = this,
+                                                code = function(data)
+                                                    StunUnit{
+                                                        from = data.from,
+                                                        to = data.to,
+                                                        time = move.data.dur,
+                                                        aoe = true
+                                                    }
+                                                    Damage(data.from, data.to, move.data.damage, false, true, {aoe = true, damageReason = this.name})
+                                                end
+                                            }
+                                        end
+                                    end
+                                )
+                            end
+                        )
+                    end
                     if #g == 0 then
                         move.modle = "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
                         move.from = this.unit
@@ -193,6 +222,7 @@
                             move.data.damage = d / 2
                             move.data.dur = dur / 2
                         end
+                        moveStart()
                     else
                         move.unit = table.getone(g,
                             function(u1, u2)
@@ -206,43 +236,17 @@
                             to = move.unit,
                             data = this,
                             aoe = true,
-                            filter = "友军",
+                            filter = "友军,别人",
                             code = function(data)
                                 table.insert(gg, data.to)
                                 move.from = data.from
                                 move.unit = data.to
+                                move.data.damage = d
+                                move.data.dur = dur
+                                moveStart()
                             end
                         }
-                        move.data.damage = d
-                        move.data.dur = dur
                     end
-                    --跳跃
-                    Mover(move, nil,
-                        function(move)
-                            TempEffect(move.target, "Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl")
-                            forRange(move.target, area,
-                                function(u2)
-                                    if EnemyFilter(p1, u2) then
-                                        SkillEffect{
-                                            name = "矢量转换(坠落效果)",
-                                            from = move.from,
-                                            to = u2,
-                                            data = this,
-                                            code = function(data)
-                                                StunUnit{
-                                                    from = data.from,
-                                                    to = data.to,
-                                                    time = move.data.dur,
-                                                    aoe = true
-                                                }
-                                                Damage(data.from, data.to, move.data.damage, false, true, {aoe = true, damageReason = this.name})
-                                            end
-                                        }
-                                    end
-                                end
-                            )
-                        end
-                    )
                     --结束
                     count = count - 1
                     if count == 0 then
