@@ -525,8 +525,8 @@
                                                         target = MovePoint(target, {GetRandomInt(100, 400), GetRandomInt(0, 360)})
                                                     end
                                                     that.event = event
-                                                    DummyHeroSkill(this.unit, target, that, that.name .. ":" .. this.name .. ":" .. x) --使用新的技能名来保存技能
-                                                    table.insert(this.spellgroup[that.name], that.name .. ":" .. this.name .. ":" .. x) --进栈
+                                                    DummyHeroSkill(this.unit, target, that, that.name .. "(" .. this.name .. x .. ")") --使用新的技能名来保存技能
+                                                    table.insert(this.spellgroup[that.name], that.name .. "(" .. this.name .. x .. ")") --进栈
                                                 end
                                             end
                                         )
