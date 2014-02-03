@@ -250,15 +250,19 @@
             --计算快速连杀
             local time = GetTime()
             local qk = Kill[i1]["快速连杀"] + 1
-            local id = GetUnitPointValue(data.u1)
             if time - Kill[i1]["快速连杀时间"] < Kill.QkillTime then
                 Kill[i1]["快速连杀"] = qk
                 if qk > 1 then
 --%颜色%英雄名|r %连杀文字
-                    print(string.format("%s%s|r %s", Color[i1], HeroName[id], Kill["快速连杀文字"][qk]))
+                    local word = string.format("%s%s|r %s", Color[i1], HeroName[id1], Kill["快速连杀文字"][qk])
+                    Wait(2,
+                        function()
+                            print(word)
+                        end
+                    )
                 end
             else
-                Kill[i1]["快速连杀"] = 0
+                Kill[i1]["快速连杀"] = 1
             end
             Kill[i1]["快速连杀时间"] = time
             
@@ -267,10 +271,10 @@
             Mark(p2, "复仇生效", false)
             local bi = Board["复仇"][id2]
             if bi then
-                MultiboardSetItemValue(bi, string.format("|cff888888%s|r", HeroName[id] or "没有英雄"))
+                MultiboardSetItemValue(bi, string.format("|cff888888%s|r", HeroName[id1] or "没有英雄"))
                 Wait(15,
                     function()
-                        MultiboardSetItemValue(bi, HeroName[id] or "没有英雄")
+                        MultiboardSetItemValue(bi, HeroName[id1] or "没有英雄")
                         Mark(p2, "复仇生效", true)
                     end
                 )
