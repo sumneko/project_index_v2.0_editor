@@ -712,8 +712,10 @@
             if IsHero(data.unit) then
                 for i = 1, 6 do
                     local skill = findSkillData(data.unit, i)
-                    if skill and skill.type[1] == "开关" and skill.openflag then
-                        skill:closeskill()
+                    if skill then
+                        if skill.type[1] == "开关" and skill.openflag then
+                            skill:closeskill()
+                        end
                     end
                 end
             end

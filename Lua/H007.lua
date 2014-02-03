@@ -317,13 +317,13 @@
             elseif this.event == "失去技能" then
                 Event("-技能效果", this.skillfunc)
             elseif (this.event == "停止施放" and this.type[1] == "主动" and this.spellflag) or this.event == "关闭技能" then
+                RemoveUnit(this.areaunit)
+                local t = GetTime() - this.spellflag --吟唱时间
+                t = this:get(1) + t * this:get(2) --debuff持续时间
+                local p = GetOwningPlayer(this.unit)
+                local mana = this:get(3)
+                local cool = this:get(3)
                 if IsUnitAlive(this.unit) then
-                    RemoveUnit(this.areaunit)
-                    local t = GetTime() - this.spellflag --吟唱时间
-                    t = this:get(1) + t * this:get(2) --debuff持续时间
-                    local p = GetOwningPlayer(this.unit)
-                    local mana = this:get(3)
-                    local cool = this:get(3)
                     forRange(this.unit, this:get("area"),
                         function(u)
                             if IsHeroUnitId(GetUnitTypeId(u)) and EnemyFilter(p, u) then
