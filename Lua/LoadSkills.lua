@@ -422,6 +422,14 @@
     --安装技能
     AddSkill = function(u, name, data)
         local id = SkillTable[name]
+        if not id then
+            --如果是dummy技能或茵蒂克丝偷取技能等会在技能名后加括号,尝试去掉括号进行匹配
+            local x = name:find("%(")
+            if not x then return end
+            name = name:sub(1, x - 1)
+            id = SkillTable[name]
+            if not id then return end
+        end
         return GetSkill2(u, id, data)
     end
     
