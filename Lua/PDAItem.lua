@@ -7,6 +7,8 @@
         {"当麻面包", "运动饮料", "镇定剂", "黑子的电脑配件", "体晶", "扰乱之羽"}, --名字
     }
     
+    local DropingFlag = false
+    
     InitPDAItem = function(pda)
         for i = 1, 6 do
             AddItem(pda, items[4][i] .. 2)
@@ -161,7 +163,9 @@
                 for i = 1, count do
                     items[i] = name
                 end
+                DropingFlag = true
                 AddItems(hero, items)
+                DropingFlag = false
             end
         end
     end
@@ -406,9 +410,7 @@
         }
     end
     
-    --技能
-    local DropingFlag = false
-    
+    --技能    
     do
         local trg = CreateTrigger()
         
