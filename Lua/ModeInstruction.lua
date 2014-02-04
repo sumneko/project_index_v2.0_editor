@@ -3,6 +3,7 @@
     
     ModeInstructionFlush = function()
         DestroyTrigger(trg)
+        trg = nil
     end
     
     local modes
@@ -53,10 +54,8 @@
                     local w
                     if #f1 > 0 then
                         f = f1
-                        w = "提取玩家"
                     else
                         f = f2
-                        w = "提取电脑"
                     end
                     local i = GetRandomInt(1, #f)
                     local p = f[i]
