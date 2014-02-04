@@ -3,7 +3,7 @@
 |cffffcc00法力值|r     %d/%d (|cff11ff11%+.2f|r)\
 \
 |cffffcc00攻击速度|r  %.2f (最大500)\
-|cffffcc00移动速度|r  %.2f (|cff11ff11%+.2f|r) (最大1000)\
+|cffffcc00移动速度|r  %.2f (|cff11ff11%+.2f|r) (最大800)\
 \
 |cffffcc00护甲|r       %d (|cff11ff11%.2f%%|r)\
 |cffffcc00抗性|r       %d (|cff11ff11%.2f%%|r)\

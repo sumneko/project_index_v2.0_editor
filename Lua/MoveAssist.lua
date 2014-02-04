@@ -2,8 +2,8 @@
     local g = {}
     
     SetUnitMoveSpeed = function(u, ms)
-        if ms > 1000 then
-            ms = 1000
+        if ms > 800 then
+            ms = 800
         end
         if ms > 522 then
             if g[u] then
