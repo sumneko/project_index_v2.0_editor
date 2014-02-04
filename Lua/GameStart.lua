@@ -7,6 +7,7 @@
         SetGameTime(-t)
         TimerStart(gameStartTimer, t, false, GameStart)
         TimerStart(gameReadyTimer, t-10, false, GameReady)
+        ModeInstructionFlush() --移除模式指令
     end
     
     GameReady = function()

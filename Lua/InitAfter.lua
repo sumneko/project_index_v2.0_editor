@@ -6,20 +6,32 @@
             
             --do return end
             --共享单位视野
-            local g = CreateGroup()
-            GroupEnumUnitsOfPlayer(g, PA[0], nil)
-            for _,u in group(g) do
-                for i = 1, 5 do
-                    UnitShareVision(u, PA[i], true)
+            local func1 = function()
+                local g = CreateGroup()
+                GroupEnumUnitsOfPlayer(g, PA[0], nil)
+                for _,u in group(g) do
+                    for i = 1, 5 do
+                        UnitShareVision(u, PA[i], true)
+                        UnitShareVision(u, PB[i], false)
+                    end
                 end
-            end
-            GroupEnumUnitsOfPlayer(g, PB[0], nil)
-            for _,u in group(g) do
-                for i = 1, 5 do
-                    UnitShareVision(u, PB[i], true)
+                GroupEnumUnitsOfPlayer(g, PB[0], nil)
+                for _,u in group(g) do
+                    for i = 1, 5 do
+                        UnitShareVision(u, PB[i], true)
+                        UnitShareVision(u, PA[i], false)
+                    end
                 end
+                DestroyGroup(g)
             end
-            DestroyGroup(g)
+            
+            func1()
+            
+            Event("洗牌后",
+                function()
+                    func1()
+                end
+            )
         end
     )
     

@@ -468,7 +468,12 @@
             Board["游戏模式"] = this
             MultiboardSetItemStyle(this, true, false)
             MultiboardSetItemWidth(this, 1)
-            MultiboardSetItemValue(this, string.format("游戏模式:|cffffff00%s|r", string.concat(GameMode)))
+            
+            RefreshGamemode = function()
+                MultiboardSetItemValue(this, string.format("游戏模式:|cffffff00%s|r", string.concat(GameMode)))
+            end
+            
+            RefreshGamemode()
             
         --最小化多面板
         MultiboardMinimize(Board.this, true)
