@@ -22,7 +22,6 @@
         local hero = Hero[i]
         local count = 0
         local id2 = GetItemData(name2, "id")
-        this.skill = nil --关闭掉丢弃动作
         for i = 0, 5 do
             local it = UnitItemInSlot(hero, i)
             local id = GetItemTypeId(it)
@@ -33,6 +32,7 @@
         end
         if count > 0 then
             local u = this.unit
+            this.skill = nil --关闭掉丢弃动作
             RemoveItem(this)
             local items = {}
             for i = 1, count do
@@ -101,6 +101,7 @@
         local u = this.unit
         local i = GetPlayerId(this.player)
         local hero = Hero[i]
+        local oname = this.name
         this.pda = true
         if IsUnitDead(hero) then
             if SELFP == this.player then
@@ -113,9 +114,11 @@
         if CanUseItem(hero) then
             this.unit = hero
             this.target = hero
+            this.name = name
             GetItemData(name, "use")(this)
-            PDAStartHeroItemCool(this, name)
             this.unit = u
+            this.name = oname
+            PDAStartHeroItemCool(this, name)
             RecommandHero(hero)
         else
             local data = Mark(hero, "等待使用物品")
@@ -128,6 +131,7 @@
                     hero = hero,
                     unit = u,
                     timer = CreateTimer(),
+                    name = this.name,
                     code = function()
                         if IsUnitDead(data.hero) then
                             DestroyTimer(data.timer)
@@ -135,11 +139,13 @@
                         elseif CanUseItem(data.hero) then
                             DestroyTimer(data.timer)
                             Mark(data.hero, "等待使用物品", false)
-                            data.this.unit = data.hero
-                            data.this.target = data.hero
+                            data.this.unit = hero
+                            data.this.target = hero
+                            data.this.name = name
                             GetItemData(data.name, "use")(data.this)
-                            PDAStartHeroItemCool(data.this, data.name)
                             data.this.unit = data.unit
+                            data.this.name = data.name
+                            PDAStartHeroItemCool(data.this, data.name)
                             SetItemCharges(data.this.item, GetItemCharges(data.this.item) - 1)
                             RecommandHero(data.hero)
                         end
