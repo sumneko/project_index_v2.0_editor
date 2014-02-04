@@ -218,7 +218,7 @@
         name = "屠戮",
         art = "BTNClawsOfAttack.blp",
         tip = "\
-|cffff00ff英雄:|r 杀死非英雄单位时,你回复该单位最大生命值5%的生命值.你的生命值每损失1%,回复量就提升0.1%\n\
+|cffff00ff英雄:|r 杀死非英雄单位时,你回复该单位最大生命值5%的生命值.你的生命值每损失1%,回复量就提升0.05%\n\
 |cffff00ff团队:|r 攻击吸血+1%,技能吸血+1.5%",
         code = function(this)
             --英雄部分
@@ -226,7 +226,7 @@
                 function(data)
                     if data.killer == this.hero and not IsHero(data.unit) then
                         if IsUnitAlive(this.hero) then
-                            local r = 0.05 + 0.1 * (1 - GetUnitState(this.hero, UNIT_STATE_LIFE) / GetUnitState(this.hero, UNIT_STATE_MAX_LIFE))
+                            local r = 0.05 + 0.05 * (1 - GetUnitState(this.hero, UNIT_STATE_LIFE) / GetUnitState(this.hero, UNIT_STATE_MAX_LIFE))
                             Heal(this.hero, this.hero, r * GetUnitState(data.unit, UNIT_STATE_MAX_LIFE), {healReason = this.name})
                         end
                     end
