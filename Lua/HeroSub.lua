@@ -1,11 +1,11 @@
 
-    local BanHeroType = function(id)
+    BanHeroType = function(id)
         for i = 1, 10 do
             SetPlayerTechMaxAllowed(P[i], HeroType[id], 0)
         end
     end
     
-    local BanPlayerHeroType = function(p)
+    BanPlayerHeroType = function(p)
         for i = 0, HeroTypeCount do
             SetPlayerTechMaxAllowed(p, HeroType[i], 0)
         end
@@ -16,11 +16,14 @@
     SelectHeroSub = function(p, u, t)
         local i = GetPlayerId(p)
         local id = GetUnitPointValue(u) --获取英雄的编号
-        Mark("已选择的英雄类型", id, true) --记录该英雄已经被选择
+        
         Mark(u, "注册英雄", true) --记录为注册英雄
         
         --禁止玩家再选这个英雄
-        --BanHeroType(id)
+        BanHeroType(id)
+        if not table.has(GameMode, "MH") then
+            Mark("已选择的英雄类型", id, true) --记录该英雄已经被选择
+        end
         
         --禁止玩家选所有英雄
         BanPlayerHeroType(p)

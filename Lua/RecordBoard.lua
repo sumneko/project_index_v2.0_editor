@@ -470,7 +470,7 @@
             MultiboardSetItemWidth(this, 1)
             
             RefreshGamemode = function()
-                MultiboardSetItemValue(this, string.format("游戏模式:|cffffff00%s|r", string.concat(GameMode)))
+                MultiboardSetItemValue(this, string.format("游戏模式:|cffffff00%s|r", string.concat(GameMode, " ")))
             end
             
             RefreshGamemode()

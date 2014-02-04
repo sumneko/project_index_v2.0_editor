@@ -82,5 +82,39 @@
                 toEvent("洗牌后", {})
             end
         },
+        AR = {
+            name = "全体随机",
+            code = function()
+                for i = 1, 10 do
+                    BanPlayerHeroType(P[i])
+                end
+                Wait(2,
+                    function()
+                        ModeInstructionFlush()
+                        local ps = {}
+                        for i = 1, 10 do
+                            if IsPlayer(P[i]) then
+                                table.insert(ps, P[i])
+                            end
+                        end
+                        Loop(0.5,
+                            function()
+                                if #ps == 0 then
+                                    EndLoop()
+                                else
+                                    SelectRandomHero(ps[1])
+                                    table.remove(ps, 1)
+                                end
+                            end
+                        )
+                    end
+                )
+            end,
+        },
+        MH = {
+            name = "复选模式",
+            code = function()
+            end
+        },
     }
     
