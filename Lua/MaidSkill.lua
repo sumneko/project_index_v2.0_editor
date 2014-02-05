@@ -34,12 +34,16 @@
                     function()
                         local skill = japi.EXGetUnitAbility(u, |A0DP|)
                         if IsUnitDead(Hero[id]) then
-                            japi.EXSetAbilityDataString(skill, 1, 218, string.format(tip, gold))
+                            if id == SELFP then
+                                japi.EXSetAbilityDataString(skill, 1, 218, string.format(tip, gold))
+                            end
                             japi.EXSetAbilityDataReal(skill, 1, 107, gold) --把买活的钱存在 rng 里
                             gold = gold - mg
                         else
                             EndLoop()
-                            japi.EXSetAbilityDataString(skill, 1, 218, "你的英雄还未死亡")
+                            if id == SELFP then
+                                japi.EXSetAbilityDataString(skill, 1, 218, "你的英雄还未死亡")
+                            end
                             japi.EXSetAbilityDataReal(skill, 1, 107, 0)
                         end
                         RefreshTips(u)
