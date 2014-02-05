@@ -114,7 +114,7 @@
 |cffffcc00移速降低|r: %s\
 |cffffcc00麻痹时间|r: %s\
 |cffffcc00额外伤害|r: %s(|cff0000ff+%d|r)\n\
-|cff888888可以提前关闭\n单次受到的伤害大于20点才会触发额外伤害\n该技能的冷却时间等同于开启的时间",
+|cff888888可以提前关闭\n单次受到的伤害大于20点才会触发额外伤害\n该技能的冷却时间等同于开启的时间,最小5秒,最大60秒",
         researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
         data = {
             {50, 75, 100, 125}, --移速降低1
@@ -196,7 +196,7 @@
                 DestroyTimer(this.timer)
                 DestroyEffect(this.effect)
                 Event("-伤害效果", this.skillfunc)
-                this.freshcool = GetTime() - this.opentime
+                this.freshcool = math.min(60, math.max(5, GetTime() - this.opentime))
             end
         end
     }
