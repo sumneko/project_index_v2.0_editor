@@ -13,11 +13,12 @@
                 this.target = this.unit
             end
             local data = Mark(this.target, this.name)
+            local name = this.name
             if not data then
                 data = {unit = this.target, timer = CreateTimer(), time = GetTime()}
                 Mark(this.target, this.name, data)
                 data.func = function()
-                    Mark(this.target, this.name, false)
+                    Mark(this.target, name, false)
                     Recover(data.unit, -20)
                     DestroyEffect(data.effect)
                     DestroyTimer(data.timer)
@@ -60,11 +61,12 @@
                 this.target = this.unit
             end
             local data = Mark(this.target, this.name)
+            local name = this.name
             if not data then
                 data = {unit = this.target, timer = CreateTimer(), time = GetTime()}
                 Mark(this.target, this.name, data)
                 data.func = function()
-                    Mark(this.target, this.name, false)
+                    Mark(this.target, name, false)
                     Recover(data.unit, 0, -5)
                     DestroyEffect(data.effect)
                     DestroyTimer(data.timer)
