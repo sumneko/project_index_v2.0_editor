@@ -160,6 +160,7 @@
                                         end
                                     end
                                 )
+                                SetSkillCool(u, |A19Z|)
                             end
                         end
                     )
@@ -172,15 +173,15 @@
         },
         use = function(this)
             DestroyEffect(TempEffect(this.unit, "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"))
-            if GetBetween(this.target, this.unit) > 600 then
+            if GetBetween(this.target, this.unit) > 1000 then
                 local a = GetBetween(this.unit, this.target, true)
-                this.target = MovePoint(this.unit, {600, a})
+                this.target = MovePoint(this.unit, {1000, a})
             end
             Mover({
                     unit = this.unit,
                     target = this.target,
                     high = 500,
-                    speed = 1000
+                    speed = 2000
                 },nil,
                 function(move)
                     DestroyEffect(TempEffect(move.unit, "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"))
