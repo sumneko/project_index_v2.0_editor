@@ -176,7 +176,7 @@
                                     local ut = GetUnitTypeId(damage.to)
                                     if IsHeroUnitId(ut) then
                                         local up = Mark(this.unit, name)
-                                        Mark(this.unit, name, up + 20)
+                                        Mark(this.unit, name, up + 50)
                                         damage.damage = damage.damage + damage.odamage * up / 100
                                     else
                                         Mark(this.unit, name, 0)
