@@ -187,6 +187,7 @@
         )
     end
     
+    require "LoadItem.lua"
     
     --当麻面包系列
     do

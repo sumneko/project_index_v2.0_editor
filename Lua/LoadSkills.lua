@@ -750,3 +750,20 @@
         end
     )
     
+    --被动技能校正
+    Loop(150,
+        function()
+            for _, u in ipairs(AllHeroes) do
+                for i = 1, 6 do
+                    local this = findSkillData(u, i)
+                    if this and this.type[1] == "被动" then
+                        local ab = japi.EXGetUnitAbility(u, this.id)
+                        local mcd = japi.EXGetAbilityDataReal(ab, 1, 105)
+                        if mcd == 1000000 then
+                            japi.EXSetUnitAbilityState(ab, 1, 10000)
+                        end
+                    end
+                end
+            end
+        end
+    )
