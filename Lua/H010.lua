@@ -423,10 +423,10 @@
                             local a = 1 --系数
                             --评估距离(200范围内为0.5,600范围外为0)
                             local dis = GetBetween(this.unit, u)
-                            if dis > 200 then
-                                a = a + (1 - (dis - 200) / (600 - 200)) * 0.5
-                            elseif dis < 600 then
+                            if dis < 200 then
                                 a = a + 0.5
+                            elseif dis < 600 then
+                                a = a + (1 - (dis - 200) / (600 - 200)) * 0.5
                             end
                             --评估对方的面向角度(小于30°即为0.5, 大于90°为0)
                             local angle = GetBetween(u, this.unit, true) --对方到自己的角度
