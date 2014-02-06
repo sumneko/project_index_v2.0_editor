@@ -460,6 +460,7 @@
                         UnitMakeAbilityPermanent(u, true, |Aloc|)
                         UnitMakeAbilityPermanent(u, true, |A160|)
                         UnitAddType(u, UNIT_TYPE_SUMMONED)
+                        EnableAttack(u, false)
                         table.insert(this.group, u)
                         SetHeroLevel(u, GetHeroLevel(this.unit), false)
                         UnitModifySkillPoints(u, -100) --清除技能点
