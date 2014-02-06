@@ -271,7 +271,7 @@
 一方通行开启项圈电源,偏转之后受到的伤害,负面状态,弹道或技能效果.\n\
 |cff00ffcc技能|r: 无目标\n\
 |cffffcc00偏转次数|r: %s\n\
-|cff888888只能偏转给视野范围内的敌方单位\n非英雄非建筑单位来源或范围性/持续性效果%s次算1次\
+|cff888888只能偏转给视野范围内的敌方单位\n非英雄非建筑单位来源或持续性效果%s次算1次\
 立即偏转伤害与负面效果/重置弹道目标/偏转技能效果时一方自己发射一个速度为%s的弹道,弹道命中后附加该技能效果",
         researchtip = "开启反射后的第1秒内不计算偏转次数",
         data = {
@@ -287,7 +287,7 @@
                     if this.research and GetTime() - this.lastopentime < 1 then
                         return
                     end
-                    if aoe or dot or (not IsHeroUnitId(GetUnitTypeId(unit)) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)) then
+                    if dot or (not IsHeroUnitId(GetUnitTypeId(unit)) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)) then
                         this.opencount = this.opencount - 1
                     else
                         this.opencount = this.opencount - this:get(2)
