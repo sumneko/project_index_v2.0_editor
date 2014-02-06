@@ -58,7 +58,8 @@
                                 CPType[i][0] = 0
                                 for x, t in ipairs(CPType[i]) do
                                     local u = CreateUnitAtLoc(Player(12), t, CPPoint[i], 270)
-                                    SetUnitAcquireRange(u, 128) --野怪主动攻击范围为128
+                                    SetUnitAcquireRange(u, 50.01) --野怪主动攻击范围为50.01
+                                    UnitAddType(u, UNIT_TYPE_PEON)
                                     if t ~= |nfrl| and t ~= |ngz1| then --不是那2个4级怪就加古树类型(小兵不能攻击)
                                         UnitAddType(u, UNIT_TYPE_ANCIENT)
                                     end
@@ -83,10 +84,25 @@
             if GetIssuedOrderId() == OrderId("move") then --发布的是 移动 指令
                 local u = GetTriggerUnit()
                 if DistanceBetweenPoints(GetUnitLoc(GetTriggerUnit()), GetOrderPointLoc()) > 600 then --超出范围后返回
-                    SetUnitState(u, UNIT_STATE_LIFE, GetUnitState(u, UNIT_STATE_MAX_LIFE))
+                    Recover(u, 25)
+                    Mark(u, "野怪回血", true)
+                    UnitAddType(u, UNIT_TYPE_PEON)
                 end
             end
         end
     ))
     
-    luaDone()
+    Event("伤害后",
+        function(damage)
+            if GetOwningPlayer(damage.to) == Player(12) then
+                if Mark(damage.to, "野怪回血") then
+                    Mark(damage.to, "野怪回血", false)
+                    Recover(damage.to, -25)
+                end
+                if damage.from and IsUnitType(damage.to, UNIT_TYPE_PEON) then
+                    UnitRemoveType(damage.to, UNIT_TYPE_PEON)
+                    UnitDamageTarget(damage.from, damage.to, 0, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
+                end
+            end
+        end
+    )
