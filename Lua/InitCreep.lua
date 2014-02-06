@@ -47,7 +47,9 @@
                         GroupEnumUnitsInRect(g, r, Condition(
                             function()
                                 local u = GetFilterUnit()
-                                count = count + 1
+                                if IsUnitAlive(u) then
+                                    count = count + 1
+                                end
                             end
                         ))
                         if count == 0 then
