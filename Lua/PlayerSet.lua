@@ -14,14 +14,20 @@
     PlayerCount[0] = 0
     PlayerCount[1] = 0
     
-    for i = 1, 5 do
-        if IsPlayer(PA[i]) then
-            PlayerCount[0] = PlayerCount[0] + 1
-        end
-        if IsPlayer(PB[i]) then
-            PlayerCount[1] = PlayerCount[1] + 1
+    local func1 = function()
+        for i = 1, 5 do
+            if IsPlayer(PA[i]) then
+                PlayerCount[0] = PlayerCount[0] + 1
+            end
+            if IsPlayer(PB[i]) then
+                PlayerCount[1] = PlayerCount[1] + 1
+            end
         end
     end
+    
+    func1()
+    
+    Event("洗牌后", func1)
     
     --设置无玩家的名字
     for i = 1, 5 do
