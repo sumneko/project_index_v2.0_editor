@@ -86,7 +86,7 @@
     
     --删除单位事件
     do
-        units = {}
+        local units = {}
         
         RemoveUnit = function(u)
             if u then
