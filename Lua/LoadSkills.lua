@@ -760,7 +760,7 @@
                         local ab = japi.EXGetUnitAbility(u, this.id)
                         local mcd = japi.EXGetAbilityDataReal(ab, 1, 105)
                         if mcd == 1000000 then
-                            japi.EXSetUnitAbilityState(ab, 1, 10000)
+                            japi.EXSetAbilityState(ab, 1, 10000)
                         end
                     end
                 end
