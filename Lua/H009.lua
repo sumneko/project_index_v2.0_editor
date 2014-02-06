@@ -42,7 +42,7 @@
         art = {"BTNManaFlare.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = {120, 150, 180, 210},
         cool = {21, 19, 17, 15},
-        rng = {1600, 1900, 2200, 2500},
+        rng = {1500, 1600, 1700, 1800},
         time = 1,
         area = 100,
         tip = "\
@@ -163,7 +163,7 @@
 |cffffcc00伤害递减|r: %s%%\
 |cffffcc00游走范围|r: %s\
 |cffffcc00攻击范围|r: %s\n\
-|cff888888结晶体的生产间隔为%s\n结晶体的攻击间隔为%s\n最少造成50%%伤害",
+|cff888888结晶体的生产间隔为%s\n结晶体的攻击间隔为%s\n最少造成%s%%伤害",
         researchtip = "结晶体优先攻击英雄",
         data = {
             {4, 6, 8, 10}, --数量1
@@ -176,6 +176,7 @@
             400, --攻击范围6
             0.7, --生产间隔7
             1, --攻击间隔8
+            25, --最小伤害9
         },
         events = {"失去技能", "获得技能", "发动技能"},
         code = function(this)
@@ -187,6 +188,7 @@
                 local attckflash = this:get(8)
                 local p = GetOwningPlayer(this.unit)
                 local targets = {}
+                local min = this:get(9) / 100
                 LoopRun(this:get(7),
                     function()
                         count = count - 1
@@ -260,7 +262,7 @@
                                         if not l.cuted then
                                             targets[u2] = (targets[u2] or 1)
                                             local d = (this:get(2) + this:get(3)) * targets[u2]
-                                            targets[u2] = math.max(0.5, targets[u2] - this:get(4) * 0.01)
+                                            targets[u2] = math.max(min, targets[u2] - this:get(4) * 0.01)
                                             Damage(this.unit, u2, d, false, true, {aoe = true, damageReason = this.name})
                                             DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\ChimaeraLightningMissile\\ChimaeraLightningMissile.mdl", u2, "chest"))
                                         end
