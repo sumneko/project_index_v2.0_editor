@@ -425,12 +425,12 @@
         name = "百折不挠",
         art = "BTNReincarnation.blp",
         tip = "\
-|cffff00ff英雄:|r 英雄的复活时间减少50%",
+|cffff00ff英雄:|r 英雄的复活时间减少33%",
         code = function(this)
             Event("阵亡损失",
                 function(data)
                     if data.unit == this.hero then
-                        data.time = data.time - data.otime * 0.5
+                        data.time = data.time - data.otime * 0.33
                     end
                 end
             )
@@ -518,7 +518,7 @@
         name = "操作压制",
         art = "BTNEvasion.blp",
         tip = "\
-|cffff00ff英雄:|r 当你脱离敌人的视野时,移动速度增加100点,持续3秒\n\
+|cffff00ff英雄:|r 当你脱离敌人的视野时,移动速度增加100点,持续3秒.重复获得该效果时刷新持续时间.\n\
 |cffff00ff团队:|r 移动速度增加10点",
         code = function(this)
             local ps = GetAllyUsers(this.player)
@@ -532,10 +532,15 @@
             Event("可见度",
                 function(data)
                     if data.unit == this.hero and data.reason == false then
-                        MoveSpeed(data.unit, 100)
-                        Wait(3,
+                        if not this.timer then
+                            this.timer = CreateTimer()
+                            MoveSpeed(this.hero, 100)
+                        end
+                        TimerStart(this.timer, 3, false,
                             function()
-                                MoveSpeed(data.unit, -100)
+                                DestroyTimer(this.timer)
+                                this.timer = nil
+                                MoveSpeed(this.hero, -100)
                             end
                         )
                     end
@@ -616,7 +621,7 @@
         name = "浴火重生",
         art = "BTNVampiricAura.blp",
         tip = "\
-|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在20秒内恢复50%最大生命值.该效果每60秒只能发动一次\n\
+|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在20秒内恢复40%最大生命值.该效果每60秒只能发动一次\n\
 |cffff00ff团队:|r 所受治疗效果增加10%",
         code = function(this)
             --英雄部分
