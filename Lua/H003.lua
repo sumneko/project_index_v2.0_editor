@@ -129,7 +129,7 @@
 |cffffcc00闪躲率|r: %s%%\
 |cffffcc00减少冷却(英雄)|r: %s\
 |cffffcc00减少冷却(非英雄)|r: %s\n\
-|cff888888最大范围为%s\n可以触发攻击效果与武器效果",
+|cff888888最大范围为%s\n可以触发攻击效果与武器效果\n优先击中英雄",
         researchtip = "对背对着你的单位必定暴击",
         data = {
             {140, 220, 300, 380}, --伤害1
@@ -159,14 +159,21 @@
                 local r = 9999999
                 local l = this:get(7)
                 local uu
+                local uh
                 for _, u in ipairs(g) do
                     if GetBetween(u, point) <= l then
                         local l = GetBetween(u, this.unit)
                         if l < r then
                             r = l
                             uu = u
+                            if IsHero(u) then
+                                uh = u
+                            end
                         end
                     end
+                end
+                if uh then
+                    uu = uh
                 end
                 if uu then
                     SkillEffect{
