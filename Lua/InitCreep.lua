@@ -39,7 +39,7 @@
     
     StartCreep = function(b)
         if b then
-            CreepTimer = Loop(15,
+            CreepTimer = Loop(20,
                 function()
                     local g = CreateGroup()
                     for i, r in ipairs(CPRect) do
