@@ -6,39 +6,39 @@
         
         if name == "前线碉堡" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
                 
             elseif name == "哨岗塔" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
 
             elseif name == "警戒塔" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
 
             elseif name == "要塞" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
 
             elseif name == "脉冲发射塔" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
                 AddItem(u, "能场发散")
 
             elseif name == "魔术堡垒" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
                 AddItem(u, "能场发散")
                 
             elseif name == "生命之泉" then
                 AddItem(u, "真实视域")
-                AddItem(u, "英雄守护者")
+                AddItem(u, "守护者")
                 AddItem(u, "壁垒")
                 
             elseif name == "研究所" then
@@ -149,9 +149,9 @@
             end
         )
         
-        --英雄守护者
+        --守护者
         InitItem{
-            name = "英雄守护者",
+            name = "守护者",
             id = |I0AJ|,
             tip = "\
 |cffffcc00狂轰滥炸(唯一)|r\
@@ -238,7 +238,10 @@
                         
                         Mark(this.unit, this.skillname .. 1, Event("伤害后", 
                             function(this)
-                                if this.from and IsHero(this.to) and IsUnitAlly(this.to, p) and IsPlayer(GetOwningPlayer(this.from)) and IsUnitInRange(this.from, u, GetUnitState(u, ConvertUnitState(0x16))) and EnemyFilter(p, this.from, {["魔免"] = true, ["建筑"] = true}) then
+                                if this.from and IsHero(this.to) and IsUnitAlly(this.to, p) and IsPlayer(GetOwningPlayer(this.from))
+                                and IsUnitInRange(this.from, u, GetUnitState(u, ConvertUnitState(0x16)))
+                                and EnemyFilter(p, this.from, {["魔免"] = true, ["建筑"] = true})
+                                and IsUnitVisible(this.from, p) then
                                     Mark(u, "反击目标", this.from)
                                     if not IssueTargetOrder(u, "attack", this.from) then
                                         Debug("<防御塔反击目标失败>" .. GetUnitName(this.from))
