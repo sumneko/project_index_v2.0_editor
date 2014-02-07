@@ -118,22 +118,23 @@
         RC = {
             name = "急速冷却",
             code = function()
-                Event("发动英雄技能后",
-                    function(data)
-                        data.data.cool = nil
+                for _, this in pairs(SkillTable) do
+                    if type(this) == "table" then
+                        this.cool = 0
                     end
-                )
+                end
             end
         },
         UM = {
             name = "无限法力",
             code = function()
-                Event("发动英雄技能后",
-                    function(data)
-                        data.data.mana = 0
+                for _, this in pairs(SkillTable) do
+                    if type(this) == "table" then
+                        this.mana = 0
                     end
-                )
+                end
             end
-        }
+        },
+        
     }
     
