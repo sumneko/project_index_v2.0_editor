@@ -76,23 +76,13 @@
         end
     ))
     
-    --杀死单位也触发死亡收事件
-    KillUnit = function(u)
-        if u then
-            jass.KillUnit(u)
-            toEvent("死亡", {unit = u})
-        end
-    end
-    
     --删除单位事件
     do
         local units = {}
         
         RemoveUnit = function(u)
-            if u then
-                toEvent("删除单位", {unit = u})
-                jass.RemoveUnit(u)
-            end
+            toEvent("删除单位", {unit = u})
+            jass.RemoveUnit(u)
         end
         
         Event("死亡",
