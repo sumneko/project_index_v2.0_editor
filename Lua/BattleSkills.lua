@@ -176,7 +176,7 @@
             local l = GetBetween(this.target, gate)
             local p = this.target
             local a = GetBetween(gate, p, true)
-            p = MovePointSafe(gate, {math.min(l, 400), a})
+            p = MovePointSafe(gate, {math.min(l, 200), a})
             Mark(this.hero, "涡点特效", AddSpecialEffectTarget("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportTo.mdl", this.hero, "origin"))
             Mark(this.hero, "涡点目标", AddSpecialEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportTo.mdl", GetXY(p)))
             Mark(this.hero, "涡点", p)
