@@ -581,7 +581,7 @@
         name = "复苏之风",
         art = "BTNCommand.blp",
         tip = "\
-|cffff00ff英雄:|r 当陷入无法控制的状态时,在10秒内恢复20%最大生命值.重复获得该效果时刷新持续时间\n\
+|cffff00ff英雄:|r 当陷入无法控制的状态时,在10秒内恢复15%最大生命值.重复获得该效果时刷新持续时间\n\
 |cffff00ff团队:|r 所受负面状态的持续时间变为90%(乘法叠加)",
         code = function(this)
             --英雄部分
@@ -599,7 +599,7 @@
                                         DestroyTimer(timer)
                                         timer = nil
                                     end
-                                    Heal(this.hero, this.hero, 0.02 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
+                                    Heal(this.hero, this.hero, 0.015 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
                                 end
                             )
                         end
@@ -621,7 +621,7 @@
         name = "浴火重生",
         art = "BTNVampiricAura.blp",
         tip = "\
-|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在20秒内恢复40%最大生命值.该效果每60秒只能发动一次\n\
+|cffff00ff英雄:|r 受到伤害后生命值若低于30%,在30秒内恢复30%最大生命值.该效果每60秒只能发动一次\n\
 |cffff00ff团队:|r 所受治疗效果增加10%",
         code = function(this)
             --英雄部分
@@ -630,14 +630,14 @@
                 function(damage)
                     if damage.to == this.hero and GetTime() - lastTime > 60 and GetUnitState(this.hero, UNIT_STATE_LIFE) / GetUnitState(this.hero, UNIT_STATE_MAX_LIFE) < 0.3 then
                         lastTime = GetTime()
-                        local count = 20
+                        local count = 30
                         Loop(1,
                             function()
                                 count = count - 1
                                 if count == 0 then
                                     EndLoop()
                                 end
-                                Heal(this.hero, this.hero, 0.025 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
+                                Heal(this.hero, this.hero, 0.01 * GetUnitState(this.hero, UNIT_STATE_MAX_LIFE), {healReason = this.name})
                             end
                         )
                     end
