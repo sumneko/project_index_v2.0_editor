@@ -502,7 +502,13 @@
             if GetSpellAbilityId() == |A187| and GetSpellTargetItem() then
                 local u = GetTriggerUnit()
                 local it = GetSpellTargetItem()
-                UnitLootItem(u, it)
+                if UnitLootItem(u, it) then
+                    local p = GetOwningPlayer(u)
+                    if p == SELFP then
+                        StartSound(gg_snd_Error)
+                    end
+                    printTo(p, "|cffffcc00该物品不属于你!|r")
+                end
             end
         end
     ))
@@ -512,6 +518,9 @@
         local name = item.name
         local want = item.wantcomplex
         local p = GetOwningPlayer(u)
+        if item.player and item.player ~= p then
+            return true
+        end
         local names = {}
         if item.stack then
             for i = 1, GetItemCharges(it) do
