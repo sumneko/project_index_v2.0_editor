@@ -6,6 +6,8 @@
             SetHeroLevel(Hero[i], s[2] or 20, true)
         elseif s[1] == ".startgame" then
             StartGameIn(s[2] or 0)
+        elseif s[1] == ".noarmy" then
+            StartArmy = function()end
         elseif s[1] == ".cd" then
             UnitResetCooldown(Hero[i])
         elseif s[1] == ".hp" then
