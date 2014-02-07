@@ -24,7 +24,7 @@
             if data.skill == |A197| then
                 local p = GetOwningPlayer(data.unit)
                 local ut = |oeye|
-                local cost = Mark(p, "侦查守卫花费")
+                local cost = Mark(p, "侦查守卫花费") or 100
                 local wood = GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER)
                 if wood < cost then
                     return
@@ -71,7 +71,7 @@
             if data.skill == |A196| then
                 local p = GetOwningPlayer(data.unit)
                 local ut = |nwad|
-                local cost = Mark(p, "岗哨守卫花费")
+                local cost = Mark(p, "岗哨守卫花费") or 100
                 local wood = GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER)
                 if wood < cost then
                     return
