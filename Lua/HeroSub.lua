@@ -82,7 +82,7 @@
         --创建女仆
         require "InitMaid.lua" 
         CreateMaid(p, u)
-        CreatePDA(p, u)
+        CreatePDA(p, u)        
         
         --创建特效
         TempEffect(u, "Abilities\\Spells\\Orc\\Reincarnation\\ReincarnationTarget.mdl")

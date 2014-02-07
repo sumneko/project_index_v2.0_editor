@@ -87,6 +87,7 @@
                 for i = 1, 10 do
                     BanPlayerHeroType(P[i])
                 end
+                StartGameIn(90)
                 Wait(2,
                     function()
                         ModeInstructionFlush()
