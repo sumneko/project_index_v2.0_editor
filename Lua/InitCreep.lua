@@ -102,7 +102,7 @@
                 if damage.from and IsUnitType(damage.to, UNIT_TYPE_PEON) then
                     forRange(damage.to, 400,
                         function(u)
-                            if IsUnitType(u, UNIT_TYPE_PEON) then
+                            if IsUnitType(u, UNIT_TYPE_PEON) and not IsUnitType(u, UNIT_TYPE_MECHANICAL) then
                                 UnitRemoveType(u, UNIT_TYPE_PEON)
                             end
                         end
@@ -119,7 +119,7 @@
                 if IsUnitType(data.to, UNIT_TYPE_PEON) then
                     forRange(data.to, 400,
                         function(u)
-                            if IsUnitType(u, UNIT_TYPE_PEON) then
+                            if IsUnitType(u, UNIT_TYPE_PEON) and not IsUnitType(u, UNIT_TYPE_MECHANICAL) then
                                 UnitRemoveType(u, UNIT_TYPE_PEON)
                             end
                         end
