@@ -100,8 +100,30 @@
                     Recover(damage.to, -25)
                 end
                 if damage.from and IsUnitType(damage.to, UNIT_TYPE_PEON) then
-                    UnitRemoveType(damage.to, UNIT_TYPE_PEON)
+                    forRange(damage.to, 400,
+                        function(u)
+                            if IsUnitType(u, UNIT_TYPE_PEON) then
+                                UnitRemoveType(u, UNIT_TYPE_PEON)
+                            end
+                        end
+                    )
                     UnitDamageTarget(damage.from, damage.to, 0, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
+                end
+            end
+        end
+    )
+    
+    Event("攻击",
+        function(data)
+            if GetOwningPlayer(data.to) == Player(12) then
+                if IsUnitType(data.to, UNIT_TYPE_PEON) then
+                    forRange(data.to, 400,
+                        function(u)
+                            if IsUnitType(u, UNIT_TYPE_PEON) then
+                                UnitRemoveType(u, UNIT_TYPE_PEON)
+                            end
+                        end
+                    )
                 end
             end
         end
