@@ -98,6 +98,7 @@
         Event("死亡",
             function(data)
                 if IsHero(data.unit) then return end
+                if GetUnitTypeId(data.unit) == 0 then return end
                 local t = tonumber(getObj(slk.unit, GetUnitTypeId(data.unit), "death", 3))
                 if t > 1000 then return end
                 units[data.unit] = CreateTimer()
