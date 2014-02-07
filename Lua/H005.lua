@@ -271,7 +271,7 @@
                             local u = Mark(data.unit, "符文创建者")
                             if this.unit == u then
                                 this.cardcount = this.cardcount - 1
-                                this.cost = this.cardcount * this:get(6)
+                                this.mana = this.cardcount * this:get(6)
                                 local ability = japi.EXGetUnitAbility(this.unit, this.id)
                                 japi.EXSetAbilityDataInteger(ability, 1, 104, this.cost)
                                 RefreshTips(this.unit)
