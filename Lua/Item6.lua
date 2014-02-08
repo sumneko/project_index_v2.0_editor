@@ -131,9 +131,12 @@
                         if data.power == max then
                             DestroyTimer(data.timer)
                             data.timer = false
+                        else
+                            SetSkillCool(this.unit, |A1A0|)
                         end
                         SetItemCharges(this.item, data.power)
                     end
+                    SetSkillCool(this.unit, |A1A0|)
                     TimerStart(data.timer, 20, true, func)
                     data.func = Event("技能效果",
                         function(that)
@@ -150,7 +153,8 @@
                                 SetItemCharges(this.item, data.power)
                                 if not data.timer then
                                     data.timer = CreateTimer()
-                                    TimerStart(data.timer, 10, true, func)
+                                    TimerStart(data.timer, 20, true, func)
+                                    SetSkillCool(this.unit, |A1A0|)
                                 end
                                 if data.power == 0 and data.effect then
                                     DestroyEffect(data.effect)
