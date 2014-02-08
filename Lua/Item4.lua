@@ -153,8 +153,10 @@
         skill = function(this)
             if this.event == "获得" then
                 Sai(this.unit, 0, 0, 20)
+                SetCoolDown(this.unit, 10)
             elseif this.event == "失去" then
                 Sai(this.unit, 0, 0, -20)
+                SetCoolDown(this.unit, -10)
             end
         end,
         skillOnly = {
@@ -167,7 +169,7 @@
                     data.timer = Mark(this.unit, this.skillname, data)
                     Loop(1,
                         function()
-                            local tc = 30 - GetUnitState(u, UNIT_STATE_MANA) / GetUnitState(u, UNIT_STATE_MAX_MANA) * 30
+                            local tc = 20 - GetUnitState(u, UNIT_STATE_MANA) / GetUnitState(u, UNIT_STATE_MAX_MANA) * 20
                             if math.abs(tc - data.c) < 0.1 then return end
                             SetCoolDown(u, tc - data.c)
                             data.c = tc
