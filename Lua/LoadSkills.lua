@@ -60,6 +60,10 @@
         if not data.mana then
             data.mana = 0
         end
+        --占用图标
+        if not data.icon then
+            data.icon = 0
+        end
         if not data.time then
             if data.type[1] == "主动" then
                 data.time = 0.5 + data.cast --主动技能后摇默认0.5

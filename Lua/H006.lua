@@ -497,7 +497,9 @@
                 )
             elseif this.event == "研发" then
                 if this.lastResearch == 3 then
-                    AddSkill(this.unit, "交换位置")
+                    if this.icon > 1 then
+                        AddSkill(this.unit, "交换位置")
+                    end
                 end
             end
         end

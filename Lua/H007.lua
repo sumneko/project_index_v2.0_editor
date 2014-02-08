@@ -87,30 +87,33 @@
                                             }
                                             return
                                         end
-                                        if this.learnedtimer then
+                                        if this.icon > 1 then
+                                            if this.learnedtimer then
                                             RemoveSkill(this.unit, this.learnedskill)
                                             DestroyTimer(this.learnedtimer)
-                                        end
-                                        local that = move.data.that
-                                        this.learnedskill = that.name .. "(" .. this.name .. ")"
-                                        AddSkill(this.unit, that.name, {lv = that.lv, name = this.learnedskill})
-                                        this.learnedtimer = Wait(this:get(3),
-                                            function()
-                                                RemoveSkill(this.unit, this.learnedskill)
-                                                this.learnedtimer = nil
+                                            this.learnedtimer = nil
                                             end
-                                        )
-                                        DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIim\\AIimTarget.mdl", move.target, "origin"))
-                                        Text{
-                                            unit = move.target,
-                                            word = that.name,
-                                            size = 16,
-                                            x = - 50,
-                                            z = 50,
-                                            color = {0, 50, 100},
-                                            life = {2, 3},
-                                            speed = {90, 90}
-                                        }
+                                            local that = move.data.that
+                                            this.learnedskill = that.name .. "(" .. this.name .. ")"
+                                            AddSkill(this.unit, that.name, {lv = that.lv, name = this.learnedskill, icon = 1})
+                                            this.learnedtimer = Wait(this:get(3),
+                                                function()
+                                                    RemoveSkill(this.unit, this.learnedskill)
+                                                    this.learnedtimer = nil
+                                                end
+                                            )
+                                            DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIim\\AIimTarget.mdl", move.target, "origin"))
+                                            Text{
+                                                unit = move.target,
+                                                word = that.name,
+                                                size = 16,
+                                                x = - 50,
+                                                z = 50,
+                                                color = {0, 50, 100},
+                                                life = {2, 3},
+                                                speed = {90, 90}
+                                            }
+                                        end
                                     end
                                 )
                             end
@@ -438,8 +441,10 @@
                     local ab = japi.EXGetUnitAbility(this.unit, this.id)
                     japi.EXSetAbilityDataReal(ab, 1, 105, 1000000)
                     japi.EXSetAbilityState(ab, 1, 10000) --将被动技能设置为永久处于冷却状态
-                    RemoveSkill(this.unit, "龙王叹息")
-                    AddSkill(this.unit, "龙王叹息", {lv = this.lv, cool = 60})
+                    if this.icon > 1 then
+                        RemoveSkill(this.unit, "龙王叹息")
+                        AddSkill(this.unit, "龙王叹息", {lv = this.lv, cool = 60})
+                    end
                     this.open2 = true
                     this.open = false
                     local e = AddSpecialEffectTarget("DeathSeal.mdx", this.unit, "origin")
@@ -489,7 +494,9 @@
                     end
                 )
                 
-                AddSkill(this.unit, "龙王叹息", {type = {"被动"}, lv = this.lv})
+                if this.icon > 1 then
+                    AddSkill(this.unit, "龙王叹息", {type = {"被动"}, lv = this.lv})
+                end
                 
                 --弹道模型
                 this.missile ={
@@ -524,8 +531,10 @@
                 SetSkillTip(this.unit, skill.y)
                 RefreshTips(this.unit)
             elseif this.event == "发动技能" then
-                RemoveSkill(this.unit, "龙王叹息")
-                AddSkill(this.unit, "龙王叹息", {lv = this.lv})
+                if this.icon > 1 then
+                    RemoveSkill(this.unit, "龙王叹息")
+                    AddSkill(this.unit, "龙王叹息", {lv = this.lv})
+                end
                 local area = this:get("area")
                 local m = CreateModle("war3mapImported\\unstableconcoctionrangedisplay3.mdl", this.unit, {size = area / 710})
                 local face = GetUnitFacing(this.unit)
@@ -654,8 +663,10 @@
                             end
                             this.open = false
                             Mark(this.unit, "弹道模型", false)
-                            RemoveSkill(this.unit, "龙王叹息")
-                            AddSkill(this.unit, "龙王叹息", {type = {"被动"}, lv = this.lv})
+                            if this.icon > 1 then
+                                RemoveSkill(this.unit, "龙王叹息")
+                                AddSkill(this.unit, "龙王叹息", {type = {"被动"}, lv = this.lv})
+                            end
                         end
                     end
                 )

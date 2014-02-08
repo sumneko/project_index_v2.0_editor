@@ -343,14 +343,19 @@
                                 Event("-伤害效果", this.skillfunc)
                                 this.skillfunc = nil
                             end
-                            if not RemoveSkill(this.unit, "讨魔") then return end
-                            AddSkill(this.unit, "讨魔", {type = {"被动"}, art = {"BTNBMZS3.blp"}, lv = this.lv})
+                            if this.icon > 1 then
+                                RemoveSkill(this.unit, "讨魔")
+                                AddSkill(this.unit, "讨魔", {type = {"被动"}, art = {"BTNBMZS3.blp"}, lv = this.lv})
+                            end
                             Event("-发动英雄技能", func)
                         end
                     end
                 )
-                if not (this.research and this.research[2]) and RemoveSkill(this.unit, "讨魔") then
-                    AddSkill(this.unit, "讨魔", {lv = this.lv})
+                if not (this.research and this.research[2]) then
+                    if this.icon > 1 then
+                        RemoveSkill(this.unit, "讨魔")
+                        AddSkill(this.unit, "讨魔", {lv = this.lv})
+                    end
                 end
                 
                 this.skillfunc = Event("伤害效果",
@@ -384,14 +389,18 @@
                     end
                 )
             elseif this.event == "获得技能" then
-                AddSkill(this.unit, "讨魔", {type = {"被动"}, art = {"BTNBMZS3.blp"}, lv = this.lv})
+                if this.icon > 1 then
+                    AddSkill(this.unit, "讨魔", {type = {"被动"}, art = {"BTNBMZS3.blp"}, lv = this.lv})
+                end
             elseif this.event == "升级技能" then
                 local skill = findSkillData(this.unit, "讨魔")
                 skill.lv = this.lv
                 SetSkillTip(this.unit, skill.y)
                 RefreshTips(this.unit)
             elseif this.event == "失去技能" then
-                RemoveSkill(this.unit, "讨魔")
+                if this.icon > 1 then
+                    RemoveSkill(this.unit, "讨魔")
+                end
             end
         end,
     }

@@ -98,13 +98,15 @@
                                 local skill = skilltable[name]
                                 if skill then
                                     DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIem\\AIemTarget.mdl", this.unit, "origin"))
-                                    RemoveSkill(this.unit, "伪装")
-                                    AddSkill(this.unit, "伪装", {
-                                        lv = this.lv,
-                                        art = {"BTNInvisibility.blp", getObj(slk.unit, GetUnitTypeId(u2), "Art", "\\BTNInvisibility.blp"):match("([^\\]+.blp)"), "BTNWispSplode.blp"},
-                                        data = {name, skill, skill},
-                                        unittype = GetUnitTypeId(u2)
-                                    })
+                                    if this.icon > 1 then
+                                        RemoveSkill(this.unit, "伪装")
+                                        AddSkill(this.unit, "伪装", {
+                                            lv = this.lv,
+                                            art = {"BTNInvisibility.blp", getObj(slk.unit, GetUnitTypeId(u2), "Art", "\\BTNInvisibility.blp"):match("([^\\]+.blp)"), "BTNWispSplode.blp"},
+                                            data = {name, skill, skill},
+                                            unittype = GetUnitTypeId(u2)
+                                        })
+                                    end
                                 end
                             end
                             return
@@ -122,7 +124,9 @@
                     this.flush() 
                 end
             elseif this.event == "获得技能" then
-                AddSkill(this.unit, "伪装", {type = {"被动"}})
+                if this.icon > 1 then
+                    AddSkill(this.unit, "伪装", {type = {"被动"}})
+                end
             end
         end
     }
@@ -512,8 +516,10 @@
         events = {"发动技能", "获得技能", "失去技能", "关闭技能"},
         code = function(this)
             if this.event == "发动技能" then
-                RemoveSkill(this.unit, "伪装技能")
-                AddSkill(this.unit, this:get(2), {lv = this.lv})
+                if this.icon > 1 then
+                    RemoveSkill(this.unit, "伪装技能")
+                    AddSkill(this.unit, this:get(2), {lv = this.lv})
+                end
                 local r1 = GetUnitState(this.unit, UNIT_STATE_ATTACK_RANGE)
                 local r2 = tonumber(getObj(slk.unit, this.unittype, "rangeN1", r1))
                 local r = r2 - r1
@@ -764,22 +770,30 @@
                     local name = this:get(2)
                     local sid = SkillTable[name]
                     local skill =  SkillTable[sid]
-                    AddSkill(this.unit, "伪装技能", {lv = this.lv, art = skill.art, tip = skill.tip, data = skill.data, newname = skill.name})
+                    if this.icon > 1 then
+                        AddSkill(this.unit, "伪装技能", {lv = this.lv, art = skill.art, tip = skill.tip, data = skill.data, newname = skill.name})
+                    end
                 end
             elseif this.event == "失去技能" then
-                RemoveSkill(this.unit, "伪装技能")
-                RemoveSkill(this.unit, this:get(2))
+                if this.icon > 1 then
+                    RemoveSkill(this.unit, "伪装技能")
+                    RemoveSkill(this.unit, this:get(2))
+                end
             elseif this.event == "关闭技能" then
                 if this.flush then
                     this.flush()
                 end
                 this.flush2()
-                RemoveSkill(this.unit, "伪装技能")
-                RemoveSkill(this.unit, this:get(2))
+                if this.icon > 1 then
+                    RemoveSkill(this.unit, "伪装技能")
+                    RemoveSkill(this.unit, this:get(2))
+                end
                 Wait(0.01,
                     function()
-                        RemoveSkill(this.unit, this.name)
-                        AddSkill(this.unit, this.name, this.newdata or {type = {"被动"}})
+                        if this.icon > 1 then
+                            RemoveSkill(this.unit, this.name)
+                            AddSkill(this.unit, this.name, this.newdata or {type = {"被动"}})
+                        end
                     end
                 )
             end
