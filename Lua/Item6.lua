@@ -5,9 +5,9 @@
         id = |I0C1|,
         skill = function(this)
             if this.event == "获得" then
-                Recover(this.unit, 0, 2)
+                Recover(this.unit, 0, 1)
             elseif this.event == "失去" then
-                Recover(this.unit, 0, -2)
+                Recover(this.unit, 0, -1)
             end
         end
     }
@@ -213,10 +213,10 @@
         skill = function(this)
             if this.event == "获得" then
                 MaxMana(this.unit, 200, true)
-                Recover(this.unit, 0, 2)
+                Recover(this.unit, 0, 1.5)
             elseif this.event == "失去" then
                 MaxMana(this.unit, -200, true)
-                Recover(this.unit, 0, -2)
+                Recover(this.unit, 0, -1.5)
             end
         end,
         skillOnly = {
@@ -265,10 +265,10 @@
         skill = function(this)
             if this.event == "获得" then
                 MaxMana(this.unit, 200, true)
-                Recover(this.unit, 0, 2)
+                Recover(this.unit, 0, 1.5)
             elseif this.event == "失去" then
                 MaxMana(this.unit, -200, true)
-                Recover(this.unit, 0, -2)
+                Recover(this.unit, 0, -1.5)
             end
         end,
         skillOnly = {
@@ -322,11 +322,11 @@
             if this.event == "获得" then
                 Sai(this.unit, 0, 0, 25)
                 MaxMana(this.unit, 200, true)
-                Recover(this.unit, 0, 5)
+                Recover(this.unit, 0, 2.5)
             elseif this.event == "失去" then
                 Sai(this.unit, 0, 0, -25)
                 MaxMana(this.unit, -200, true)
-                Recover(this.unit, 0, -5)
+                Recover(this.unit, 0, -2.5)
             end
         end,
         skillOnly = {
