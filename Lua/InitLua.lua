@@ -4,7 +4,7 @@
     require "BJ.lua" --导入BJ的Lua
     
     printTo = function(id, time, s) --向指定玩家发送消息
-        if not GetCreepCampFilterState() then return end --文字接收选项
+        --if not GetCreepCampFilterState() then return end --文字接收选项
         if not s then
             time, s = 60, time
         end
@@ -20,7 +20,7 @@
     end
 
     print = function(time, s) --如果不填time则默认60秒
-        if not GetCreepCampFilterState() then return end --文字接收选项
+        --if not GetCreepCampFilterState() then return end --文字接收选项
         if s then
             for i = 0, 15, 1 do
                 printTo(i, time, s)
