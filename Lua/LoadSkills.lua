@@ -62,7 +62,7 @@
         end
         --占用图标
         if not data.icon then
-            data.icon = 0
+            data.icon = 1
         end
         if not data.time then
             if data.type[1] == "主动" then
