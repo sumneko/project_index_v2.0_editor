@@ -1,4 +1,6 @@
     
+    local win
+    
     Event("死亡",
         function(data)
             if IsUnitType(data.unit, UNIT_TYPE_STRUCTURE) then
@@ -38,6 +40,16 @@
                     print(word)
                     for i = 1, 5 do
                         GetGold(ps[i], gold)
+                    end
+                    if not win then
+                        local id = GetUnitTypeId(data.unit)
+                        if id == |h00P| then
+                            print("|cffffcc00罗马正教胜利!|r")
+                            win = 1
+                        elseif id == |hcas| then
+                            print("|cffffcc00学园都市胜利!|r")
+                            win = 0
+                        end
                     end
                 end
             end
