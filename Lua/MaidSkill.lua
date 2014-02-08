@@ -103,7 +103,7 @@
                         IssueImmediateOrder(this.unit, "stop")
                         return 
                     end
-                    local target = GetSpellTargetLoc()
+                    local target = GetSpellTargetUnit() or GetSpellTargetLoc()
                     local tid = GetPlayerTeam(p)
                     local uid
                     if tid == 0 then
@@ -113,7 +113,11 @@
                     end
                     
                     local u = CreateUnitAtLoc(Com[tid], uid, GetUnitLoc(Maid[id]), 0)
-                    IssuePointOrder(u, "move", GetXY(target))
+                    if type(target) == "table" then
+                        IssuePointOrder(u, "move", GetXY(target))
+                    else
+                        IssueTargetOrder(u, "move", target)
+                    end
                     UnitAddAbility(u, |Avul|)
                     ArmyShareVision(tid, u)
                     
