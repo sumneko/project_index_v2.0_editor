@@ -80,7 +80,7 @@
     
     require "SkillLibrary.lua"
     
-    HeroTypeCount = 12 --制作中
+    HeroTypeCount = 13 --制作中
     
     local nilTable = {}
     
