@@ -167,7 +167,7 @@
         y = t.y
         local skill = japi.EXGetUnitAbility(u, t.id) --获取技能对象(JAPI)
         local untip = string.format(t.untip, unpack(t.undata))
-        local unname = string.format("关闭 |cffffcc00%s|r [|cffffcc00%s|r]", t.name, TrueSkillId["热键字符"][y])
+        local unname = string.format("关闭 |cffffcc00%s|r [|cffffcc00%s|r]", t.tipname or t.name, TrueSkillId["热键字符"][y])
         japi.EXSetAbilityDataString(skill, 1, 216, unname) --标题
         japi.EXSetAbilityDataString(skill, 1, 219, untip) --文本
     end
@@ -180,9 +180,9 @@
         local skill = japi.EXGetUnitAbility(u, t.id) --获取技能对象(JAPI)
         local tip
         if t.type[1] == "被动" then
-            tip = string.format("%s - 等级 |cffffcc00%d|r", t.name, t.lv)
+            tip = string.format("%s - 等级 |cffffcc00%d|r", t.tipname or t.name, t.lv)
         else
-            tip = string.format("%s [|cffffcc00%s|r] - 等级 |cffffcc00%d|r", t.name, TrueSkillId["热键字符"][y], t.lv)
+            tip = string.format("%s [|cffffcc00%s|r] - 等级 |cffffcc00%d|r", t.tipname or t.name, TrueSkillId["热键字符"][y], t.lv)
         end
         local tip2
         local tip3 = {}
@@ -216,7 +216,7 @@
             tip2 = GetTip(t) .. "\n\n" .. tip3
         end
         --文本
-        japi.EXSetAbilityDataString(skill, 1, 203, t.name) --名称
+        japi.EXSetAbilityDataString(skill, 1, 203, t.tipname or t.name) --名称
         japi.EXSetAbilityDataString(skill, 1, 204, "ReplaceableTextures\\CommandButtons\\" .. (t.art[2] or t.art[1])) --图标
         japi.EXSetAbilityDataString(skill, 1, 215, tip) --标题
         japi.EXSetAbilityDataString(skill, 1, 218, tip2) --文本
@@ -257,7 +257,7 @@
         end
         t.lv = t.lv + 1
         local skill = japi.EXGetUnitAbility(u, TrueSkillId["学习"][id][y]) --获取技能对象(JAPI)
-        local tip = string.format("学习 |cffffcc00%s|r [|cffffcc00%s|r] - 等级 |cffffcc00%d|r", t.name, TrueSkillId["热键字符"][y], t.lv)
+        local tip = string.format("学习 |cffffcc00%s|r [|cffffcc00%s|r] - 等级 |cffffcc00%d|r", t.tipname or t.name, TrueSkillId["热键字符"][y], t.lv)
         local tip2
         local tip3 = {}
         if t.mana and t.mana ~= 0 then
@@ -293,7 +293,7 @@
             tip2 = GetTip(t) .. "\n\n" .. tip3
         end
         t.lv = t.lv - 1
-        japi.EXSetAbilityDataString(skill, 1, 203, t.name) --名称
+        japi.EXSetAbilityDataString(skill, 1, 203, t.tipname or t.name) --名称
         japi.EXSetAbilityDataString(skill, 1, 204, "ReplaceableTextures\\CommandButtons\\" .. t.art[1]) --图标
         japi.EXSetAbilityDataString(skill, 1, 214, tip) --学习标题
         japi.EXSetAbilityDataString(skill, 1, 217, tip2) --学习文本
