@@ -25,8 +25,11 @@
 |cffffcc00降低攻速|r: %s%%\
 |cffffcc00降低移速|r: %s%%\
 |cffffcc00减速持续|r: %s\
-|cffffcc00暴击率|r: %s\
-|cff888888减速效果可以驱散",
+|cffffcc00暴击率|r: %s\n\
+|cff888888风王结界爆发延迟1.5秒\n减速效果可以驱散\n2种技能共享冷却时间",
+        untip = "\
+重新使用风王结界隐藏你的武器,使你获得被动的暴击率提升,但是将不能使用强大的技能.",
+        undata = {},
         researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
         data = {
             {12, 11, 10, 9}, --积攒时间1
@@ -42,19 +45,76 @@
         events = {"获得技能", "升级技能", "发动技能", "关闭技能", "失去技能"},
         code = function(this)
             if this.event == "获得技能" then
-                this._effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\Tornado\\Tornado_Target.mdl", this.unit, "hand right")
                 this._crit = this:get(7)
                 Crit(this.unit, this._crit)
+                local state = 0
+                this._pasfunc = function()
+                    state = 1
+                    this.tipname = nil
+                    DestroyEffect(this._effect)
+                    this._effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\Tornado\\Tornado_Target.mdl", this.unit, "hand right")
+                    local timer = Wait(this:get(1),
+                        function()
+                            state = 2
+                            DestroyEffect(this._effect)
+                            this._effect = AddSpecialEffectTarget("CycloneShield.mdx", this.unit, "hand right")
+                        end
+                    )
+                    this._pasflush = function()
+                        DestroyTimer(timer)
+                        DestroyEffect(this._effect)
+                        this._effect = nil
+                        return state
+                    end
+                end
+                this._pasfunc()
             elseif this.event == "升级技能" then
                 local up = this:get(7) - this._crit
                 this._crit = this:get(7)
                 Crit(this.unit, up)
             elseif this.event == "发动技能" then
-            elseif this.event == "关闭技能" then
-            elseif this.event == "失去技能" then
-                if this._effect then
-                    DestroyEffect(this._effect)
+                local state = this._pasflush()
+                this.tipname = "风王结界"
+                this._effect = AddSpecialEffectTarget("war3mapImported\\shizhongjian.mdx", this.unit, "hand right")
+                if state == 2 then
+                    --风王结界爆发
+                    local modle = CreateModle("CycloneShield.mdx", this.unit, {z = 50, time = 2, size = 3})
+                    local d = this:get(2) + this:get(3)
+                    local as, ms = this:get(4), this:get(5)
+                    local t = this:get(6)
+                    Wait(1.5,
+                        function()
+                            forRange(this.unit, this:get("area"),
+                                function(u)
+                                    if EnemyFilter(this.player, u) then
+                                        SkillEffect{
+                                            from = this.unit,
+                                            to = u,
+                                            name = this.name,
+                                            data = this,
+                                            aoe = true,
+                                            code = function(data)
+                                                SlowUnit{
+                                                    from = data.from,
+                                                    to = data.to,
+                                                    attack = as,
+                                                    move = ms,
+                                                    time = t,
+                                                    aoe = true,
+                                                }
+                                                Damage(data.from, data.to, d, false, true, {aoe = true, damageReason = this.name})
+                                            end
+                                        }
+                                    end
+                                end
+                            )
+                        end
+                    )
                 end
+            elseif this.event == "关闭技能" then
+                this._pasfunc()
+            elseif this.event == "失去技能" then
+                DestroyEffect(this._effect)
                 Crit(this.unit, - this._crit)
             end
         end
