@@ -14,11 +14,11 @@
         ani = "stand",
         art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 75,
-        dur = 30,
         area = 600,
         tip = "\
 |cffff00cc主动:|r解放石中剑的真名,使你可以使用更加强大的技能,但是失去该技能的被动效果.如果你在风王结界状态下维持了至少%s秒的时间,你将对周围的单位造成伤害并|cffffcc00减速|r.\
 |cffff00cc被动:|r风暴隐藏了你的武器,使你更加容易的击中敌人的要害,获得暴击率的提升.\
+\
 |cff00ffcc技能|r: 无目标\
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\
@@ -82,8 +82,14 @@
                     local d = this:get(2) + this:get(3)
                     local as, ms = this:get(4), this:get(5)
                     local t = this:get(6)
+                    local timer = Loop(0.1,
+                        function()
+                            SetUnitXY(modle, this.unit)
+                        end
+                    )
                     Wait(1.5,
                         function()
+                            DestroyTimer(timer)
                             forRange(this.unit, this:get("area"),
                                 function(u)
                                     if EnemyFilter(this.player, u) then
@@ -123,6 +129,7 @@
     --魔力放出
     InitSkill{
         name = "魔力放出",
+        tipname = "魔力放出",
         _tipname = "远离尘世的理想乡",
         type = {"主动"},
         ani = "morph",
@@ -133,13 +140,13 @@
         _mana = {150, 160, 170, 180},
         cool = 30,
         _cool = 60,
-        dur = 15,
+        dur = 10,
         _dur = {4.5, 5, 5.5, 6},
         tip = "\
 放射出魔法构建铠甲,吸收受到的伤害.当铠甲存在时,你的攻击附带额外的法术伤害,数值正比于你的铠甲的剩余能量.\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 法术\n\
 |cffffcc00铠甲能量|r: %s(|cff0000ff+%d|r)\
-|cffffcc00额外伤害|r: %s%%"
+|cffffcc00额外伤害|r: %s%%",
         researchtip = "结晶体优先攻击英雄",
         data = {
             {150, 200, 250, 300}, --铠甲能量1
@@ -149,14 +156,16 @@
             {10, 15, 20, 25} --伤害系数3
         },
         _tip = "\
-获得极高的魔法抗性与生命恢复速度.持续期间内你处于|cffffcc00霸体|r状态.\n\
+获得极高的护甲,抗性与生命恢复速度.持续期间内你处于|cffffcc00霸体|r状态.\n\
 |cff00ffcc技能|r: 无目标\n\
-|cffffcc00魔法抗性|r: %s\
+|cffffcc00护甲|r: %s\
+|cffffcc00抗性|r: %s\
 |cffffcc00生命恢复|r: %s(|cff0000ff+%d|r)\n\
 |cff888888霸体状态下免疫晕眩,变羊,吹风等令你无法控制的负面效果",
         _data = {
-            {50, 75, 100, 125}, --魔抗1
-            {30, 40, 50, 60}, --生命恢复2
+            {80, 120, 160, 200}, --护甲1
+            {50, 75, 100, 125}, --魔抗2
+            {30, 40, 50, 60}, --生命恢复3
             function(ap)
                 return ap * 0.3
             end
@@ -164,8 +173,110 @@
         events = {"获得技能", "发动技能", "失去技能"},
         code = function(this)
             if this.event == "发动技能" then
+                if this.tipname == "魔力放出" then
+                    local effect = AddSpecialEffectTarget("war3mapImported\\BigBlueOrbShield.mdx", this.unit, "origin")
+                    local hp = this:get(1) + this:get(2)
+                    local s = this:get(3) / 100
+                    
+                    local func1 = Event("伤害减免",
+                        function(damage)
+                            if damage.to == this.unit then
+                                local d = math.min(damage.damage, hp)
+                                hp = hp - d
+                                damage.damage = damage.damage - d
+                                if d == 0 then
+                                    this.flush()
+                                end
+                            end
+                        end
+                    )
+                    
+                    local func2 = Event("伤害效果",
+                        function(damage)
+                            if damage.attack and damage.from == this.unit then
+                                Damage(damage.from, damage.to, hp * s, false, true, {damageReason = this.name})
+                            end
+                        end
+                    )
+                    
+                    Wait(this:get("dur"),
+                        function()
+                            if this.flush then
+                                this.flush()
+                            end
+                        end
+                    )
+                    
+                    this.flush = function()
+                        Event("-伤害减免", func1)
+                        Event("-伤害效果", func2)
+                        DestroyEffect(effect)
+                        this.flush = nil
+                    end
+                elseif this.tipname == "远离尘世的理想乡" then
+                    local effect = AddSpecialEffectTarget("war3mapImported\\BigYellowOrbShield.mdx", this.unit, "origin")
+                    local def, ant = this:get(1), this:get(2)
+                    local hp = this:get(3) + this:get(4)
+                    Def(this.unit, def)
+                    Ant(this.unit, ant)
+                    Recover(this.unit, hp)
+                    
+                    Wait(this:get("dur"),
+                        function()
+                            if this.flush then
+                                this.flush()
+                            end
+                        end
+                    )
+                    
+                    local func1 = Event("无法控制",
+                        function(data)
+                            if data.to == this.unit then
+                                return true
+                            end
+                        end
+                    )
+                    
+                    this.flush = function()
+                        DestroyEffect(effect)
+                        Def(this.unit, - def)
+                        Ant(this.unit, - ant)
+                        Recover(this.unit, - hp)
+                        Event("-无法控制", func1)
+                        this.flush = nil
+                    end
+                end
             elseif this.event == "获得技能" then
+                local func1 = Event("英雄技能回调",
+                    function(data)
+                        local that = data.skill
+                        if that.unit == this.unit and that.name == "解放真名" and (that.event == "发动技能" or that.event == "关闭技能") then
+                            this._change()
+                        end
+                    end
+                )
+                
+                this._change = function()
+                    this.tipname, this._tipname = this._tipname, this.tipname
+                    this.ani, this._ani = this._ani, this.ani
+                    this.mana, this._mana = this._mana, this.mana
+                    this.cool, this._cool = this._cool, this.cool
+                    this.dur, this._dur = this._dur, this.dur
+                    this.tip, this._tip = this._tip, this.tip
+                    this.data, this._data = this._data, this.data
+                    SetSkillTip(this.unit, this.id)
+                end
+                
+                local that = findSkillData(this.unit, "解放真名")
+                if that and that.openflag then
+                    this._change()
+                end
+                
+                this._flush = function()
+                    Event("-发动英雄技能后", func1)
+                end
             elseif this.event == "失去技能" then
+                this._flush()
             end            
         end
     }
