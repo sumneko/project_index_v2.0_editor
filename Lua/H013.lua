@@ -71,11 +71,14 @@
             elseif this.event == "升级技能" then
                 local up = this:get(7) - this._crit
                 this._crit = this:get(7)
-                Crit(this.unit, up)
+                if not this.openflag then
+                    Crit(this.unit, up)
+                end
             elseif this.event == "发动技能" then
                 local state = this._pasflush()
                 this.tipname = "风王结界"
                 this._effect = AddSpecialEffectTarget("war3mapImported\\shizhongjian.mdx", this.unit, "hand right")
+                Crit(this.unit, - this._crit)
                 if state == 2 then
                     --风王结界爆发
                     local modle = CreateModle("CycloneShield.mdx", this.unit, {z = 50, time = 2, size = 3})
@@ -119,6 +122,7 @@
                 end
             elseif this.event == "关闭技能" then
                 this._pasfunc()
+                Crit(this.unit, this._crit)
             elseif this.event == "失去技能" then
                 DestroyEffect(this._effect)
                 Crit(this.unit, - this._crit)
@@ -174,7 +178,7 @@
         code = function(this)
             if this.event == "发动技能" then
                 if this.tipname == "魔力放出" then
-                    local effect = AddSpecialEffectTarget("war3mapImported\\BigBlueOrbShield.mdx", this.unit, "origin")
+                    local effect = AddSpecialEffectTarget("war3mapImported\\BigBlueOrbShield.mdx", this.unit, "chest")
                     local hp = this:get(1) + this:get(2)
                     local s = this:get(3) / 100
                     
@@ -214,7 +218,7 @@
                         this.flush = nil
                     end
                 elseif this.tipname == "远离尘世的理想乡" then
-                    local effect = AddSpecialEffectTarget("war3mapImported\\BigYellowOrbShield.mdx", this.unit, "origin")
+                    local effect = AddSpecialEffectTarget("war3mapImported\\BigYellowOrbShield.mdx", this.unit, "chest")
                     local def, ant = this:get(1), this:get(2)
                     local hp = this:get(3) + this:get(4)
                     Def(this.unit, def)
