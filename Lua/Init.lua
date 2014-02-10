@@ -1,10 +1,21 @@
     jass_ext.EnableConsole() --打开Lua引擎控制台
     
+    old = {}
+    
     require "AnsiWord.lua"
+    
+    function jass_ext.runtime.error_handle(msg) --调用栈
+        old.print("---------------------------------------")
+        old.print(ANSI.error)
+        old.print("---------------------------------------")
+        old.print(tostring(msg) .. "\n")
+        old.print(debug.traceback())
+        old.print("---------------------------------------")
+    end
 
     setmetatable(_G, { __index = getmetatable(jass).__index})
     
-    old = {}
+    
     old.require = require
     old.print = print
     
