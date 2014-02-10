@@ -785,7 +785,7 @@
         if data.size then
             SetUnitScale(u, data.size, data.size, data.size)
         end
-        local e = AddSpecialEffectTarget(mod, u, "origin")
+        local e = AddSpecialEffectTarget(mod, u, "chest")
         Mark(u, "绑定特效", e)
         Mark(u, "立即删除", data.remove)
         if data.time then
