@@ -120,3 +120,53 @@
         end
     }
     
+    --魔力放出
+    InitSkill{
+        name = "魔力放出",
+        _tipname = "远离尘世的理想乡",
+        type = {"主动"},
+        ani = "morph",
+        _ani = "spell four",
+        art = {"BTNHeartOfAszune.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        cast = 0.3,
+        mana = {120, 130, 140, 150},
+        _mana = {150, 160, 170, 180},
+        cool = 30,
+        _cool = 60,
+        dur = 15,
+        _dur = {4.5, 5, 5.5, 6},
+        tip = "\
+放射出魔法构建铠甲,吸收受到的伤害.当铠甲存在时,你的攻击附带额外的法术伤害,数值正比于你的铠甲的剩余能量.\n\
+|cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 法术\n\
+|cffffcc00铠甲能量|r: %s(|cff0000ff+%d|r)\
+|cffffcc00额外伤害|r: %s%%"
+        researchtip = "结晶体优先攻击英雄",
+        data = {
+            {150, 200, 250, 300}, --铠甲能量1
+            function(ap)
+                return ap * 1.5
+            end,
+            {10, 15, 20, 25} --伤害系数3
+        },
+        _tip = "\
+获得极高的魔法抗性与生命恢复速度.持续期间内你处于|cffffcc00霸体|r状态.\n\
+|cff00ffcc技能|r: 无目标\n\
+|cffffcc00魔法抗性|r: %s\
+|cffffcc00生命恢复|r: %s(|cff0000ff+%d|r)\n\
+|cff888888霸体状态下免疫晕眩,变羊,吹风等令你无法控制的负面效果",
+        _data = {
+            {50, 75, 100, 125}, --魔抗1
+            {30, 40, 50, 60}, --生命恢复2
+            function(ap)
+                return ap * 0.3
+            end
+        },
+        events = {"获得技能", "发动技能", "失去技能"},
+        code = function(this)
+            if this.event == "发动技能" then
+            elseif this.event == "获得技能" then
+            elseif this.event == "失去技能" then
+            end            
+        end
+    }
+    

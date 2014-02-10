@@ -6,7 +6,7 @@
     
     function jass_ext.runtime.error_handle(msg) --调用栈
         old.print("---------------------------------------")
-        old.print(ANSI.error)
+        old.print("       " .. ANSI.error)
         old.print("---------------------------------------")
         old.print(tostring(msg) .. "\n")
         old.print(debug.traceback())
