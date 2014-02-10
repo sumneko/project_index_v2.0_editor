@@ -29,7 +29,7 @@
         data.get = function(data, i)
             local s
             if type(i) == "number" then
-                s = data.data[i]
+                s = data.data[i] or data.undata[i]
             else
                 s = data[i]
             end
