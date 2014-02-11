@@ -629,14 +629,14 @@
         mana = {150, 200, 250},
         cool = 15,
         area = 300,
-        rng = 1200,
-        dur = 1,
+        rng = 1500,
+        dur = 1.5,
         tip = "\
 利用风王结界将压缩的风暴释放,对一条直线上的单位造成伤害并将他们向两边推开.使用后再次激活该技能将跟随风暴前进,但是技能冷却时间变为60秒.\n\
 |cff00ffcc技能|r: 点目标\
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\n\
-|cff888888风暴飞行速度为%d\n再次激活技能的限制时间为%d秒",
+|cff888888风暴飞行速度为%d\n再次激活技能的限制时间为%d秒\n跟随速度为风王铁槌的2倍",
         researchtip = {
             "伤害持续期间目标单位无法恢复生命值",
             "每段伤害会溅射给附近的敌方单位,溅射范围由100逐渐扩大至200",
@@ -646,9 +646,97 @@
             {150, 300, 450}, --伤害 1 2
             function(ap)
                 return ap * 1.75
-            end
+            end,
+            1000, --速度3
+            1.5, --限制时间4
         },
         events = {"发动技能", "关闭技能"},
         code = function(this)
+            if this.event == "发动技能" then
+                if this.tipname == "风王铁槌" then
+                    local angle = GetBetween(this.unit, this.target, true)
+                    local speed = this:get(3)
+                    local distance = this:get("rng")
+                    local g = {}
+                    local d = this:get(1) + this:get(2)
+                    local area = this:get("area")
+                    local mod = {}
+                    for i = 1, 8 do
+                        mod[i] = CreateModle("Abilities\\Spells\\Other\\Tornado\\TornadoElementalSmall.mdl", MovePoint(this.unit, {area / 2, angle + 45 * i}), {size = 0.5})
+                    end
+                    local mover = Mover(
+                        {
+                            from = this.unit,
+                            modle = "Abilities\\Spells\\NightElf\\Cyclone\\CycloneTarget.mdl",
+                            size = 1.5,
+                            speed = speed,
+                            angle = angle,
+                            distance = distance,
+                        },
+                        function(move)
+                            angle = angle + 15
+                            for i = 1, 8 do
+                                SetUnitXY(mod[i], MovePoint(move.unit, {area / 2, angle + 45 * i}))
+                            end                            
+                            if move.count % 5 == 0 then --0.1秒判定一次
+                                forRange(move.unit, area,
+                                    function(u)
+                                        if not g[u] and EnemyFilter(this.player, u) then
+                                            g[u] = true
+                                            Damage(move.from, u, d, false, true, {aoe = true, damageReason = this.name})
+                                            local a = GetBetween(move.unit, u, true)
+                                            if math.A2A(a, angle + 90) < math.A2A(a, angle - 90) then
+                                                a = angle + 90
+                                            else
+                                                a = angle - 90
+                                            end
+                                            SetUnitXY(u, MovePoint(move.unit, {area, a}))
+                                        end
+                                    end
+                                )
+                            end
+                        end,
+                        nil,
+                        function(move)
+                            for i = 1, 8 do
+                                KillUnit(mod[i])
+                                RemoveUnit(mod[i])
+                            end
+                        end
+                    )
+                    
+                    this.flush1 = function()
+                        Wait(0.01,
+                            function()
+                                SetUnitAnimation(this.unit, "spell channel")
+                            end
+                        )
+                        SetUnitFacing(this.unit, GetBetween(this.unit, mover.unit, true))
+                        local effect = AddSpecialEffectTarget("BladeShockwave.mdl", this.unit, "chest")
+                        Mover(
+                            {   
+                                unit = this.unit,
+                                speed = speed * 2,
+                                target = mover.unit
+                            },
+                            nil,
+                            nil,
+                            function(move)
+                                DestroyEffect(effect)
+                            end
+                        )
+                        this.freshcool = 60
+                    end
+                end
+            elseif this.event == "关闭技能" then
+                if this.userclose then
+                    if this.tipname == "风王铁槌" then
+                        if this.userclose then
+                            --玩家主动关闭技能
+                            this.flush1()
+                        end
+                    end
+                end
+            end
         end
     }
