@@ -625,7 +625,6 @@
                                             if not skill.openflag then
                                                 return
                                             end
-                                            skill.userclose = false
                                             skill.openflag = false
                                             if skill.untip then
                                                 skill.tip, skill.untip = skill.untip, skill.tip
@@ -645,6 +644,8 @@
                                                 skill:code()
                                                 toEvent("英雄技能回调", {skill = skill})
                                             end
+                                            
+                                            skill.userclose = false
                                             
                                             Wait(0,
                                                 function()
