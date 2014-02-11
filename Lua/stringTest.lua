@@ -44,7 +44,7 @@
                 level[x] = 99
             end
         elseif s[1] == ".count" then
-            print("Lua脚本当前占用的内存为:|cffffcc00" .. collectgarbage("count") .. "|r")
+            print(("Lua脚本当前占用的内存为: |cffffcc00%.2f|r KB"):format(collectgarbage("count")))
         end
     end
 

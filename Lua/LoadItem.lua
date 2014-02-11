@@ -394,6 +394,7 @@
     end
     
     local loseItemFlag --触发器丢弃物品
+    
     getTrg = CreateTrigger()
     TriggerRegisterAnyUnitEventBJ(getTrg, EVENT_PLAYER_UNIT_PICKUP_ITEM)
     TriggerAddCondition(getTrg, Condition(
