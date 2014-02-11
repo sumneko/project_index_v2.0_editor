@@ -430,7 +430,7 @@
             Event("阵亡损失",
                 function(data)
                     if data.unit == this.hero then
-                        data.time = data.time - data.otime * 0.33
+                        data.time = math.floor(data.time - data.otime * 0.33)
                     end
                 end
             )
