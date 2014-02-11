@@ -557,6 +557,7 @@
                 
                 if data.event == "发动技能" then
                     if skill.type[1] == "开关" and skill.openflag then
+                        skill.userclose = true
                         skill:closeskill()
                         return
                     end
@@ -624,6 +625,7 @@
                                             if not skill.openflag then
                                                 return
                                             end
+                                            skill.userclose = false
                                             skill.openflag = false
                                             if skill.untip then
                                                 skill.tip, skill.untip = skill.untip, skill.tip
