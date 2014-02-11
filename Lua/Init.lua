@@ -14,6 +14,8 @@
             old.print(debug.traceback())
             old.print("---------------------------------------")
         end
+        
+        jass_ext.runtime.handle_level = 2 --lua持有handle时增加引用计数
     end
 
     setmetatable(_G, { __index = getmetatable(jass).__index})
