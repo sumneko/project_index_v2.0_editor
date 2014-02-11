@@ -322,12 +322,12 @@
             end,
         },
         _tip = "\
-依次斩出3剑,对前方一片区域内的单位造成伤害.第3剑会对被穿透的单位都造成伤害.\n\
+依次斩出3剑,对前方一片区域内的单位造成伤害.第3剑会推动路径上的单位..\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 物理\n\
 |cffffcc00第1剑伤害|r: %s(|cffff0000+%d|r)\
 |cffffcc00第2剑伤害|r: %s(|cffff0000+%d|r)\
 |cffffcc00第3剑伤害|r: %s(|cffff0000+%d|r)\n\
-|cff888888每斩出一剑后技能会进入%s秒的短暂冷却\n超过%s秒没有斩出下一剑技能将进入冷却\n第3剑的位移速度与移动速度相同,不能穿越地形",
+|cff888888每斩出一剑后技能会进入%s秒的短暂冷却\n超过%s秒没有斩出下一剑技能将进入冷却\n第3剑的位移速度与移动速度相同,可以穿越地形",
         _data = {
             {65, 100, 135, 170}, --第1剑 1 2
             function(ap, ad)
@@ -450,8 +450,11 @@
                                     end
                                 )
                                 TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                                SetSoundPosition(gg_snd_MetalHeavyChopFlesh1, loc[1], loc[2], 0)
+                                StartSound(gg_snd_MetalHeavyChopFlesh1)
                             end
                         )
+                        
                         --激活短暂冷却
                         this._func2()
                         --为下一剑准备数据
@@ -483,6 +486,8 @@
                                     end
                                 )
                                 TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                                SetSoundPosition(gg_snd_MetalHeavyChopFlesh2, loc[1], loc[2], 0)
+                                StartSound(gg_snd_MetalHeavyChopFlesh2)
                                 
                             end
                         )
@@ -495,6 +500,7 @@
                     elseif this._slash == 3 then
                         --第3剑
                         local d = this:get(5) + this:get(6)
+                        local g = {} --保存推进单位组
                         this._slashmover = Mover(
                             {
                                 unit = this.unit,
@@ -502,7 +508,24 @@
                                 angle = GetUnitFacing(this.unit),
                                 time = 0.5,
                             },
-                            nil,
+                            function(move)
+                                if move.count % 5 == 0 then --每5个周期,即0.1秒判定一次
+                                    local loc = MovePoint(move.unit, {area, move.angle})
+                                    for u, t in pairs(g) do
+                                        SetUnitXY(u, MovePoint(loc, t))
+                                    end
+                                    forRange(loc, area,
+                                        function(u)
+                                            if not g[u] and EnemyFilter(this.player, u) then
+                                                g[u] = { --结构为 距离,角度
+                                                    GetBetween(loc, u),
+                                                    GetBetween(loc, u, true)
+                                                }
+                                            end
+                                        end
+                                    )
+                                end
+                            end,
                             function(move)
                                 this._slashmover = nil
                                 local loc = MovePoint(this.unit, {area, GetUnitFacing(this.unit)})
@@ -524,6 +547,8 @@
                                     end
                                 )
                                 TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                                SetSoundPosition(gg_snd_MetalHeavyChopFlesh3, loc[1], loc[2], 0)
+                                StartSound(gg_snd_MetalHeavyChopFlesh3)
                             end
                         )
                         --结束技能
@@ -593,38 +618,37 @@
         end
     }
     
-    --金星之枪
+    --风王铁槌
     InitSkill{
-        name = "金星之枪",
-        type = {"主动", 2},
-        ani = "spell 1",
+        name = "风王铁槌",
+        tipname = "风王铁槌",
+        type = {"开关", 2},
+        ani = "spell three",
         art = {"BTNJXR Ico.blp"},
-        cast = 0.1,
+        cast = 0.3,
         mana = {150, 200, 250},
-        time = 0.75,
-        cool = {30, 20, 10},
-        area = 50,
-        rng = 2000,
+        cool = 15,
+        area = 300,
+        rng = 1200,
+        dur = 1,
         tip = "\
-用黑曜石匕首反射金星的光芒,分解被照射到的的一个单位或建筑,造成大量伤害,此外还会根据对方最大生命值造成额外伤害.\n\
+利用风王结界将压缩的风暴释放,对一条直线上的单位造成伤害并将他们向两边推开.使用后再次激活该技能将跟随风暴前进,但是技能冷却时间变为60秒.\n\
 |cff00ffcc技能|r: 点目标\
-|cff00ffcc伤害|r: 混合\n\
-|cffffcc00伤害(最大生命值)|r: %s%%\
-|cffffcc00伤害(固定部分)|r: %s(|cff0000ff+%d|r)\n\
-|cff888888轨迹线仅友方可见\n施法延迟0.75秒\n伤害在4秒内分5段造成",
+|cff00ffcc伤害|r: 法术\n\
+|cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\n\
+|cff888888风暴飞行速度为%d\n再次激活技能的限制时间为%d秒",
         researchtip = {
             "伤害持续期间目标单位无法恢复生命值",
             "每段伤害会溅射给附近的敌方单位,溅射范围由100逐渐扩大至200",
             "金星之枪可以穿透第一个单位,对第二个单位也照成同样的效果",
         },
         data = {
-            {30, 40, 50}, --最大生命值部分1
-            {200, 400, 600}, --固定伤害部分2
-            function(ap) --伤害加成3
-                return ap * 2
+            {150, 300, 450}, --伤害 1 2
+            function(ap)
+                return ap * 1.75
             end
         },
-        events = {"发动技能", "停止施放", "施放结束"},
+        events = {"发动技能", "关闭技能"},
         code = function(this)
         end
     }
