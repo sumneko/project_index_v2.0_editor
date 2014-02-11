@@ -4,13 +4,16 @@
     
     require "AnsiWord.lua"
     
-    function jass_ext.runtime.error_handle(msg) --调用栈
-        old.print("---------------------------------------")
-        old.print("       " .. ANSI.error)
-        old.print("---------------------------------------")
-        old.print(tostring(msg) .. "\n")
-        old.print(debug.traceback())
-        old.print("---------------------------------------")
+    local runtime = jass_ext.runtime
+    if runtime then
+        runtime.error_handle = function(msg) --调用栈
+            old.print("---------------------------------------")
+            old.print("       " .. ANSI.error)
+            old.print("---------------------------------------")
+            old.print(tostring(msg) .. "\n")
+            old.print(debug.traceback())
+            old.print("---------------------------------------")
+        end
     end
 
     setmetatable(_G, { __index = getmetatable(jass).__index})
