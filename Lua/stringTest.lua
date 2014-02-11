@@ -43,6 +43,8 @@
             for x = 1, 99 do
                 level[x] = 99
             end
+        elseif s[1] == ".count" then
+            print("Lua脚本当前占用的内存为:|cffffcc00" .. collectgarbage("count") .. "|r")
         end
     end
 
