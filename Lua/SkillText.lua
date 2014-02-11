@@ -5,7 +5,7 @@
                 unit = data.unit,
                 x = -30,
                 z = 50,
-                word = data.tipname or data.name,
+                word = data.name,
                 size = 10,
                 color = {100, 0, 0},
                 speed = {58, 90},

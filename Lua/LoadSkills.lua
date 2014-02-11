@@ -586,7 +586,7 @@
                                     --发起事件
                                     skill.spellflag = GetTime()
                                     skill.targetcooltime = skill.spellflag + (skill:get("cool") or 0)
-                                    toEvent("发动英雄技能", {unit = data.unit, skill = data.skill, name = skill.name, data = skill})
+                                    toEvent("发动英雄技能", {unit = data.unit, skill = data.skill, name = skill.tipname or skill.name, data = skill})
                                     if skill.events["发动技能"] then
                                         skill.event = "发动技能"
                                         skill:code()
@@ -691,7 +691,13 @@
                                         end
                                     elseif skill.type[1] == "主动" then
                                         --开始技能冷却
-                                        local cd = skill:get("cool")
+                                        local cd
+                                        if skill.freshcool then
+                                            cd = skill.freshcool
+                                            skill.freshcool = false
+                                        else
+                                            cd = skill:get("cool")
+                                        end
                                         if cd then
                                             local ab = japi.EXGetUnitAbility(data.unit, skill.id)
                                             --Debug("<handle>" .. GetHandleId(ab) .. "<id>" .. skill.id .. "<cd>" .. cd)
