@@ -130,7 +130,7 @@
         end
     }
     
-    --魔力放出
+    --魔力放出/远离尘世的理想乡
     InitSkill{
         name = "魔力放出",
         tipname = "魔力放出",
@@ -153,9 +153,9 @@
 |cffffcc00额外伤害|r: %s%%",
         researchtip = "结晶体优先攻击英雄",
         data = {
-            {150, 200, 250, 300}, --铠甲能量1
+            {150, 220, 290, 360}, --铠甲能量1
             function(ap)
-                return ap * 1.5
+                return ap * 1.6
             end,
             {10, 15, 20, 25} --伤害系数3
         },
@@ -269,6 +269,7 @@
                     this.tip, this._tip = this._tip, this.tip
                     this.data, this._data = this._data, this.data
                     SetSkillTip(this.unit, this.id)
+                    SetLearnSkillTip(this.unit, this.id)
                 end
                 
                 local that = findSkillData(this.unit, "解放真名")
@@ -285,3 +286,345 @@
         end
     }
     
+    --直感/剑舞
+    InitSkill{
+        name = "直感",
+        tipname = "直感",
+        _tipname = "剑舞",
+        type = {"主动"},
+        ani = nil,
+        _ani = "spell three",
+        art = {"BTNHeartOfAszune.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        mana = 50,
+        _mana = nil,
+        cool = 20,
+        _cool = 30,
+        dur = 5,
+        _dur = nil,
+        cast = 0,
+        _cast = 0.01,
+        time = 0.001,
+        _time = 0.6,
+        area = {1000, 1500, 2000, 2500},
+        _area = 150,
+        tip = "\
+|cffff00cc主动:|r探知附近的威胁,暂时获得大范围的空中视野.\
+|cffff00cc被动:|r阿尔托莉亚的直感能力已经达到可以扭曲未来的程度,有几率使受到的伤害减少.\n\
+|cff00ffcc技能|r: 无目标\n\
+|cffffcc00扭曲几率|r: %s%%\
+|cffffcc00伤害减少|r: %s(|cff0000ff+%.2f|r)%%",
+        researchtip = "结晶体优先攻击英雄",
+        data = {
+            {29, 36, 43, 50}, --扭曲几率1
+            {15, 20, 25, 30}, --伤害减少2
+            function(ap)
+                return ap * 0.1
+            end,
+        },
+        _tip = "\
+依次斩出3剑,对前方一片区域内的单位造成伤害.第3剑会对被穿透的单位都造成伤害.\n\
+|cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 物理\n\
+|cffffcc00第1剑伤害|r: %s(|cffff0000+%d|r)\
+|cffffcc00第2剑伤害|r: %s(|cffff0000+%d|r)\
+|cffffcc00第3剑伤害|r: %s(|cffff0000+%d|r)\n\
+|cff888888每斩出一剑后技能会进入%s秒的短暂冷却\n超过%s秒没有斩出下一剑技能将进入冷却\n第3剑的位移速度与移动速度相同,不能穿越地形",
+        _data = {
+            {65, 100, 135, 170}, --第1剑 1 2
+            function(ap, ad)
+                return ad * 0.75
+            end,
+            {50, 75, 100, 125}, --第2剑 3 4
+            function(ap, ad)
+                return ad * 0.65
+            end,
+            {90, 135, 180, 225}, --第3剑 5 6
+            function(ap, ad)
+                return ad * 0.9
+            end,
+            0.35, --斩击间隔7
+            3, --斩击超时8
+        },
+        events = {"获得技能", "发动技能", "失去技能", "停止施放"},
+        code = function(this)
+            if this.event == "发动技能" then
+                if this.tipname == "直感" then
+                    local effect = AddSpecialEffectTarget("DarkSummonSeal.mdx", this.unit, "origin")
+                    local area = this:get("area")
+                    local x, y = GetXY(this.unit)
+                    local mr = CreateFogModifierRadius(this.player, FOG_OF_WAR_VISIBLE, x, y, area, true, false)
+                    FogModifierStart(mr)
+                    local dur = this:get("dur")
+                    local time = 0
+                    Loop(0.5,
+                        function()
+                            time = time + 0.5
+                            DestroyFogModifier(mr)
+                            if time < dur then
+                                x, y = GetXY(this.unit)
+                                mr = CreateFogModifierRadius(this.player, FOG_OF_WAR_VISIBLE, x, y, area, true, false)
+                                FogModifierStart(mr)
+                            else
+                                EndLoop()
+                                DestroyEffect(effect)
+                            end
+                        end
+                    )
+                    
+                elseif this.tipname == "剑舞" then
+                    --结束技能
+                    this._func1 = function()
+                        --技能进入冷却
+                        if this._slash > 0 then
+                            local ab = japi.EXGetUnitAbility(this.unit, this.id)
+                            local cd = japi.EXGetAbilityState(ab, 1)
+                            if cd > 0 then
+                                UnitRemoveAbility(this.unit, this.id)
+                                UnitAddAbility(this.unit, this.id)
+                            end
+                            local mcd = this:get("cool")
+                            local pasttime = GetTime() - this._firsttime
+                            Wait(0,
+                                function()
+                                    SetSkillCool(this.unit, this.id, mcd - pasttime, mcd)
+                                end
+                            )
+                        end
+                        --重置数据
+                        this.ani = "spell three"
+                        this.time = 0.6
+                        this._slash = 0
+                        --清理数据
+                        if this._timer then
+                            DestroyTimer(this._timer)
+                            this._timer = nil
+                        end
+                    end
+                    
+                    --启动间隔
+                    this._func2 = function()
+                        --开始短暂间隔
+                        this.freshcool = this:get(7)
+                        --超时直接进入冷却
+                        local timeout = this:get(8)
+                        if not this._timer then
+                            this._timer = CreateTimer()
+                        end
+                        TimerStart(this._timer, timeout, false, this._func1)
+                    end
+                    
+                    this._func3 = function()
+                        if this._slashtimer then
+                            DestroyTimer(this._slashtimer)
+                            this._slashtimer = nil
+                        end
+                        if this._slashmover then
+                            this._slashmover.stop = true
+                            this._slashmover = nil
+                        end
+                    end
+                    
+                    this._slash = this._slash + 1
+                    local area = this:get("area")
+                    if this._slash == 1 then
+                        --第1剑
+                        local d = this:get(1) + this:get(2)
+                        this._slashtimer = Wait(0.3,
+                            function()
+                                this._slashtime = nil
+                                local loc = MovePoint(this.unit, {area, GetUnitFacing(this.unit)})
+                                forRange(loc, area,
+                                    function(u)
+                                        if EnemyFilter(this.player, u) then
+                                            SkillEffect{
+                                                from = this.unit,
+                                                to = u,
+                                                name = this.name,
+                                                data = this,
+                                                aoe = true,
+                                                code = function(data)
+                                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile_mini.mdl", data.to, "chest"))
+                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name})
+                                                end
+                                            }
+                                        end
+                                    end
+                                )
+                                TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                            end
+                        )
+                        --激活短暂冷却
+                        this._func2()
+                        --为下一剑准备数据
+                        this.ani = "spell two"
+                        --记录第1剑的时间
+                        this._firsttime = GetTime()
+                    elseif this._slash == 2 then
+                        --第2剑
+                        local d = this:get(3) + this:get(4)
+                        this._slashtimer = Wait(0.3,
+                            function()
+                                this._slashtimer = nil
+                                local loc = MovePoint(this.unit, {area, GetUnitFacing(this.unit)})
+                                forRange(loc, area,
+                                    function(u)
+                                        if EnemyFilter(this.player, u) then
+                                            SkillEffect{
+                                                from = this.unit,
+                                                to = u,
+                                                name = this.name,
+                                                data = this,
+                                                aoe = true,
+                                                code = function(data)
+                                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile_mini.mdl", data.to, "chest"))
+                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name})
+                                                end
+                                            }
+                                        end
+                                    end
+                                )
+                                TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                                
+                            end
+                        )
+                        --激活短暂冷却
+                        this._func2()
+                        --为下一剑准备数据
+                        this.ani = "spell one"
+                        this.time = 1
+                        SetSkillTip(this.unit, this.id)
+                    elseif this._slash == 3 then
+                        --第3剑
+                        local d = this:get(5) + this:get(6)
+                        this._slashmover = Mover(
+                            {
+                                unit = this.unit,
+                                speed = GetUnitMoveSpeed(this.unit),
+                                angle = GetUnitFacing(this.unit),
+                                time = 0.5,
+                            },
+                            nil,
+                            function(move)
+                                this._slashmover = nil
+                                local loc = MovePoint(this.unit, {area, GetUnitFacing(this.unit)})
+                                forRange(loc, area,
+                                    function(u)
+                                        if EnemyFilter(this.player, u) then
+                                            SkillEffect{
+                                                from = this.unit,
+                                                to = u,
+                                                name = this.name,
+                                                data = this,
+                                                aoe = true,
+                                                code = function(data)
+                                                    DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile_mini.mdl", data.to, "chest"))
+                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name})
+                                                end
+                                            }
+                                        end
+                                    end
+                                )
+                                TempEffect(loc, "Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile.mdl")
+                            end
+                        )
+                        --结束技能
+                        this._func1()
+                    end
+                end
+            elseif this.event == "获得技能" then
+                local func1 = Event("伤害减免",
+                    function(damage)
+                        if damage.to == this.unit and this.tipname == "直感" then
+                            if Random(this:get(1)) then
+                                damage.damage = damage.damage - damage.odamage * (this:get(2) + this:get(3)) / 100
+                                DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Other\\CrushingWave\\CrushingWaveDamage.mdl", this.unit, "chest"))
+                            end
+                        end
+                    end
+                )
+                
+                local func2 = Event("英雄技能回调",
+                    function(data)
+                        local that = data.skill
+                        if that.unit == this.unit and that.name == "解放真名" and (that.event == "发动技能" or that.event == "关闭技能") then
+                            if that.event == "关闭技能" then
+                                this._func1()
+                            end
+                            this._change()
+                        end
+                    end
+                )
+                
+                this._change = function()
+                    this.tipname, this._tipname = this._tipname, this.tipname
+                    this.ani, this._ani = this._ani, this.ani
+                    this.cast, this._cast = this._cast, this.cast
+                    this.time, this._time = this._time, this.time
+                    this.mana, this._mana = this._mana, this.mana
+                    this.cool, this._cool = this._cool, this.cool
+                    this.area, this._area = this._area, this.area
+                    this.dur, this._dur = this._dur, this.dur
+                    this.tip, this._tip = this._tip, this.tip
+                    this.data, this._data = this._data, this.data
+                    SetSkillTip(this.unit, this.id)
+                    SetLearnSkillTip(this.unit, this.id)
+                end
+                
+                local that = findSkillData(this.unit, "解放真名")
+                if that and that.openflag then
+                    this._change()
+                end
+                
+                this._slash = 0 --斩击次数
+                
+                this.flush = function()
+                    Event("-伤害减免", func1)
+                    Event("-英雄技能回调", func2)
+                    if this.tipname == "剑舞" then
+                        this._func1()
+                    end
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            elseif this.event == "停止施放" then
+                if this._func3 then
+                    this._func3()
+                end
+            end
+        end
+    }
+    
+    --金星之枪
+    InitSkill{
+        name = "金星之枪",
+        type = {"主动", 2},
+        ani = "spell 1",
+        art = {"BTNJXR Ico.blp"},
+        cast = 0.1,
+        mana = {150, 200, 250},
+        time = 0.75,
+        cool = {30, 20, 10},
+        area = 50,
+        rng = 2000,
+        tip = "\
+用黑曜石匕首反射金星的光芒,分解被照射到的的一个单位或建筑,造成大量伤害,此外还会根据对方最大生命值造成额外伤害.\n\
+|cff00ffcc技能|r: 点目标\
+|cff00ffcc伤害|r: 混合\n\
+|cffffcc00伤害(最大生命值)|r: %s%%\
+|cffffcc00伤害(固定部分)|r: %s(|cff0000ff+%d|r)\n\
+|cff888888轨迹线仅友方可见\n施法延迟0.75秒\n伤害在4秒内分5段造成",
+        researchtip = {
+            "伤害持续期间目标单位无法恢复生命值",
+            "每段伤害会溅射给附近的敌方单位,溅射范围由100逐渐扩大至200",
+            "金星之枪可以穿透第一个单位,对第二个单位也照成同样的效果",
+        },
+        data = {
+            {30, 40, 50}, --最大生命值部分1
+            {200, 400, 600}, --固定伤害部分2
+            function(ap) --伤害加成3
+                return ap * 2
+            end
+        },
+        events = {"发动技能", "停止施放", "施放结束"},
+        code = function(this)
+        end
+    }
