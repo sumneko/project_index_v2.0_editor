@@ -436,13 +436,11 @@
         if maxc then
             local cc = japi.EXGetAbilityDataReal(data, lv, 105)
             japi.EXSetAbilityDataReal(data, lv, 105, maxc)
-            Wait(0,
-                function()
-                    japi.EXSetAbilityDataReal(data, lv, 105, cc)
-                end
-            )
         end
         japi.EXSetAbilityState(data, 1, c)
+        if maxc then
+            japi.EXSetAbilityDataReal(data, lv, 105, cc)
+        end
         return c
     end
     
