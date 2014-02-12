@@ -16,7 +16,7 @@
             old.print("---------------------------------------")
         end
         
-        runtime.handle_level = 1 
+        runtime.handle_level = 2 
         --0:handle直接使用number
         --1:handle使用lightuserdata,0可以隐转为nil,不影响引用计数
         --2:handle使用userdata,lua持有handle时增加引用计数
