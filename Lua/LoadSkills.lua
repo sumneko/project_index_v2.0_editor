@@ -187,7 +187,7 @@
         local tip2
         local tip3 = {}
         if t.cool then
-            table.insert(tip3, string.format("|cffcc00ff冷却|r: %s(|cff00ffcc%+.2f|r)", GetTipWord(t.cool, t.lv), -GetCoolDown(u, t.cool, t.lv)))
+            table.insert(tip3, string.format("|cffcc00ff冷却|r: %s(|cff00ffcc%+.2f|r)", GetTipWord(t.cool, t.lv), -GetCoolDown(u, t.cool, t.lv, t)))
         end
         if t.rng then
             table.insert(tip3, string.format("|cffcc00ff施法距离|r: %s", GetTipWord(t.rng, t.lv)))
