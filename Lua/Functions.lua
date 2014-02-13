@@ -46,6 +46,28 @@
         DestroyTimer(GetExpiredTimer())
     end
     
+    ForLoop = function(t, a, b, f)
+        local i = a
+        local ti = CreateTimer()
+        if not f then
+            f = b
+            b = a
+            a = 1
+        end
+        TimerStart(ti, t, true,
+            function()
+                f(i)
+                if i == b then
+                    DestroyTimer(ti)
+                elseif i < b then
+                    i = i + 1
+                else
+                    i = i - 1
+                end
+            end
+        )
+    end
+    
     --全局表
     local MarkTable = {}
     
