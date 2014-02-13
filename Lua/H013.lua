@@ -852,7 +852,7 @@
                         
                         local x1, y1, z1 = loc[1], loc[2], GetZ(loc) + 200
                         local target = MovePoint(loc, {this:get("rng"), angle})
-                        local x2, y2, z2 = target[1], target[2], GetZ(target) + 200
+                        local x2, y2, z2 = target[1], target[2], z1
                         
                         CreateModle("Abilities\\Spells\\Demon\\ReviveDemon\\ReviveDemon.mdl", target, {time = 2, angle = angle, size = 2, z = z2})
                         
