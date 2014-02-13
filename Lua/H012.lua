@@ -4,7 +4,7 @@
     HeroType[12] = |Hmkg|
     RDHeroType[12] = |h017|
     HeroTypePic[12] = "ReplaceableTextures\\CommandButtons\\BTNAiZaLi.blp"
-    HeroSize[12] = 1.1
+    HeroSize[12] = 1.2
     LearnSkillId = {|A19S|, |A19T|, |A19U|, |A19V|}
     
     local skilltable = {}

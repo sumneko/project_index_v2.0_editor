@@ -4,7 +4,7 @@
     HeroType[11] = |Hjai|
     RDHeroType[11] = |h00U|
     HeroTypePic[11] = "ReplaceableTextures\\CommandButtons\\BTNlo.blp"
-    HeroSize[11] = 1.1
+    HeroSize[11] = 1.2
     LearnSkillId = {|A19N|, |A19O|, |A19P|, |A19Q|}
 
     

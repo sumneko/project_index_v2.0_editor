@@ -4,7 +4,7 @@
     HeroType[1] = |Ekee|
     RDHeroType[1] = |h011|
     HeroTypePic[1] = "ReplaceableTextures\\CommandButtons\\BTNSLHZ.blp"
-    HeroSize[1] = 0.88
+    HeroSize[1] = 1.1
     LearnSkillId = {|A13T|, |A13U|, |A13V|, |A13W|}
     
     --圣能
@@ -367,7 +367,7 @@
                 )
             elseif this.event == "关闭技能" then
                 DestroyEffect(this.backeffect)
-                if this.closeReason == "use" then
+                if this.closereason == "手动关闭" then
                     SetUnitXY(this.unit, this.backloc)
                     TempEffect(this.backloc, "Abilities\\Spells\\Items\\AIil\\AIilTarget.mdl")
                     if this.point > 1 then

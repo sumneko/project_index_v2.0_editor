@@ -4,7 +4,7 @@
     HeroType[10] = |Oshd|
     RDHeroType[10] = |h01C|
     HeroTypePic[10] = "ReplaceableTextures\\CommandButtons\\BTNQianFang.blp"
-    HeroSize[10] = 0.99
+    HeroSize[10] = 1.2
     LearnSkillId = {|A17P|, |A17Q|, |A17R|, |A17S|}
     
     --风之钝器-锤击

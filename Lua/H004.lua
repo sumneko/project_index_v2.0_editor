@@ -4,7 +4,7 @@
     HeroType[4] = |Udre|
     RDHeroType[4] = |h01F|
     HeroTypePic[4] = "ReplaceableTextures\\CommandButtons\\BTNYiFang.blp"
-    HeroSize[4] = 1.10
+    HeroSize[4] = 1.3
     LearnSkillId = {|A14W|, |A14X|, |A14Y|, |A14Z|}
     
     --矢量加速

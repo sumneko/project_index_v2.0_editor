@@ -4,7 +4,7 @@
     HeroType[2] = |Hart|
     RDHeroType[2] = |h012|
     HeroTypePic[2] = "ReplaceableTextures\\CommandButtons\\BTNShangTiao.blp"
-    HeroSize[2] = 0.77
+    HeroSize[2] = 1
     LearnSkillId = {|A14I|, |A14J|, |A14K|, |A14L|}
     
     --上条之拳

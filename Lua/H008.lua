@@ -4,7 +4,7 @@
     HeroType[8] = |Hkal|
     RDHeroType[8] = |h01P|
     HeroTypePic[8] = "ReplaceableTextures\\CommandButtons\\BTNMeiQin.blp"
-    HeroSize[8] = 1.1
+    HeroSize[8] = 1.3
     LearnSkillId = {|A17H|, |A17I|, |A17J|, |A17K|}
     
     --闪电攻击

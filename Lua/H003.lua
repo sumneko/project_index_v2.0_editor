@@ -4,7 +4,7 @@
     HeroType[3] = |Edem|
     RDHeroType[3] = |h013|
     HeroTypePic[3] = "ReplaceableTextures\\CommandButtons\\BTNTuYuMen.blp"
-    HeroSize[3] = 0.99
+    HeroSize[3] = 1.2
     LearnSkillId = {|A14Q|, |A14R|, |A14S|, |A14T|}
     
     --黑水术式

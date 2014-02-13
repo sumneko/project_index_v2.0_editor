@@ -4,7 +4,7 @@
     HeroType[7] = |Eevi|
     RDHeroType[7] = |h01Q|
     HeroTypePic[7] = "ReplaceableTextures\\CommandButtons\\BTNIndex.blp"
-    HeroSize[7] = 0.71
+    HeroSize[7] = 0.9
     LearnSkillId = {|A168|, |A169|, |A16A|, |A16B|}
     
     --魔法解析

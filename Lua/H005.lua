@@ -4,7 +4,7 @@
     HeroType[5] = |Hblm|
     RDHeroType[5] = |h018|
     HeroTypePic[5] = "ReplaceableTextures\\CommandButtons\\BTNShiTiEr.blp"
-    HeroSize[5] = 0.99
+    HeroSize[5] = 1.2
     LearnSkillId = {|A15I|, |A15J|, |A15K|, |A15L|}
     
     --吸血猎杀红十字
