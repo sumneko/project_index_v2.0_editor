@@ -33,9 +33,9 @@
         researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
         data = {
             {12, 11, 10, 9}, --积攒时间1
-            {70, 140, 210, 280}, --爆发伤害2
+            {80, 160, 240, 320}, --爆发伤害2
             function(ap) --爆发伤害加成3
-                return ap * 1 
+                return ap * 1.2
             end,
             {30, 50, 70, 90}, --降低攻速4
             {20, 25, 30, 35}, --降低移速5
@@ -142,8 +142,8 @@
         cast = 0.3,
         mana = {120, 130, 140, 150},
         _mana = {150, 160, 170, 180},
-        cool = 30,
-        _cool = 60,
+        cool = 15,
+        _cool = 30,
         dur = 10,
         _dur = {4.5, 5, 5.5, 6},
         tip = "\
@@ -153,9 +153,9 @@
 |cffffcc00额外伤害|r: %s%%",
         researchtip = "结晶体优先攻击英雄",
         data = {
-            {150, 220, 290, 360}, --铠甲能量1
+            {150, 300, 450, 600}, --铠甲能量1
             function(ap)
-                return ap * 1.6
+                return ap * 2.5
             end,
             {10, 15, 20, 25} --伤害系数3
         },
@@ -169,9 +169,9 @@
         _data = {
             {80, 120, 160, 200}, --护甲1
             {50, 75, 100, 125}, --魔抗2
-            {30, 40, 50, 60}, --生命恢复3
+            {30, 50, 70, 90}, --生命恢复3
             function(ap)
-                return ap * 0.3
+                return ap * 0.5
             end
         },
         events = {"获得技能", "发动技能", "失去技能"},
@@ -297,8 +297,8 @@
         art = {"BTNHeartOfAszune.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 50,
         _mana = nil,
-        cool = 20,
-        _cool = 30,
+        cool = 15,
+        _cool = 15,
         dur = 5,
         _dur = nil,
         cast = 0,
@@ -331,15 +331,15 @@
         _data = {
             {75, 125, 175, 225}, --第1剑 1 2
             function(ap, ad)
-                return ad * 1
-            end,
-            {60, 100, 140, 180}, --第2剑 3 4
-            function(ap, ad)
-                return ad * 0.8
-            end,
-            {90, 150, 210, 270}, --第3剑 5 6
-            function(ap, ad)
                 return ad * 1.2
+            end,
+            {90, 150, 210, 270}, --第2剑 3 4
+            function(ap, ad)
+                return ad * 1.5
+            end,
+            {120, 200, 280, 360}, --第3剑 5 6
+            function(ap, ad)
+                return ad * 2
             end,
             0.4, --斩击间隔7
             3, --斩击超时8
@@ -636,14 +636,15 @@
         mana = {150, 200, 250},
         _mana = {200, 400, 600},
         cool = 15,
-        _cool = 90,
+        _cool = 45,
         area = 300,
+        _area = 400,
         rng = 1500, 
         _rng = 1800,
         dur = 1.5,
         _dur = 5,
         tip = "\
-利用风王结界将压缩的风暴释放,对一条直线上的单位造成伤害并将他们向两边推开.使用后再次激活该技能将跟随风暴前进,但是技能冷却时间变为60秒.\n\
+利用风王结界将压缩的风暴释放,对一条直线上的单位造成伤害并将他们向两边推开.使用后再次激活该技能将跟随风暴前进,但是技能冷却时间变为30秒.\n\
 |cff00ffcc技能|r: 点目标\
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\n\
@@ -654,9 +655,9 @@
             "金星之枪可以穿透第一个单位,对第二个单位也照成同样的效果",
         },
         data = {
-            {150, 300, 450}, --伤害 1 2
+            {200, 400, 600}, --伤害 1 2
             function(ap)
-                return ap * 1.75
+                return ap * 2.5
             end,
             1000, --速度3
             1.5, --限制时间4
@@ -672,14 +673,14 @@
 |cff888888通过再次激活该技能来提前施放\n伤害在2秒内分8次造成",
         _data = {
             2, --最小时间1
-            {200, 350, 500}, --最小伤害 2 3
+            {200, 400, 600}, --最小伤害 2 3
             function(ap)
-                return ap * 2
+                return ap * 2.5
             end,
             5, --最大时间4
-            {500, 850, 1200}, --最大伤害 5 6
+            {600, 1200, 1800}, --最大伤害 5 6
             function(ap)
-                return ap * 5
+                return ap * 7.5
             end,
         },
         events = {"发动技能", "关闭技能", "获得技能", "失去技能", "停止施放"},
@@ -941,6 +942,7 @@
                     this.time, this._time = this._time, this.time
                     this.mana, this._mana = this._mana, this.mana
                     this.cool, this._cool = this._cool, this.cool
+                    this.area, this._area = this._area, this.area
                     this.dur, this._dur = this._dur, this.dur
                     this.rng, this._rng = this._rng, this.rng
                     this.tip, this._tip = this._tip, this.tip
