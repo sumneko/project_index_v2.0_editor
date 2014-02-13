@@ -106,8 +106,11 @@
                     ))
                 end
             else
-                DestroyTimer(Mark(u, "商店刷新计时器"))
-                Mark(u, "商店刷新计时器", false)
+                local timer = Mark(u, "商店刷新计时器")
+                if timer then
+                    DestroyTimer(timer)
+                    Mark(u, "商店刷新计时器", false)
+                end
             end
         end
     ))
