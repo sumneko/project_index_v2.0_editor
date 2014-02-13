@@ -444,6 +444,7 @@
         local id = skill.id
         local skills = Mark(u, "技能")
         if skill.type[1] == "开关" and skill.openflag then
+            skill.closereason = "失去技能"
             skill:closeskill()
         end
         toEvent("失去技能", {unit = u, skill = id, abil = skill})
@@ -557,7 +558,7 @@
                 
                 if data.event == "发动技能" then
                     if skill.type[1] == "开关" and skill.openflag then
-                        skill.userclose = true
+                        skill.closereason = "手动关闭"
                         skill:closeskill()
                         return
                     end
@@ -619,6 +620,7 @@
                                         RefreshTips(skill.unit)
                                         skill.openflag = skill.spellflag
                                         
+                                        skill.closereason = "未知"
                                         
                                         --关闭技能函数
                                         skill.closeskill = function(skill)
@@ -645,30 +647,30 @@
                                                 toEvent("英雄技能回调", {skill = skill})
                                             end
                                             
-                                            skill.userclose = false
+                                            skill.mana = skill.mana2 --将法力值互换移动到0秒后以免手动关闭会扣蓝
+                                            
+                                            --开始冷却
+                                            local ab = japi.EXGetUnitAbility(skill.unit, skill.id)
+                                            local cd
+                                            if skill.freshcool then
+                                                cd = skill.freshcool
+                                                skill.freshcool = false
+                                            else
+                                                cd = skill.targetcooltime - GetTime()
+                                            end
+                                            if cd > 0 then
+                                                japi.EXSetAbilityDataReal(ab, 1, 105, math.max(cd, skill:get("cool")))
+                                                japi.EXSetAbilityState(ab, 1, cd)
+                                                japi.EXSetAbilityDataReal(ab, 1, 105, 0)
+                                                --SetUnitAnimation(skill.unit, "stand")
+                                                --IssueImmediateOrder(skill.unit, "stop")
+                                            end
+                                            
                                             
                                             Wait(0,
                                                 function()
-                                                    skill.mana = skill.mana2 --将法力值互换移动到0秒后以免手动关闭会扣蓝
                                                     SetSkillTip(skill.unit, skill.y)
-                                                    RefreshTips(skill.unit)
-                                                    --开始冷却
-                                                    local ab = japi.EXGetUnitAbility(skill.unit, skill.id)
-                                                    local cd
-                                                    if skill.freshcool then
-                                                        cd = skill.freshcool
-                                                        skill.freshcool = false
-                                                    else
-                                                        cd = skill.targetcooltime - GetTime()
-                                                    end
-                                                    if cd > 0 then
-                                                        japi.EXSetAbilityDataReal(ab, 1, 105, math.max(cd, skill:get("cool")))
-                                                        japi.EXSetAbilityState(ab, 1, cd)
-                                                        japi.EXSetAbilityDataReal(ab, 1, 105, 0)
-                                                        --SetUnitAnimation(skill.unit, "stand")
-                                                        --IssueImmediateOrder(skill.unit, "stop")
-                                                    end
-                                                    
+                                                    RefreshTips(skill.unit)                                                 
                                                 end
                                             )
                                            
@@ -682,11 +684,10 @@
                                             else
                                                 dur = skill.dur
                                             end
-                                            skill.closeReason = "use"
                                             Wait(dur,
                                                 function()
                                                     if count == skill.usecount then
-                                                        skill.closeReason = "dur"
+                                                        skill.closereason = "持续时间"
                                                         skill:closeskill()
                                                     end
                                                 end
@@ -735,6 +736,7 @@
                     local skill = findSkillData(data.unit, i)
                     if skill then
                         if skill.type[1] == "开关" and skill.openflag then
+                            skill.closereason = "单位死亡"
                             skill:closeskill()
                         end
                     end
