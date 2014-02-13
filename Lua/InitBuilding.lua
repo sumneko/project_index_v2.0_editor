@@ -278,6 +278,7 @@
                                                     return
                                                 end
                                                 local to = Mark(this.from, "攻击目标")
+                                                if not to then return end
                                                 if IsUnitInRange(to, this.from, rng) and IsUnitAlive(to) then
                                                     a = true
                                                     MoveLightningEx(ln, false, GetUnitX(this.from), GetUnitY(this.from), GetUnitZ(this.from) + 300, GetUnitX(to), GetUnitY(to), GetUnitZ(to) + 100)
