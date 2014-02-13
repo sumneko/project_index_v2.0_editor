@@ -301,7 +301,7 @@
 依然视为近战攻击",
         researchtip = {
             "发动讨魔也不会立即结束神净(意味着你可以在一次神净的持续时间内多次使用讨魔)",
-            "持续时间变为3倍,但是你不再能使用讨魔",
+            "持续时间变为2倍,但是你不再能使用讨魔",
             "虽然燃烧法力依然是按照其当前法力值计算,但造成的伤害将按照其最大法力值计算"
         },
         data = {
@@ -317,7 +317,7 @@
                 this.rngup = this:get(2)
                 this.timer = this:get("dur")
                 if this.research and this.research[2] then
-                    this.timer = this.timer * 3
+                    this.timer = this.timer * 2
                 end
                 AttackRange(this.unit, this.rngup)
                 local func = Event("发动英雄技能",
