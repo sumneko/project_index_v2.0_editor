@@ -20,9 +20,9 @@
         Mark(u, "注册英雄", true) --记录为注册英雄
         
         --禁止玩家再选这个英雄
-        BanHeroType(id)
         if not table.has(GameMode, "MH") then
             Mark("已选择的英雄类型", id, true) --记录该英雄已经被选择
+            BanHeroType(id)
         end
         
         --禁止玩家选所有英雄
