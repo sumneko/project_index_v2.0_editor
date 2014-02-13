@@ -17,7 +17,7 @@
     end
 
     local trg = CreateTrigger()
-    for i = 0, 15, 1 do
+    for i = 0, 1, 1 do
         TriggerRegisterPlayerChatEvent(trg, Player(i), "", false)
     end
     TriggerAddCondition(trg,Condition(function()
