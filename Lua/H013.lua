@@ -4,7 +4,7 @@
     HeroType[13] = |Ewrd|
     RDHeroType[13] = |h017|
     HeroTypePic[13] = "ReplaceableTextures\\CommandButtons\\BTNSaber.blp"
-    HeroSize[13] = 0.93
+    HeroSize[13] = 1.2
     LearnSkillId = {|A1A1|, |A1A2|, |A1A3|, |A1A4|}
     
     --解放真名
@@ -327,21 +327,21 @@
 |cffffcc00第1剑伤害|r: %s(|cffff0000+%d|r)\
 |cffffcc00第2剑伤害|r: %s(|cffff0000+%d|r)\
 |cffffcc00第3剑伤害|r: %s(|cffff0000+%d|r)\n\
-|cff888888每斩出一剑后技能会进入%s秒的短暂冷却\n超过%s秒没有斩出下一剑技能将进入冷却\n第3剑的位移速度与移动速度相同,可以穿越地形",
+|cff888888每斩出一剑后技能会进入%s秒的短暂冷却\n超过%s秒没有斩出下一剑技能将进入冷却\n第3剑的位移速度是移动速度的1.5倍可以穿越地形",
         _data = {
-            {65, 100, 135, 170}, --第1剑 1 2
+            {75, 125, 175, 225}, --第1剑 1 2
             function(ap, ad)
-                return ad * 0.75
+                return ad * 1
             end,
-            {50, 75, 100, 125}, --第2剑 3 4
+            {60, 100, 140, 180}, --第2剑 3 4
             function(ap, ad)
-                return ad * 0.65
+                return ad * 0.8
             end,
-            {90, 135, 180, 225}, --第3剑 5 6
+            {90, 150, 210, 270}, --第3剑 5 6
             function(ap, ad)
-                return ad * 0.9
+                return ad * 1.2
             end,
-            0.35, --斩击间隔7
+            0.4, --斩击间隔7
             3, --斩击超时8
         },
         events = {"获得技能", "发动技能", "失去技能", "停止施放"},
@@ -504,12 +504,12 @@
                         this._slashmover = Mover(
                             {
                                 unit = this.unit,
-                                speed = GetUnitMoveSpeed(this.unit),
+                                speed = GetUnitMoveSpeed(this.unit) * 1.5,
                                 angle = GetUnitFacing(this.unit),
                                 time = 0.5,
                             },
                             function(move)
-                                if move.count % 5 == 0 then --每5个周期,即0.1秒判定一次
+                                if move.count % 5 == 1 then --每5个周期,即0.1秒判定一次
                                     local loc = MovePoint(move.unit, {area, move.angle})
                                     for u, t in pairs(g) do
                                         SetUnitXY(u, MovePoint(loc, t))
@@ -572,7 +572,9 @@
                         local that = data.skill
                         if that.unit == this.unit and that.name == "解放真名" and (that.event == "发动技能" or that.event == "关闭技能") then
                             if that.event == "关闭技能" then
-                                this._func1()
+                                if this._func1 then
+                                    this._func1()
+                                end
                             end
                             this._change()
                         end
@@ -618,19 +620,28 @@
         end
     }
     
-    --风王铁槌
+    --风王铁槌/誓约胜利之剑
     InitSkill{
         name = "风王铁槌",
         tipname = "风王铁槌",
+        _tipname = "誓约胜利之剑",
         type = {"开关", 2},
         ani = "spell three",
+        _ani = "spell channel one",
         art = {"BTNJXR Ico.blp"},
         cast = 0.3,
+        _cast = 0,
+        time = 1,
+        _time = 7,
         mana = {150, 200, 250},
+        _mana = {200, 400, 600},
         cool = 15,
+        _cool = 90,
         area = 300,
-        rng = 1500,
+        rng = 1500, 
+        _rng = 1800,
         dur = 1.5,
+        _dur = 5,
         tip = "\
 利用风王结界将压缩的风暴释放,对一条直线上的单位造成伤害并将他们向两边推开.使用后再次激活该技能将跟随风暴前进,但是技能冷却时间变为60秒.\n\
 |cff00ffcc技能|r: 点目标\
@@ -650,7 +661,28 @@
             1000, --速度3
             1.5, --限制时间4
         },
-        events = {"发动技能", "关闭技能"},
+        _tip = "\
+经过一段时间的能量积蓄后,对一条直线上的单位造成惊人的伤害,积蓄时间越长伤害越高.\n\
+|cff00ffcc技能|r: 点目标\
+|cff00ffcc伤害|r: 法术\n\
+|cffffcc00最小积蓄时间|r: %s\
+|cffffcc00最小伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00最大积蓄时间|r: %s\
+|cffffcc00最大伤害|r: %s(|cff0000ff+%d|r)\n\
+|cff888888通过再次激活该技能来提前施放\n伤害在2秒内分8次造成",
+        _data = {
+            2, --最小时间1
+            {200, 350, 500}, --最小伤害 2 3
+            function(ap)
+                return ap * 2
+            end,
+            5, --最大时间4
+            {500, 850, 1200}, --最大伤害 5 6
+            function(ap)
+                return ap * 5
+            end,
+        },
+        events = {"发动技能", "关闭技能", "获得技能", "失去技能", "停止施放"},
         code = function(this)
             if this.event == "发动技能" then
                 if this.tipname == "风王铁槌" then
@@ -684,13 +716,22 @@
                                         if not g[u] and EnemyFilter(this.player, u) then
                                             g[u] = true
                                             Damage(move.from, u, d, false, true, {aoe = true, damageReason = this.name})
-                                            local a = GetBetween(move.unit, u, true)
+                                            local a = GetBetween(move.unit, u, true) --中心到单位的角度
+                                            local dis = GetBetween(move.unit, u) --中心到单位的距离
+                                            local angle = move.angle
+                                            local pa = math.A2A(a, angle) --夹角
+                                            local pd = Sin(pa) * dis
                                             if math.A2A(a, angle + 90) < math.A2A(a, angle - 90) then
                                                 a = angle + 90
                                             else
                                                 a = angle - 90
                                             end
-                                            SetUnitXY(u, MovePoint(move.unit, {area, a}))
+                                            Mover{
+                                                unit = u,
+                                                speed = 500,
+                                                angle = a,
+                                                distance = area - pd
+                                            }
                                         end
                                     end
                                 )
@@ -727,16 +768,213 @@
                         )
                         this.freshcool = 60
                     end
-                end
-            elseif this.event == "关闭技能" then
-                if this.userclose then
-                    if this.tipname == "风王铁槌" then
-                        if this.userclose then
-                            --玩家主动关闭技能
-                            this.flush1()
+                elseif this.tipname == "誓约胜利之剑" then                    
+                    local effect = AddSpecialEffect("war3mapImported\\ex light.mdx", GetXY(this.unit))
+                    local min = this:get(1)
+                    SetSkillCool(this.unit, this.id, min, min) --激活2秒冷却(作为最小间隔)
+                    
+                    Wait(0,
+                        function()
+                            local ab = japi.EXGetUnitAbility(this.unit, this.id)
+                            japi.EXSetAbilityDataReal(ab, 1, 108, 2) --手动关闭时会施法2秒
+                        end
+                    )
+                    
+                    local angle = GetBetween(this.unit, this.target, true)
+                    
+                    --预创建2个闪电效果
+                    local l1 = Lightning{
+                        from = this.unit,
+                        name = 'LN04',
+                        check = false,
+                        x1 = 0,
+                        y1 = 0,
+                        z1 = 0,
+                        x2 = 0,
+                        y2 = 0,
+                        z2 = 0,
+                        color = {1, 1, 0, 0},
+                        cut = false
+                    }
+                    
+                    --第2个闪电效果延迟0.25秒创建以保证流动纹路不同
+                    local l2
+                    Wait(0.25,
+                        function()
+                            l2 = Lightning{
+                                from = this.unit,
+                                name = 'LN04',
+                                check = false,
+                                x1 = 0,
+                                y1 = 0,
+                                z1 = 0,
+                                x2 = 0,
+                                y2 = 0,
+                                z2 = 0,
+                                color = {1, 1, 0, 0},
+                                cut = false
+                            }
+                        end
+                    )
+                    
+                    local d1 = this:get(2) + this:get(3)
+                    local d2 = this:get(5) + this:get(6)
+                    local t1 = this:get(1)
+                    local t2 = this:get(4)
+                    local area = this:get("area")
+                    
+                    local opentime = this.spellflag
+                    
+                    this.flush2 = function()
+                        Wait(0.01,
+                            function()
+                                SetUnitAnimation(this.unit, "spell channel two")
+                            end
+                        )
+                        local loc = GetUnitLoc(this.unit)
+                        local lookat = MovePoint({0, 0}, {100, angle})
+                        ForLoop(0.2, 1, 3,
+                            function(count)
+                                if count == 1 then
+                                    local mod = CreateModle("Abilities\\Spells\\NightElf\\ReviveNightElf\\ReviveNightElf.mdl", MovePoint(loc, {200, angle}), {time = 3, angle = - angle, size = 2})
+                                    SetUnitLookAt(mod, "origin", mod, lookat[1], lookat[2], -10000)
+                                end
+                                local mod = CreateModle("Abilities\\Spells\\Items\\TomeOfRetraining\\TomeOfRetrainingCaster.mdl", MovePoint(loc, {300, angle}), {time = 3, angle = - angle, size = 3})
+                                SetUnitLookAt(mod, "origin", mod, lookat[1], lookat[2], -10000)                                
+                            end
+                        )
+                        
+                        local t = GetTime() - opentime
+                        local s = (t - t1) / (t2 - t1)
+                        local d = d1 + (d2 - d1) * s
+                        d = d / 8
+                        
+                        local x1, y1, z1 = loc[1], loc[2], GetZ(loc) + 200
+                        local target = MovePoint(loc, {this:get("rng"), angle})
+                        local x2, y2, z2 = target[1], target[2], GetZ(target) + 200
+                        
+                        CreateModle("Abilities\\Spells\\Demon\\ReviveDemon\\ReviveDemon.mdl", target, {time = 2, angle = angle, size = 2, z = z2})
+                        
+                        l1.x1, l1.y1, l1.z1 = x1, y1, z1
+                        l1.cut = true
+                        l2.x1, l2.y1, l2.z1 = x1, y1, z1
+                        ForLoop(0.05, 1, 40,
+                            function(i)
+                                local a = 1
+                                if i < 11 then
+                                    a = i * 0.1
+                                elseif i > 29 then
+                                    a = (40 - i) * 0.1
+                                end
+                                l1.color[4] = a
+                                l1.x2, l1.y2, l1.z2 = x2, y2, z2
+                                ChangeLightning(l1)
+                                l2.color[4] = a
+                                l2.x2, l2.y2, l2.z2 = l1.x2, l1.y2, l1.z2
+                                ChangeLightning(l2)
+                                if i % 5 == 0 then
+                                    forSeg(loc, {l1.x2, l1.y2}, area,
+                                        function(u)
+                                            if EnemyFilter(this.player, u) then
+                                                SkillEffect{
+                                                    from = this.unit,
+                                                    to = u,
+                                                    name = this.name,
+                                                    data = this,
+                                                    aoe = true,
+                                                    code = function(data)
+                                                        Damage(data.from, data.to, d, false, true, {aoe = true, damageReason = this.name})
+                                                    end
+                                                }
+                                            end
+                                        end
+                                    )
+                                end
+                                if i == 40 then
+                                    DestroyLightning(l1.l)
+                                    DestroyLightning(l2.l)
+                                    l1 = nil
+                                    l2 = nil
+                                end
+                            end
+                        )
+                    end
+                    
+                    this.flush3 = function()
+                        DestroyEffect(effect)
+                        if l1 then
+                            DestroyLightning(l1.l)
+                        end
+                        if l2 then
+                            DestroyLightning(l2.l)
                         end
                     end
                 end
+            elseif this.event == "关闭技能" then
+                if this.tipname == "风王铁槌" then
+                    if this.closereason == "手动关闭" then
+                        --玩家主动关闭技能
+                        this.flush1()
+                    end
+                elseif this.tipname == "誓约胜利之剑" then
+                    if this.closereason == "持续时间" or this.closereason == "手动关闭" then
+                        this.flush2()
+                    else
+                        UnitRemoveAbility(this.unit, this.id)
+                        UnitAddAbility(this.unit, this.id)
+                        this.flush3()
+                    end
+                end
+            elseif this.event == "停止施放" then
+                if this.openflag and this.tipname == "誓约胜利之剑" then
+                    Wait(0,
+                        function()
+                            this:closeskill()
+                        end
+                    )
+                end
+            elseif this.event == "获得技能" then
+                this._change = function()
+                    this.tipname, this._tipname = this._tipname, this.tipname
+                    this.ani, this._ani = this._ani, this.ani
+                    this.cast, this._cast = this._cast, this.cast
+                    this.time, this._time = this._time, this.time
+                    this.mana, this._mana = this._mana, this.mana
+                    this.cool, this._cool = this._cool, this.cool
+                    this.dur, this._dur = this._dur, this.dur
+                    this.rng, this._rng = this._rng, this.rng
+                    this.tip, this._tip = this._tip, this.tip
+                    this.data, this._data = this._data, this.data
+                    SetSkillTip(this.unit, this.id)
+                    SetLearnSkillTip(this.unit, this.id)
+                end
+                
+                local that = findSkillData(this.unit, "解放真名")
+                if that and that.openflag then
+                    this._change()
+                end
+                
+                local func1 = Event("英雄技能回调",
+                    function(data)
+                        local that = data.skill
+                        if that.unit == this.unit and that.name == "解放真名" and (that.event == "发动技能" or that.event == "关闭技能") then
+                            Wait(0,
+                                function()
+                                    this._change()
+                                end
+                            )
+                            if this.openflag and this.tipname == "风王铁槌" then
+                                this:closeskill()
+                            end
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    Event("-发动英雄技能后", func1)
+                end
+            elseif thie.event == "失去技能" then
+                this.flush()
             end
         end
     }
