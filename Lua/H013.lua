@@ -767,7 +767,7 @@
                                 DestroyEffect(effect)
                             end
                         )
-                        this.freshcool = 60
+                        this.freshcool = 30
                     end
                 elseif this.tipname == "誓约胜利之剑" then                    
                     local effect = AddSpecialEffect("war3mapImported\\ex light.mdx", GetXY(this.unit))
