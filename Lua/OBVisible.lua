@@ -26,7 +26,7 @@
     end
     
     visibleTimer = CreateTimer()
-    TimerStart(visibleTimer, 0.05, true,
+    TimerStart(visibleTimer, 0.03, true,
         function()
             for u, v in pairs(g) do
                 code(u, v)                
@@ -58,6 +58,22 @@
         end
     )
     
+    --重载视野外英雄可见性
+    local GetHeight = GetUnitFlyHeight
+    local SetHeight = SetUnitFlyHeight
+    
+    GetUnitFlyHeight = function(u)
+        return Mark(u, "真实飞行高度") or GetHeight(u)
+    end
+    
+    SetUnitFlyHeight = function(u, h)
+        if Mark(u, "真实飞行高度") then
+            Mark(u, "真实飞行高度", h)
+        else
+            SetHeight(u, h, 0)
+        end
+    end
+    
     --动态古树类型/OB视角查看单位是否在敌方视野中
     Event("可见度",  
         function(data)
@@ -65,11 +81,21 @@
                 --Debug(GetUnitName(data.unit) .. ":可见")
                 UnitRemoveType(data.unit, UNIT_TYPE_ANCIENT) --移除古树类型
                 Mark(data.unit, "变为可见的时间", GetTime())
+                if Mark(data.unit, "注册英雄") then
+                    SetHeight(data.unit, Mark(data.unit, "真实飞行高度"), 0)
+                    Mark(data.unit, "真实飞行高度", false)
+                end
                 DestroyEffect(Mark(data.unit, "视野特效"))
             else --单位变为不可见
                 --Debug(GetUnitName(data.unit) .. ":不可见")
                 UnitAddType(data.unit, UNIT_TYPE_ANCIENT) --添加古树类型
                 Mark(data.unit, "变为不可见的时间", GetTime())
+                if Mark(data.unit, "注册英雄") then
+                    Mark(data.unit, "真实飞行高度", GetHeight(data.unit))
+                    if IsUnitEnemy(data.unit, SELFP) and not Mark(data.unit, "大地图可见") then
+                        SetHeight(data.unit, 10000, 0)
+                    end
+                end
                 if IsGod() then
                     Mark(data.unit, "视野特效", AddSpecialEffectTarget("war3mapImported\\shockwavemissilepurple.mdx", data.unit, "chest"))
                 else
@@ -92,4 +118,21 @@
         end
     )
     
-    luaDone()
+    SeeUnit = function(u, b)
+        if b ~= false then
+            Mark(u, "大地图可见", (Mark(u, "大地图可见") or 0) + 1)
+            if Mark(u, "变为不可见的时间") > Mark(u, "变为可见的时间") then
+                SetHeight(u, Mark(u, "真实飞行高度"), 0)
+            end
+        else
+            local i = (Mark(u, "大地图可见") or 0) - 1
+            if i == 0 then
+                Mark(u, "大地图可见", false)
+                if Mark(u, "变为不可见的时间") > Mark(u, "变为可见的时间") and IsUnitEnemy(u, SELFP) then
+                    SetHeight(u, 10000, 0)
+                end
+            else
+                Mark(u, "大地图可见", i)
+            end
+        end
+    end
