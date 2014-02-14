@@ -487,7 +487,7 @@
     
     --是否是英雄
     IsHero = function(u)
-        return IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitType(u, UNIT_TYPE_SUMMONED)
+        return Mark(u, "注册英雄")
     end
     
     --获取高度
