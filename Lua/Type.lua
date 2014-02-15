@@ -271,7 +271,7 @@
         DestroyTimer = function(timer)
             if timer == nil then return end
             local t = timer[1]
-            if t == nil then return end --如果table内没有timer就返回
+            if not t then return end --如果table内没有timer就返回
             jass.PauseTimer(t) --暂停timer,并不摧毁它
             timerCount = timerCount + 1 --空闲timer计数
             timerTable[timerCount] = t --把timer放入空闲timer组中
@@ -283,14 +283,14 @@
         --暂停计时器
         PauseTimer = function(timer)
             local t = timer[1]
-            if t == nil then return end
+            if not t then return end
             jass.PauseTimer(t)
         end
         
         --启动计时器
         TimerStart = function(timer, r, b, func)
             local t = timer[1]
-            if t == nil then return end
+            if not t then return end
             timer[2] = r
             timer[3] = b
             timer[4] = func
@@ -300,7 +300,7 @@
         --重新启动计时器
         TimerRestart = function(timer)
             local t, r, b, func = timer[1], timer[2], timer[3], timer[4]
-            if t == nil or r == nil then return end
+            if not t or not r then return end
             jass.TimerStart(t, r, b, func)
         end
         
