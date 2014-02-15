@@ -422,9 +422,9 @@
     
     --设置技能冷却    第三个个参数选填,不填为默认冷却
     SetSkillCool = function(u, id, c, maxc)
-        local data = japi.EXGetUnitAbility(u, id)
-        if not data then return end
         local t = findSkillData(u, id)
+        local data = japi.EXGetUnitAbility(u, id) or japi.EXGetUnitAbility(u, t.id)
+        if not data then return end
         local lv = GetUnitAbilityLevel(u, id)
         if not c then
             if t then
