@@ -30,7 +30,7 @@
         untip = "\
 重新使用风王结界隐藏你的武器,使你获得被动的暴击率提升,但是将不能使用强大的技能.",
         undata = {},
-        researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
+        researchtip = "风王结界爆发时将单位卷至你面前",
         data = {
             {12, 11, 10, 9}, --积攒时间1
             {80, 160, 240, 320}, --爆发伤害2
@@ -93,6 +93,10 @@
                     Wait(1.5,
                         function()
                             DestroyTimer(timer)
+                            local loc
+                            if this.research then
+                                loc = MovePoint(this.unit, {150, GetUnitFacing(this.unit)})
+                            end
                             forRange(this.unit, this:get("area"),
                                 function(u)
                                     if EnemyFilter(this.player, u) then
@@ -103,6 +107,14 @@
                                             data = this,
                                             aoe = true,
                                             code = function(data)
+                                                if loc then
+                                                    Mover{
+                                                        unit = data.to,
+                                                        speed = 1000,
+                                                        angle = GetBetween(data.to, loc, true),
+                                                        distance = GetBetween(data.to, loc)
+                                                    }
+                                                end
                                                 SlowUnit{
                                                     from = data.from,
                                                     to = data.to,
@@ -151,13 +163,13 @@
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 法术\n\
 |cffffcc00铠甲能量|r: %s(|cff0000ff+%d|r)\
 |cffffcc00额外伤害|r: %s%%",
-        researchtip = "结晶体优先攻击英雄",
+        researchtip = "魔力放出:额外伤害会恢复你同等的生命值与法力值\n远离尘世的理想乡:激活时你溢出的生命值会增加生命值上限,持续直到下一次使用远离尘世的理想乡",
         data = {
             {150, 300, 450, 600}, --铠甲能量1
             function(ap)
                 return ap * 2.5
             end,
-            {10, 15, 20, 25} --伤害系数3
+            {9, 11, 13, 15} --伤害系数3
         },
         _tip = "\
 获得极高的护甲,抗性与生命恢复速度.持续期间内你处于|cffffcc00霸体|r状态.\n\
@@ -167,8 +179,8 @@
 |cffffcc00生命恢复|r: %s(|cff0000ff+%d|r)\n\
 |cff888888霸体状态下免疫晕眩,变羊,吹风等令你无法控制的负面效果",
         _data = {
-            {80, 120, 160, 200}, --护甲1
-            {50, 75, 100, 125}, --魔抗2
+            {100, 200, 300, 400}, --护甲1
+            {75, 150, 225, 300}, --魔抗2
             {30, 50, 70, 90}, --生命恢复3
             function(ap)
                 return ap * 0.5
@@ -178,6 +190,10 @@
         code = function(this)
             if this.event == "发动技能" then
                 if this.tipname == "魔力放出" then
+                    if this.flush1 then
+                        TimerRestart(this._timer1)
+                        return
+                    end
                     local effect = AddSpecialEffectTarget("war3mapImported\\BigBlueOrbShield.mdx", this.unit, "chest")
                     local hp = this:get(1) + this:get(2)
                     local s = this:get(3) / 100
@@ -189,7 +205,7 @@
                                 hp = hp - d
                                 damage.damage = damage.damage - d
                                 if d == 0 then
-                                    this.flush()
+                                    this.flush1()
                                 end
                             end
                         end
@@ -198,26 +214,34 @@
                     local func2 = Event("伤害效果",
                         function(damage)
                             if damage.attack and damage.from == this.unit then
-                                Damage(damage.from, damage.to, hp * s, false, true, {damageReason = this.name})
+                                local damage = Damage(damage.from, damage.to, hp * s, false, true, {damageReason = this.name})
+                                if damage.damage > 0 and this.research then
+                                    Heal(this.unit, this.unit, damage.damage)
+                                    SetUnitState(this.unit, UNIT_STATE_MANA, damage.damage + GetUnitState(this.unit, UNIT_STATE_MANA))
+                                end
                             end
                         end
                     )
                     
-                    Wait(this:get("dur"),
+                    this._timer1 = Wait(this:get("dur"),
                         function()
-                            if this.flush then
-                                this.flush()
+                            if this.flush1 then
+                                this.flush1()
                             end
                         end
                     )
                     
-                    this.flush = function()
+                    this.flush1 = function()
                         Event("-伤害减免", func1)
                         Event("-伤害效果", func2)
                         DestroyEffect(effect)
-                        this.flush = nil
+                        this.flush1 = nil
                     end
                 elseif this.tipname == "远离尘世的理想乡" then
+                    if this.flush2 then
+                        TimerRestart(this._timer2)
+                        return
+                    end
                     local effect = AddSpecialEffectTarget("war3mapImported\\BigYellowOrbShield.mdx", this.unit, "chest")
                     local def, ant = this:get(1), this:get(2)
                     local hp = this:get(3) + this:get(4)
@@ -225,10 +249,10 @@
                     Ant(this.unit, ant)
                     Recover(this.unit, hp)
                     
-                    Wait(this:get("dur"),
+                    this._timer2 = Wait(this:get("dur"),
                         function()
-                            if this.flush then
-                                this.flush()
+                            if this.flush2 then
+                                this.flush2()
                             end
                         end
                     )
@@ -241,13 +265,54 @@
                         end
                     )
                     
-                    this.flush = function()
+                    if this._hp > 0 then
+                        MaxLife(this.unit, - this._hp)
+                        this._hp = 0
+                    end
+                    
+                    local func2
+                    
+                    if this.research then
+                        func2 = Reload("SetUnitState",
+                            function(u, state, v)
+                                if u == this.unit and state == UNIT_STATE_LIFE then
+                                    local hp = v
+                                    local mhp = GetUnitState(u, UNIT_STATE_MAX_LIFE)
+                                    local fhp = hp - mhp
+                                    if fhp > 0 then
+                                        fhp = math.ceil(fhp)
+                                        this._hp = this._hp + fhp
+                                        MaxLife(u, fhp)
+                                    end
+                                end
+                                SetUnitState(u, state, v)
+                            end
+                        )
+                    end
+                    
+                    this.flush2 = function()
                         DestroyEffect(effect)
                         Def(this.unit, - def)
                         Ant(this.unit, - ant)
                         Recover(this.unit, - hp)
                         Event("-无法控制", func1)
-                        this.flush = nil
+                        if func2 then
+                            Reload("-SetUnitState", func2)
+                            func2 = nil
+                        end
+                        this.flush2 = nil
+                    end
+                    
+                    --仅在失去技能时运行
+                    this.flush3 = function()
+                        if this._hp > 0 then
+                            MaxLife(this.unit, - this._hp)
+                            this._hp = 0
+                        end
+                        if func2 then
+                            Reload("-SetUnitState", func2)
+                            func2 = nil
+                        end
                     end
                 end
             elseif this.event == "获得技能" then
@@ -277,8 +342,13 @@
                     this._change()
                 end
                 
+                this._hp = 0
+                
                 this._flush = function()
                     Event("-发动英雄技能后", func1)
+                    if this.flush3 then
+                        this.flush3()
+                    end
                 end
             elseif this.event == "失去技能" then
                 this._flush()
@@ -313,7 +383,7 @@
 |cff00ffcc技能|r: 无目标\n\
 |cffffcc00扭曲几率|r: %s%%\
 |cffffcc00伤害减少|r: %s(|cff0000ff+%.2f|r)%%",
-        researchtip = "结晶体优先攻击英雄",
+        researchtip = "直感:附近的敌方英雄离开视野后可以继续在大地图上看到,持续1秒.\n剑舞:第3剑附带攻击效果.",
         data = {
             {29, 36, 43, 50}, --扭曲几率1
             {15, 20, 25, 30}, --伤害减少2
@@ -322,7 +392,7 @@
             end,
         },
         _tip = "\
-依次斩出3剑,对前方一片区域内的单位造成伤害.第3剑会推动路径上的单位..\n\
+依次斩出3剑,对前方一片区域内的单位造成伤害.第3剑会推动路径上的单位.\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 物理\n\
 |cffffcc00第1剑伤害|r: %s(|cffff0000+%d|r)\
 |cffffcc00第2剑伤害|r: %s(|cffff0000+%d|r)\
@@ -382,12 +452,14 @@
                                 UnitAddAbility(this.unit, this.id)
                             end
                             local mcd = this:get("cool")
-                            local pasttime = GetTime() - this._firsttime
-                            Wait(0,
-                                function()
-                                    SetSkillCool(this.unit, this.id, mcd - pasttime, mcd)
-                                end
-                            )
+                            cd = this.targetcooltime - GetTime()
+                            if cd > 0 then
+                                Wait(0,
+                                    function()
+                                        SetSkillCool(this.unit, this.id, cd, mcd)
+                                    end
+                                )
+                            end
                         end
                         --重置数据
                         this.ani = "spell three"
@@ -459,8 +531,8 @@
                         this._func2()
                         --为下一剑准备数据
                         this.ani = "spell two"
-                        --记录第1剑的时间
-                        this._firsttime = GetTime()
+                        --记录冷却时间
+                        this.targetcooltime = GetTime() + this:get("cool")
                     elseif this._slash == 2 then
                         --第2剑
                         local d = this:get(3) + this:get(4)
@@ -540,7 +612,7 @@
                                                 aoe = true,
                                                 code = function(data)
                                                     DestroyEffect(AddSpecialEffectTarget("Abilities\\Weapons\\PhoenixMissile\\Phoenix_Missile_mini.mdl", data.to, "chest"))
-                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name})
+                                                    Damage(data.from, data.to, d, true, false, {aoe = true, damageReason = this.name, attack = this.research})
                                                 end
                                             }
                                         end
@@ -581,6 +653,20 @@
                     end
                 )
                 
+                local func3 = Event("可见度",
+                    function(data)
+                        if this.research and not data.reason and this.tipname == "直感" and IsHero(data.unit) and
+                        IsUnitEnemy(data.unit, this.player) and GetBetween(this.unit, data.unit) < this:get("area") then
+                            SeeUnit(data.unit)
+                            Wait(1,
+                                function()
+                                    SeeUnit(data.unit, false)
+                                end
+                            )
+                        end
+                    end
+                )
+                
                 this._change = function()
                     this.tipname, this._tipname = this._tipname, this.tipname
                     this.ani, this._ani = this._ani, this.ani
@@ -606,6 +692,7 @@
                 this.flush = function()
                     Event("-伤害减免", func1)
                     Event("-英雄技能回调", func2)
+                    Event("-可见度", func3)
                     if this.tipname == "剑舞" then
                         this._func1()
                     end
@@ -638,7 +725,7 @@
         cool = 15,
         _cool = 45,
         area = 300,
-        _area = 400,
+        _area = 350,
         rng = 1500, 
         _rng = 1800,
         dur = 1.5,
@@ -650,9 +737,9 @@
 |cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\n\
 |cff888888风暴飞行速度为%s\n再次激活技能的限制时间为%s秒\n跟随速度为风王铁槌的2倍",
         researchtip = {
-            "伤害持续期间目标单位无法恢复生命值",
-            "每段伤害会溅射给附近的敌方单位,溅射范围由100逐渐扩大至200",
-            "金星之枪可以穿透第一个单位,对第二个单位也照成同样的效果",
+            "风王铁槌的施法距离翻倍",
+            "移除誓约胜利之剑的冷却时间,但是无法提前施放",
+            "刷新其他技能的冷却时间",
         },
         data = {
             {200, 400, 600}, --伤害 1 2
@@ -683,9 +770,18 @@
                 return ap * 7.5
             end,
         },
-        events = {"发动技能", "关闭技能", "获得技能", "失去技能", "停止施放"},
+        events = {"发动技能", "关闭技能", "获得技能", "失去技能", "停止施放", "研发"},
         code = function(this)
             if this.event == "发动技能" then
+                if this.research[3] then
+                    for i = 1, 3 do
+                        local t = findSkillData(this.unit, i)
+                        if t and t.targetcooltime then
+                            t.targetcooltime = 0
+                        end
+                        SetSkillCool(this.unit, i, 0)
+                    end
+                end
                 if this.tipname == "风王铁槌" then
                     local angle = GetBetween(this.unit, this.target, true)
                     local speed = this:get(3)
@@ -772,6 +868,10 @@
                 elseif this.tipname == "誓约胜利之剑" then                    
                     local effect = AddSpecialEffect("war3mapImported\\ex light.mdx", GetXY(this.unit))
                     local min = this:get(1)
+                    if this.research[2] then
+                        min = 5
+                        this.freshcool = 0
+                    end
                     SetSkillCool(this.unit, this.id, min, min) --激活2秒冷却(作为最小间隔)
                     
                     Wait(0,
@@ -799,24 +899,19 @@
                     }
                     
                     --第2个闪电效果延迟0.25秒创建以保证流动纹路不同
-                    local l2
-                    Wait(0.25,
-                        function()
-                            l2 = Lightning{
-                                from = this.unit,
-                                name = 'LN04',
-                                check = false,
-                                x1 = 0,
-                                y1 = 0,
-                                z1 = 0,
-                                x2 = 0,
-                                y2 = 0,
-                                z2 = 0,
-                                color = {1, 1, 0, 0},
-                                cut = false
-                            }
-                        end
-                    )
+                    local l2 = Lightning{
+                        from = this.unit,
+                        name = 'LN05',
+                        check = false,
+                        x1 = 0,
+                        y1 = 0,
+                        z1 = 0,
+                        x2 = 0,
+                        y2 = 0,
+                        z2 = 0,
+                        color = {1, 1, 1, 0},
+                        cut = false
+                    }
                     
                     local d1 = this:get(2) + this:get(3)
                     local d2 = this:get(5) + this:get(6)
@@ -833,17 +928,6 @@
                             end
                         )
                         local loc = GetUnitLoc(this.unit)
-                        local lookat = MovePoint({0, 0}, {100, angle})
-                        ForLoop(0.2, 1, 3,
-                            function(count)
-                                if count == 1 then
-                                    local mod = CreateModle("Abilities\\Spells\\NightElf\\ReviveNightElf\\ReviveNightElf.mdl", MovePoint(loc, {200, angle}), {time = 3, angle = - angle, size = 2})
-                                    SetUnitLookAt(mod, "origin", mod, lookat[1], lookat[2], -10000)
-                                end
-                                local mod = CreateModle("Abilities\\Spells\\Items\\TomeOfRetraining\\TomeOfRetrainingCaster.mdl", MovePoint(loc, {300, angle}), {time = 3, angle = - angle, size = 3})
-                                SetUnitLookAt(mod, "origin", mod, lookat[1], lookat[2], -10000)                                
-                            end
-                        )
                         
                         local t = GetTime() - opentime
                         local s = (t - t1) / (t2 - t1)
@@ -854,7 +938,25 @@
                         local target = MovePoint(loc, {this:get("rng"), angle})
                         local x2, y2, z2 = target[1], target[2], z1
                         
-                        CreateModle("Abilities\\Spells\\Demon\\ReviveDemon\\ReviveDemon.mdl", target, {time = 2, angle = angle, size = 2, z = z2})
+                        local targetmod = CreateModle("Abilities\\Spells\\Demon\\ReviveDemon\\ReviveDemon.mdl", target, {time = 2, angle = angle, size = 2, z = z2})
+                        
+                        local mods = {}
+                        ForLoop(0.2, 1, 3,
+                            function(count)
+                                if count == 1 then
+                                    mods[4] = CreateUnitAtLoc(this.player, |e00K|, loc, angle)
+                                end
+                                mods[count] = CreateUnitAtLoc(this.player, |e034|, loc, angle)
+                            end
+                        )
+                        
+                        Wait(3,
+                            function()
+                                for i = 1, 4 do
+                                    KillUnit(mods[count])
+                                end
+                            end
+                        )
                         
                         l1.x1, l1.y1, l1.z1 = x1, y1, z1
                         l1.cut = true
@@ -884,6 +986,7 @@
                                                     data = this,
                                                     aoe = true,
                                                     code = function(data)
+                                                        DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\StaffOfPurification\\PurificationTarget.mdl", data.to, "origin"))
                                                         Damage(data.from, data.to, d, false, true, {aoe = true, damageReason = this.name})
                                                     end
                                                 }
@@ -892,10 +995,7 @@
                                     )
                                 end
                                 if i == 40 then
-                                    DestroyLightning(l1.l)
-                                    DestroyLightning(l2.l)
-                                    l1 = nil
-                                    l2 = nil
+                                    this.flush3()
                                 end
                             end
                         )
@@ -909,6 +1009,8 @@
                         if l2 then
                             DestroyLightning(l2.l)
                         end
+                        l1 = nil
+                        l2 = nil
                     end
                 end
             elseif this.event == "关闭技能" then
@@ -975,8 +1077,18 @@
                 this.flush = function()
                     Event("-发动英雄技能后", func1)
                 end
-            elseif thie.event == "失去技能" then
+            elseif this.event == "失去技能" then
                 this.flush()
+            elseif this.event == "研发" then
+                if this.lastResearch == 1 then
+                    if this.tipname == "风王铁槌" then
+                        this.rng = this.rng * 2
+                        SetSkillTip(this.unit, this.id)
+                        SetLearnSkillTip(this.unit, this.id)
+                    else
+                        this._rng = this._rng * 2
+                    end
+                end
             end
         end
     }
