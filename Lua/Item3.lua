@@ -254,6 +254,7 @@
                                         DestroyEffect(data.e2)
                                         DestroyTimer(data.timer)
                                         data.timer = false
+                                        data.timerfunc = false
                                     end
                                 end
                                 TimerStart(data.timer, 5, false, data.timerfunc)
