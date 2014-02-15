@@ -16,11 +16,11 @@
     end
 
     toDamage = function(damage)            
-        if damage.damage == 0 and not damage.attack then return end --伤害为0且不是物理攻击则不再结算,节省资源
+        if damage.damage == 0 and not damage.attack then return damage end --伤害为0且不是物理攻击则不再结算,节省资源
         
         damage.time = GetTime() --伤害时间
         
-        if toEvent("伤害判定", damage) then return end --如 远程弹道
+        if toEvent("伤害判定", damage) then return damage end --如 远程弹道
         
         if GetUnitAbilityLevel(damage.to, |Avul|) == 1 then
             damage.damage = 0
@@ -28,7 +28,7 @@
             return damage
         end
         
-        if toEvent("伤害前", damage) then return end --如 暴击
+        if toEvent("伤害前", damage) then return damage end --如 暴击
         
         if IsUnitDead(damage.to) then
             damage.damage = 0
