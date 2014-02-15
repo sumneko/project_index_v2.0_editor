@@ -203,7 +203,7 @@
         name = "纳米护盾",
         id = |A19M|,
         cost = 500,
-        tip = "周围1000范围的友方小兵护甲提高100点,抗性提高400点,持续10秒.\
+        tip = "周围1000范围的友方小兵护甲提高500点,抗性提高1000点,持续10秒.\
 60秒冷却时间.",
         code = function(this)
             if IsUnitDead(this.hero) then
@@ -214,8 +214,8 @@
             forRange(this.hero, 1000,
                 function(u)
                     if IsUnitAlly(u, this.player) and IsUnitAlive(u) and GetOwningPlayer(u) == Com[this.team] and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                        Def(u, 100)
-                        Ant(u, 400)
+                        Def(u, 500)
+                        Ant(u, 1000)
                         g[u] = AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIda\\AIdaTarget.mdl", u, "overhead")
                     end
                 end
@@ -223,8 +223,8 @@
             Wait(10,
                 function()
                     for u, e in pairs(g) do
-                        Def(u, -100)
-                        Ant(u, -400)
+                        Def(u, -500)
+                        Ant(u, -1000)
                         DestroyEffect(e)
                     end
                 end
