@@ -1,6 +1,37 @@
-    jass_ext.EnableConsole() --打开Lua引擎控制台
     
     old = {}
+    
+    old.require = require
+    old.print = print
+    
+    local stack = {}
+    local top = 1
+    
+    local loaded = {}
+    
+    require = function(s)
+        if loaded[s] then return end
+        loaded[s] = true
+        old.print("loading[" .. s .. "]")
+        top = top + 1
+        stack[top] = s
+        local returns = {old.require(s)}
+        old.print("finish [" .. stack[top] .. "]")
+        top = top - 1
+        return unpack(returns)
+    end
+    
+    if jass then
+        jass_ext.EnableConsole() --打开Lua引擎控制台
+    else
+        jass = require 'jass.common'
+        japi = require 'jass.japi'
+        slk  = require 'jass.slk'
+        jass_ext = {}
+        jass_ext.hook = require 'jass.hook'
+        jass_ext.runtime = require 'jass.runtime'
+        jass_ext.runtime.console = true --打开Lua引擎控制台
+    end
     
     require "AnsiWord.lua"
     
@@ -23,25 +54,4 @@
     end
 
     setmetatable(_G, { __index = getmetatable(jass).__index})
-    
-    
-    old.require = require
-    old.print = print
-    
-    local stack = {}
-    local top = 1
-    
-    local loaded = {}
-    
-    require = function(s)
-        if loaded[s] then return end
-        loaded[s] = true
-        old.print("loading[" .. s .. "]")
-        top = top + 1
-        stack[top] = s
-        local returns = {old.require(s)}
-        old.print("finish [" .. stack[top] .. "]")
-        top = top - 1
-        return unpack(returns)
-    end
 
