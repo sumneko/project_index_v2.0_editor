@@ -24,14 +24,16 @@
     if jass then
         jass_ext.EnableConsole() --打开Lua引擎控制台
     else
+        jass_ext = {}
+        jass_ext.runtime = require 'jass.runtime'
+        jass_ext.hook = require 'jass.hook'
+        jass_ext.runtime.console = true --打开Lua引擎控制台
         jass = require 'jass.common'
         japi = require 'jass.japi'
         slk  = require 'jass.slk'
-        jass_ext = {}
-        jass_ext.hook = require 'jass.hook'
-        jass_ext.runtime = require 'jass.runtime'
-        jass_ext.runtime.console = true --打开Lua引擎控制台
     end
+    
+    luaVersion = jass_ext.runtime.version or 0 --lua引擎版本号
     
     require "AnsiWord.lua"
     
