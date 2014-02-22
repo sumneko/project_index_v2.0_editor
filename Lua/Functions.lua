@@ -77,6 +77,7 @@
             print("<ERROR>全局表索引x为空,请截图汇报!")
             print("y = " .. tostring(y))
             print("v = " .. tostring(v))
+            error("index x is nil", 2)
             return
         end
         if v ~= nil then --存入数据
@@ -87,6 +88,7 @@
                 print("<ERROR>全局表索引y为空,请截图汇报!")
                 print("x = " .. tostring(x))
                 print("v = " .. tostring(v))
+                error("index y is nil", 2)
                 return
             end
             MarkTable[x][y] = v
