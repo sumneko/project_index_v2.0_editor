@@ -23,6 +23,7 @@
     
     if jass then
         jass_ext.EnableConsole() --打开Lua引擎控制台
+        luaVersion = 0
     else
         jass_ext = {}
         jass_ext.runtime = require 'jass.runtime'
@@ -31,9 +32,8 @@
         jass = require 'jass.common'
         japi = require 'jass.japi'
         slk  = require 'jass.slk'
+        luaVersion = jass_ext.runtime.version
     end
-    
-    luaVersion = jass_ext.runtime.version or 0 --lua引擎版本号
     
     require "AnsiWord.lua"
     
@@ -42,7 +42,7 @@
     
         runtime.error_handle = function(msg) --调用栈
             old.print("---------------------------------------")
-            old.print("       " .. ANSI.error)
+            old.print("             LUA ERROR                 ")
             old.print("---------------------------------------")
             old.print(tostring(msg) .. "\n")
             old.print(debug.traceback())
