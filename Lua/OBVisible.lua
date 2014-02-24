@@ -69,9 +69,11 @@
     SetUnitFlyHeight = function(u, h)
         if Mark(u, "真实飞行高度") then
             Mark(u, "真实飞行高度", h)
-        else
-            SetHeight(u, h, 0)
+            if IsUnitEnemy(u, SELFP) then
+                return
+            end
         end
+        SetHeight(u, h, 0)
     end
     
     --动态古树类型/OB视角查看单位是否在敌方视野中
