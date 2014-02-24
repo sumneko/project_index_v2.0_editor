@@ -12,7 +12,7 @@
         name = "解放真名",
         type = {"开关"},
         ani = "stand",
-        art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNJFZM.blp", "BTNJFZM.blp", "BTNFWJJ.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 75,
         area = 600,
         tip = "\
@@ -150,7 +150,8 @@
         type = {"主动"},
         ani = "morph",
         _ani = "spell four",
-        art = {"BTNHeartOfAszune.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNMLFC.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        _art = {"BTNLXX.blp"},
         cast = 0.3,
         mana = {120, 130, 140, 150},
         _mana = {150, 160, 170, 180},
@@ -327,6 +328,7 @@
                 
                 this._change = function()
                     this.tipname, this._tipname = this._tipname, this.tipname
+                    this.art, this._art = this._art, this.art
                     this.ani, this._ani = this._ani, this.ani
                     this.mana, this._mana = this._mana, this.mana
                     this.cool, this._cool = this._cool, this.cool
@@ -364,7 +366,8 @@
         type = {"主动"},
         ani = nil,
         _ani = "spell three",
-        art = {"BTNHeartOfAszune.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNZG.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        _art = {"BTNJW.blp"},
         mana = 50,
         _mana = nil,
         cool = 15,
@@ -669,6 +672,7 @@
                 
                 this._change = function()
                     this.tipname, this._tipname = this._tipname, this.tipname
+                    this.art, this._art = this._art, this.art
                     this.ani, this._ani = this._ani, this.ani
                     this.cast, this._cast = this._cast, this.cast
                     this.time, this._time = this._time, this.time
@@ -715,7 +719,8 @@
         type = {"开关", 2},
         ani = "spell three",
         _ani = "spell channel one",
-        art = {"BTNJXR Ico.blp"},
+        art = {"BTNFWZC.blp", "BTNFWZC.blp", "BTNFWZC2.blp"},
+        _art = {"BTNSYSLZJ.blp", "BTNSYSLZJ.blp", "BTNSYSLZJ2.blp"},
         cast = 0.3,
         _cast = 0,
         time = 1,
@@ -1039,6 +1044,7 @@
             elseif this.event == "获得技能" then
                 this._change = function()
                     this.tipname, this._tipname = this._tipname, this.tipname
+                    this.art, this._art = this._art, this.art
                     this.ani, this._ani = this._ani, this.ani
                     this.cast, this._cast = this._cast, this.cast
                     this.time, this._time = this._time, this.time
