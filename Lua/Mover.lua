@@ -1,3 +1,31 @@
+
+    local IsPath = function(x, y, b)
+        return IsTerrainPathable(x, y, PATHING_TYPE_WALKABILITY)
+        and IsTerrainPathable(x - 32, y, PATHING_TYPE_WALKABILITY)
+        and IsTerrainPathable(x + 32, y, PATHING_TYPE_WALKABILITY)
+        and IsTerrainPathable(x, y - 32, PATHING_TYPE_WALKABILITY)
+        and IsTerrainPathable(x, y + 32, PATHING_TYPE_WALKABILITY)
+        or GetTerrainCliffLevel(x, y) > 4
+    end
+
+    local MoverDebug = function(u)
+        if IsPath(GetXY(u)) then
+            local a = GetRandomInt(1, 4) * 90
+            local d = 0
+            for i = 0, 400 do
+                a = a + 90
+                if i % 4 == 0 then
+                    d = d + 32
+                end
+                local p = MovePoint(u, {d, a})
+                if not IsPath(GetXY(p)) then
+                    SetUnitXY(u, p)
+                    return
+                end
+            end
+            Debug("<MoverDebug>没有找到可通行的位置:" .. GetUnitName(u))
+        end
+    end
     
     --偏转移动
     MoveXYZ = function(u, x, y, z, move, target)
@@ -166,6 +194,9 @@
                 func3(move)
             end
             Mark(move.unit, "移动器", false)
+            if IsHero(move.unit) then
+                MoverDebug(move.unit)
+            end
         end
         
         Mark(move.unit, "移动器", move)
