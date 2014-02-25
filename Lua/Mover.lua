@@ -1,10 +1,6 @@
 
     local IsPath = function(x, y, b)
         return IsTerrainPathable(x, y, PATHING_TYPE_WALKABILITY)
-        and IsTerrainPathable(x - 32, y, PATHING_TYPE_WALKABILITY)
-        and IsTerrainPathable(x + 32, y, PATHING_TYPE_WALKABILITY)
-        and IsTerrainPathable(x, y - 32, PATHING_TYPE_WALKABILITY)
-        and IsTerrainPathable(x, y + 32, PATHING_TYPE_WALKABILITY)
         or GetTerrainCliffLevel(x, y) > 4
     end
 
@@ -13,8 +9,8 @@
             local a = GetRandomInt(1, 4) * 90
             local d = 0
             for i = 0, 400 do
-                a = a + 90
-                if i % 4 == 0 then
+                a = a + 45
+                if i % 8 == 0 then
                     d = d + 32
                 end
                 local p = MovePoint(u, {d, a})
