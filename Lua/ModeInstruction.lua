@@ -41,7 +41,7 @@
                 
                 --将所有玩家加入玩家组
                 for i = 1, 10 do
-                    if IsPlayer(P[i]) then
+                    if IsPlayer(P[i]) or IsComputer(P[i]) then
                         table.insert(f1, P[i])
                     else
                         table.insert(f2, P[i])
