@@ -43,6 +43,7 @@
             elseif s == ".show" then
                 showCode(i)
             elseif s == ".run" and code[i] then
+                code[i].flag = false
                 local x = 1
                 local ss = "_ENV = ..."
                 while code[i][x] do
