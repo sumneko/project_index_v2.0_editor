@@ -9,6 +9,7 @@
             local i = GetPlayerId(p)
             local t = PlayerItems[i]
             t[item.name] = t[item.name] + 1
+            table.insert(PlayerItemList[i], item)
             item.player = p
         end,        
         remove = function(item)
@@ -16,6 +17,7 @@
             local i = GetPlayerId(item.player)
             local t = PlayerItems[i]
             t[item.name] = t[item.name] - 1
+            table.remove2(PlayerItemList[i], item)
             --额外的,在玩家失去物品时立即刷新商店显示(其实一般用不到)
             if Shop[i] then
                 RefreshShopPage(Shop[i])
@@ -216,8 +218,10 @@
     
     --记录玩家的物品
     PlayerItems = {}
+    PlayerItemList = {}
     for i = 0, 15 do
         PlayerItems[i] = table.new(0)
+        PlayerItemList[i] = {}
     end
     
     --创建物品

@@ -81,6 +81,31 @@
                             print(PlayerNameHero(p, true) .. " 已经复活(买活) !!!")
                         end
                     end
+                elseif this.skill == |A0FF| then
+                    --捡取物品
+                    local p = GetOwningPlayer(this.unit)
+                    local i = GetPlayerId(p)
+                    local items = PlayerItemList[i]
+                    local itemnames = {}
+                    local removeitems = {}
+                    for _, item in ipairs(items) do
+                        if not item.unit then
+                            if item.stack then
+                                for i = 1, GetItemCharges(item.item) do
+                                    table.insert(itemnames, item.name)
+                                end
+                            else
+                                table.insert(itemnames, item.name)
+                            end
+                            table.insert(removeitems, item)
+                        end
+                    end
+                    for _, item in ipairs(removeitems) do
+                        RemoveItem(item)
+                    end
+                    if #itemnames ~= 0 then
+                        AddItems(this.unit, itemnames)
+                    end
                 elseif this.skill == |A194| then
                     --空投物品
                     local u = this.unit
