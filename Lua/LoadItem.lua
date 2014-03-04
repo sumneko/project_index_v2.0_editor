@@ -80,7 +80,7 @@
         local ob = getObj(slk.item, item.id)
         item.gold = item.gold or tonumber(ob.goldcost or 0)
         item.art = ob.Art or "ReplaceableTextures\\CommandButtons\\BTNSelectHeroOn.blp"
-        Preloader(item.art) --预读图片
+        Preload(item.art) --预读图片
         item.coststring = "|cffffff11" .. item.gold .. "|r"
         item.tip = ob.Ubertip
         if ob.abilList then
