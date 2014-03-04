@@ -207,7 +207,7 @@
         art = {"BTNfuwen.blp"}, --左边是学习,右边是普通.不填右边视为左边
         cool = {4, 6, 8, 10},
         rng = 300,
-        cast = 0.3,
+        cast = 0.1,
         dur = 300,
         area = 200,
         tip = "\
@@ -350,7 +350,7 @@
         art = {"BTNhuoren.blp"}, --左边是学习,右边是普通.不填右边视为左边
         cool = 120,
         rng = "全地图",
-        cast = 0.3,
+        cast = 0.1,
         mana = {200, 400, 600},
         area = 300,
         tip = "\

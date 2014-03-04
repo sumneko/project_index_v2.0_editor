@@ -152,7 +152,7 @@
         _ani = "spell four",
         art = {"BTNMLFC.blp"}, --左边是学习,右边是普通.不填右边视为左边
         _art = {"BTNLXX.blp"},
-        cast = 0.3,
+        cast = 0.1,
         mana = {120, 130, 140, 150},
         _mana = {150, 160, 170, 180},
         cool = 15,
@@ -721,7 +721,7 @@
         _ani = "spell channel one",
         art = {"BTNFWZC.blp", "BTNFWZC.blp", "BTNFWZC2.blp"},
         _art = {"BTNSYSLZJ.blp", "BTNSYSLZJ.blp", "BTNSYSLZJ2.blp"},
-        cast = 0.3,
+        cast = 0.1,
         _cast = 0,
         time = 1,
         _time = 7,

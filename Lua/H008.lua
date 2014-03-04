@@ -450,7 +450,7 @@
         flashmana = 0,
         cool = 10,
         rng = 1500,
-        cast = 0.3,
+        cast = 0.1,
         time = 10,
         area = 125,
         dur = 10,

@@ -16,7 +16,7 @@
         mana = {90, 120, 150, 180},
         cool = {16, 14, 12, 10},
         rng = 600,
-        cast = 0.3,
+        cast = 0.1,
         dur = 6,
         targs = GetTargs("地面,空中,敌人,有机生物"),
         tip = "\
@@ -116,7 +116,7 @@
         name = "体术达人",
         type = {"主动"},
         ani = "attack slam",
-        cast = 0.5,
+        cast = 0.3,
         art = {"BTNDrunkenDodge.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 50,
         cool = {15, 14, 13, 12},
@@ -298,7 +298,7 @@
         mana = {150, 300, 450},
         cool = {150, 135, 120},
         rng = "全地图",
-        cast = 0.3,
+        cast = 0.1,
         dur = {1.25, 1.75, 2.25},
         area = 450,
         tip = "\
