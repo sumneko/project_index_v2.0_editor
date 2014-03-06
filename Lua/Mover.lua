@@ -244,10 +244,11 @@
         return move
     end
     
-    MoverEx = function(move, func, func2, func3)
+    MoverEx = function(move, func1, func2, func3)
         move.x = move.x or 0
         move.y = move.y or 0
         move.z = move.z or 0
+        move.func1, move.func2, move.func3 = move.func1 or func1, move.func2 or func2, move.func3 or func3
         if move.source then
             if type(move.source) == "table" then
                 move.x = move.source[1] + move.x
@@ -288,25 +289,32 @@
         
         --移动周期
         move.flash = math.max(0.01, move.flash or 0.02) --刷新周期默认为0.02,不低于0.01
-        move.speed = move.speed * move.flash
         
         --初始化一些数据
-        move.moved = 0
-        move.pause = 0
-        move.tz = move.tz or 0
-        move.step = 0
-        move.oz = 0
-        move.cz2 = 0
-        move.count = 0
-        move.z1 = move.z
+        move.initstep = function()
+            move.moved = 0
+            move.pause = 0
+            move.tz = move.tz or 0
+            move.step = 0
+            move.oz = 0
+            move.cz2 = 0
+            move.count = 0
+            move.z1 = move.z
+        end
+        
+        move.initstep()
         
         --结束时运行
         local End = function(b)
-            if func2 and b then
-                func2(move)
+            if move.func2 and b then
+                if move.func2(move) then return end
+            end
+            if move.func3 then
+                if move.func3(move) then return end
             end
             SetUnitLookAt(move.unit, "head", move.unit, (move.cx or 0) * 100, (move.cy or 0) * 100, 0)
             DestroyEffect(move.effect)
+            EndLoop()
             Wait(5,
                 function()
                     RemoveUnit(move.unit)
@@ -321,7 +329,6 @@
         Loop(move.flash,
             function()
                 if move.stop then
-                    EndLoop()
                     End(false)
                     return
                 end
@@ -330,8 +337,8 @@
                 else
                     move.distance = GetBetween(move.unit, move.target)
                     move.angle = GetBetween(move.unit, move.target, true)
-                    move.cx = move.speed * Cos(move.angle)
-                    move.cy = move.speed * Sin(move.angle)
+                    move.cx = move.speed * move.flash * Cos(move.angle)
+                    move.cy = move.speed * move.flash * Sin(move.angle)
                     
                     move.x = move.x + move.cx
                     move.y = move.y + move.cy
@@ -341,14 +348,13 @@
                     
                     SetUnitFacing(move.unit, move.angle)
                     
-                    if move.distance < move.speed * 1.5 then
+                    if move.distance < move.speed * move.flash * 1.5 then
                         if not toEvent("弹道即将命中", move) then
-                            EndLoop()
                             End(true)
                         end
                     else
                         
-                        move.cz = (GetZ(move.target) + move.tz - move.z1) * move.speed / move.distance
+                        move.cz = (GetZ(move.target) + move.tz - move.z1) * move.speed * move.flash / move.distance
                         move.z1 = move.z1 + move.cz
                         
                         if move.high and move.high ~= 0 then
@@ -363,10 +369,10 @@
 
                         SetUnitLookAt(move.unit, "head", move.unit, move.cx * 100, move.cy * 100, (move.cz + move.cz2) * 100)
                         
-                        move.moved = move.moved + move.speed
+                        move.moved = move.moved + move.speed * move.flash
                         
-                        if func then
-                            func(move)
+                        if move.func1 then
+                            move.func1(move)
                         end
                         
                         move.count = move.count + 1
