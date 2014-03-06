@@ -50,7 +50,7 @@
 |cff00ccff主动|r: 将一枚游戏代币灌注强大的电磁力以三倍音速射出,对一条直线上的敌人造成伤害并|cffffcc00击晕|r.\
 |cff00ccff被动|r: 技能造成伤害时加速技能冷却\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00造成伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00晕眩时间|r: %s\
 |cffffcc00施法延迟|r: %s\
 |cffffcc00加速冷却|r: %s%%\n\
@@ -274,9 +274,9 @@
 |cff00ccff主动|r: 将自己包裹在雷电,利用磁力向前突进.静电能量会增加伤害.\
 |cff00ccff被动|r: 每次使用英雄技能获得一个静电能量,在你进行攻击时静电能量也会自由攻击附近的敌人.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00突进伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00突进伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00静电能量加成|r: %s%%\
-|cffffcc00静电能量伤害|r: %s(|cffff0000+%d|r)\n\
+|cffffcc00静电能量伤害|r: %s(|cffff1111+%d|r)\n\
 |cff888888突进速度为%s\n静电能量的攻击范围为%s,弹道速度为%s\n静电能量的攻击可以触发攻击效果",
         researchtip = "静电能量的攻击范围变为2倍",
         data = {
@@ -459,9 +459,9 @@
 |cff00ccff被动|r: 御坂美琴的普通攻击可以立即对贯穿的敌人造成伤害.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
 |cffffcc00每秒消耗|r: %d\
-|cffffcc00雷电伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00雷电伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00每秒加成|r: %s%%\
-|cffffcc00普通攻击的贯穿伤害|r: %s(|cffff0000+%d|r)\n\
+|cffffcc00普通攻击的贯穿伤害|r: %s(|cffff1111+%d|r)\n\
 |cff888888引导可以提前关闭\n引导期间不能攻击与施法\n引导期间转身速度降低为%s°\n被动效果不再对你正在攻击的单位造成伤害",
         researchtip = "雷电只对英雄造成伤害,伤害提升50%",
         data = {
@@ -680,10 +680,10 @@
         tip = "\
 御坂美琴积聚雷电,在身边随机位置落下小落雷.2秒后你当前屏幕中央位置将开始积聚一道巨型落雷,技能引导完毕时这道落雷将审判区域内的一切罪恶.\n\
 |cffffcc00需要持续施法\n\n|cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00落雷伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00落雷伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00落雷出现范围|r: %s\
 |cffffcc00落雷影响范围|r: %s\
-|cffffcc00最大审判伤害|r: %s(|cff0000ff+%d|r)\n\
+|cffffcc00最大审判伤害|r: %s(|cff1111ff+%d|r)\n\
 |cff888888引导期间获得全图视野\n审判区域中心%s范围内造成全额伤害,越靠近边缘伤害越少,最少造成%s%%伤害\n可对建筑造成伤害",
         researchtip = {
             "审判总是造成全额伤害",

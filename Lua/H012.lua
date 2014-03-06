@@ -28,7 +28,7 @@
 |cffffcc00需要持续施法\n\
 |cff00ffcc技能|r: 单位目标\
 |cff00ffcc伤害|r: 法术\n\
-|cffffcc00每秒伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00每秒伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00恢复比例|r: %s%%\n\
 |cff888888每0.5秒吸取一次生命\n当距离超过施法距离的1.5倍后技能被打断\n伪装不使用的话可以一直保存,使用后消失\n伪装状态下使用此技能无法获得新的伪装",
         researchtip = "伪装状态下也可以获得新的伪装",
@@ -227,8 +227,8 @@
 |cff00ffcc技能|r: 点目标\
 |cff00ffcc伤害|r: 法术\n\
 |cffffcc00吸收比例|r: %s%%\
-|cffffcc00吸收上限|r: %s(|cff0000ff+%d|r)\
-|cffffcc00反击伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00吸收上限|r: %s(|cff1111ff+%d|r)\
+|cffffcc00反击伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00对同一单位的反击间隔|r: %s\n\
 |cff888888艾扎力必须处于原典保护范围内才会生效\n弹道速率为%d",
         researchtip = "不再能吸收伤害,但是反击间隔减少3秒",
@@ -347,7 +347,7 @@
 |cff00ffcc技能|r: 点目标\
 |cff00ffcc伤害|r: 混合\n\
 |cffffcc00伤害(最大生命值)|r: %s%%\
-|cffffcc00伤害(固定部分)|r: %s(|cff0000ff+%d|r)\n\
+|cffffcc00伤害(固定部分)|r: %s(|cff1111ff+%d|r)\n\
 |cff888888轨迹线仅友方可见\n施法延迟0.75秒\n伤害在4秒内分5段造成",
         researchtip = {
             "伤害持续期间目标单位无法恢复生命值",
@@ -889,7 +889,7 @@
         cool = 10,
         targs = GetTargs("地面,空中,敌人"),
         tip = "\
-对一个目标造成 %s(|cff0000ff+%d|r) 点法术伤害.\
+对一个目标造成 %s(|cff1111ff+%d|r) 点法术伤害.\
 \
 |cff888888弹道速度为%d",
         data = {
@@ -937,7 +937,7 @@
         type = {"被动"},
         art = {"BTNHolyBolt.blp"},
         tip = "\
-|cffff00cc武器效果:|r 对建筑物额外造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+|cffff00cc武器效果:|r 对建筑物额外造成 %s(|cff1111ff+%d|r) 点法术伤害.",
         data = {
             {50, 75, 100, 125},
             function(ap)
@@ -972,7 +972,7 @@
         type = {"被动"},
         art = {"BTNDefend.blp"},
         tip = "\
-|cffff00cc受到的攻击伤害减少 %s(|cff0000ff+%d|r) 点.",
+|cffff00cc受到的攻击伤害减少 %s(|cff1111ff+%d|r) 点.",
         data = {
             {8, 16, 24, 32},
             function(ap)
@@ -1014,7 +1014,7 @@
         area = 200,
         dur = {0.75, 1, 1.25, 1.5},
         tip = "\
-向区域内投掷催泪弹,对敌方单位造成 %s(|cff0000ff+%d|r) 点法术伤害并麻痹.\
+向区域内投掷催泪弹,对敌方单位造成 %s(|cff1111ff+%d|r) 点法术伤害并麻痹.\
 \
 |cff888888弹道速度为%d",
         data = {
@@ -1081,7 +1081,7 @@
         art = {"BTNHumanMissileUpThree.blp"},
         cool = 10,
         tip = "\
-|cffff00cc武器效果:|r 对建筑物额外造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+|cffff00cc武器效果:|r 对建筑物额外造成 %s(|cff1111ff+%d|r) 点法术伤害.",
         data = {
             {250, 375, 500, 625},
             function(ap)
@@ -1276,7 +1276,7 @@
         cool = 20,
         targs = GetTargs("地面,空中,敌人"),
         tip = "\
-将一个单位拍晕 %s 秒并造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+将一个单位拍晕 %s 秒并造成 %s(|cff1111ff+%d|r) 点法术伤害.",
         data = {
             {1.5, 1.75, 2, 2.25},
             {50, 100, 150, 200},
@@ -1318,7 +1318,7 @@
         art = {"BTNBash.blp"},
         cool = 6,
         tip = "\
-|cffff00cc武器效果:|r击晕攻击目标 %s 秒并额外造成 %s(|cff0000ff+%d|r) 点物理伤害.",
+|cffff00cc武器效果:|r击晕攻击目标 %s 秒并额外造成 %s(|cff1111ff+%d|r) 点物理伤害.",
         data = {
             {1.5, 1.6, 1.7, 1.8},
             {100, 150, 200, 250},
@@ -1431,7 +1431,7 @@
         tip = "\
 |cffffcc00需要持续施法|r\
 \
-跳跃到目标身上进行压制使其无法移动,并累计造成 %s(|cff0000ff+%d|r) 点物理伤害,持续 %s 秒.",
+跳跃到目标身上进行压制使其无法移动,并累计造成 %s(|cff1111ff+%d|r) 点物理伤害,持续 %s 秒.",
         data = {
             {150, 250, 300, 450},
             function(ap)
@@ -1496,7 +1496,7 @@
         mana = 25,
         area = 600,
         tip = "\
-每秒为附近受伤最严重的一个友方英雄进行治疗,为其回复 %s(|cff0000ff+%d|r) 点生命值.每次为英雄治疗需要消耗 |cffffcc00%s|r 点法力.",
+每秒为附近受伤最严重的一个友方英雄进行治疗,为其回复 %s(|cff1111ff+%d|r) 点生命值.每次为英雄治疗需要消耗 |cffffcc00%s|r 点法力.",
         data = {
             {15, 20, 25, 30},
             function(ap)
@@ -1551,7 +1551,7 @@
         type = {"开关"},
         art = {"BTNFireBolt.blp", "BTNFireBolt.blp", "BTNWispSplode.blp"},
         tip = "\
-开启后将使用燃烧弹进行攻击,|cffffcc00燃烧|r 并 |cffffcc00减速|r 目标,总计造成 %s(|cff0000ff+%d|r) 点法术伤害并降低其 |cffffcc00%s%%|r 的移动速度,持续 %s 秒.每次攻击消耗 |cffffcc00%s|r 点法力.",
+开启后将使用燃烧弹进行攻击,|cffffcc00燃烧|r 并 |cffffcc00减速|r 目标,总计造成 %s(|cff1111ff+%d|r) 点法术伤害并降低其 |cffffcc00%s%%|r 的移动速度,持续 %s 秒.每次攻击消耗 |cffffcc00%s|r 点法力.",
         data = {
             {20, 35, 50, 65},
             function(ap)
@@ -1622,7 +1622,7 @@
         cool = 15,
         targs = GetTargs("地面,空中,自己,玩家单位,联盟"),
         tip = "\
-发射一道可以跳跃 %s 次的医疗波,为友方单位回复 %s(|cff0000ff+%d|r) 的生命值.每次跳跃后治疗效果将比前一次减少 |cffffcc00%s|r%%.",
+发射一道可以跳跃 %s 次的医疗波,为友方单位回复 %s(|cff1111ff+%d|r) 的生命值.每次跳跃后治疗效果将比前一次减少 |cffffcc00%s|r%%.",
         data = {
             {5, 6, 7, 8},
             {75, 100, 125, 150},
@@ -1826,7 +1826,7 @@
         type = {"被动"},
         art = {"BTNability_druid_rake.blp"},
         tip = "\
-每次攻击撕开目标的伤口,使其受到比上次攻击更多的伤害.撕裂伤口状态持续 |cffffcc00%s|r 秒.每次累积 %s(|cff0000ff+%d|r) 点物理伤害",
+每次攻击撕开目标的伤口,使其受到比上次攻击更多的伤害.撕裂伤口状态持续 |cffffcc00%s|r 秒.每次累积 %s(|cff1111ff+%d|r) 点物理伤害",
         data = {
             6,
             {10, 15, 20, 25},
@@ -1887,7 +1887,7 @@
         mana = 75,
         cool = 15,
         tip = "\
-发射一道霜冻能量,对一条直线上的单位造成 %s(|cff0000ff+%d|r) 点法术伤害并将其 |cffffcc00击晕|r %s 秒.",
+发射一道霜冻能量,对一条直线上的单位造成 %s(|cff1111ff+%d|r) 点法术伤害并将其 |cffffcc00击晕|r %s 秒.",
         data = {
             {75, 100, 125, 150},
             function(ap)
@@ -2005,7 +2005,7 @@
         art = {"BTNSlowPoison.blp"},
         cool = 6,
         tip = "\
-|cffff00cc武器效果:|r使目标|cffffcc00中毒|r,在 |cffffcc00%s|r 秒内累计造成 %s(|cff0000ff+%d|r) 点法术伤害.\
+|cffff00cc武器效果:|r使目标|cffffcc00中毒|r,在 |cffffcc00%s|r 秒内累计造成 %s(|cff1111ff+%d|r) 点法术伤害.\
 \
 |cff888888可以驱散|r",
         data = {
@@ -2072,7 +2072,7 @@
         mana = 75,
         cool = 15,
         tip = "\
-发射一道冲击波,对一条直线上的单位造成 %s(|cff0000ff+%d|r) 点法术伤害.",
+发射一道冲击波,对一条直线上的单位造成 %s(|cff1111ff+%d|r) 点法术伤害.",
         data = {
             {75, 125, 175, 225},
             function(ap)

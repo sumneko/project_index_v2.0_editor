@@ -22,7 +22,7 @@
         tip = "\
 土御门最擅长使用的术式,以自身受到反噬为代价使敌人|cffffcc00中毒|r,|cffffcc00减速|r与|cffffcc00致盲|r.\n\
 |cff00ffcc技能|r: 单位目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00总计伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00总计伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00降低移动速度|r: %s%%\
 |cffffcc00降低命中|r: %s%%\
 |cffffcc00反噬伤害|r: %s\n\
@@ -124,7 +124,7 @@
 |cff00ccff主动|r: 土御门对前方最近的一个单位造成高额伤害并将其击晕.\
 |cff00ccff被动|r: 土御门可以闪躲敌人的攻击.每当成功闪躲一次攻击,此技能的冷却时间就会减少.\n\
 |cff00ffcc技能|r: 无目标\n|cff00ffcc伤害|r: 物理\n\
-|cffffcc00伤害|r: %s(|cffff0000+%d|r)\
+|cffffcc00伤害|r: %s(|cffff1111+%d|r)\
 |cffffcc00击晕时间|r: %s\
 |cffffcc00闪躲率|r: %s%%\
 |cffffcc00减少冷却(英雄)|r: %s\
@@ -304,7 +304,7 @@
         tip = "\
 释放一个蕴含庞大能量的赤术式,可无限制距离击毁目标范围内的一切敌友单位并|cffffcc00击晕|r.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00造成伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00造成伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00反噬伤害|r: %s\n\
 |cff888888对建筑有效\n弹道速度为%d\n友方单位受到50%%的效果\n单位0.5秒内被击飞200距离\n获得落点的视野\n施法距离超过1000时,友方可以在落点看到一个魔法效果",
         researchtip = {

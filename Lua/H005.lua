@@ -22,7 +22,7 @@
         tip = "\
 史提尔召唤两把拥有猎杀魔女意义的焰刃,从左右两边交叉攻击目标区域,对沿途的单位造成|cffffcc00燃烧|r效果.不幸被2把焰刃击中的单位将会|cffffcc00晕眩|r.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00总伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00总伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00晕眩时间|r: %s\n\
 |cff8888882把焰刃的燃烧效果不叠加,不可驱散\n焰刃的飞行速度为%s,最多可飞行%s距离",
         researchtip = "2把焰刃的燃烧效果叠加",
@@ -142,7 +142,7 @@
         tip = "\
 短暂延迟后,史提尔在目标区域召唤一个巨大的火柱,|cffffcc00燃烧|r依然停留在该区域内的敌人,造成高额伤害.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00总伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00总伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00效果延迟|r: %s\n\
 |cff888888燃烧效果不可驱散\n技能生效前将在目标区域显示一个特效,对双方可见",
         researchtip = "燃烧持续时间增加100%,燃烧总伤害增加50%",
@@ -215,7 +215,7 @@
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
 |cffffcc00符文数量|r :%s\
 |cffffcc00判定范围|r: %s\
-|cffffcc00燃烧伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00燃烧伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00燃烧持续时间|r: %s\n\
 |cff888888燃烧效果不可驱散\n符文拥有100生命值与1000的抗性\n进入隐身时间为2秒\n消耗为已有符文数量*%s",
         researchtip = "符文在白天拥有600的视野",
@@ -356,11 +356,11 @@
         tip = "\
 猎杀魔女之王从烈焰中诞生,|cffffcc00燃烧|r区域内的敌人.其能力受到符文的加成并持续伤害附近的单位.\n\
 |cff00ffcc技能|r: 点目标\n|cff00ffcc伤害|r: 法术\n\
-|cffffcc00燃烧伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00燃烧伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00燃烧时间|r: %s\
 |cffffcc00数量|r: %s\
-|cffffcc00攻击|r: %s(|cff0000ff+%d|r)\
-|cffffcc00高温伤害|r: %s(|cff0000ff+%d|r)\
+|cffffcc00攻击|r: %s(|cff1111ff+%d|r)\
+|cffffcc00高温伤害|r: %s(|cff1111ff+%d|r)\
 |cffffcc00生命|r: %s\n\
 |cff888888共享生命值与生命上限",
         researchtip = {

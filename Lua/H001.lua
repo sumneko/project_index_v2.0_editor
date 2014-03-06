@@ -48,7 +48,7 @@
 |cffffcc00圣能2|r: 消耗2点圣能.钢丝收回时将单位拖拽到自己面前并|cffffcc00减速|r\n\
 |cff00ffcc技能|r: 点目标\
 |cff00ffcc伤害|r: 物理\n\
-|cffffcc00总伤害|r: %s(|cffff0000+%d|r)\
+|cffffcc00总伤害|r: %s(|cffff1111+%d|r)\
 |cffffcc00降低移动速度|r: 100%%\n\
 |cff888888减速效果不叠加,可被驱散\n弹道移动速度为%s|r",
         researchtip = "钢丝在收回时造成150%的伤害",

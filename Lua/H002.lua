@@ -21,7 +21,7 @@
         tip = "\
 对目标进行一次强力的脸部拳击,造成伤害并击飞.击飞过程中撞击到障碍物时将再次受到伤害与额外|cffffcc00晕眩|r.障碍物附近的敌方单位也受到同样伤害效果.\n\
 |cff00ffcc技能|r: 单位目标\n|cff00ffcc伤害|r: 法术\n|cff00ffcc范围|r: %s\n\
-|cffffcc00晕眩|r: %s\n|cffffcc00伤害|r: %s(|cffff0000+%d|r)\n|cffffcc00撞击晕眩|r: %s\n|cffffcc00撞击伤害|r: %s(|cff0000ff+%d|r)\n\
+|cffffcc00晕眩|r: %s\n|cffffcc00伤害|r: %s(|cffff1111+%d|r)\n|cffffcc00撞击晕眩|r: %s\n|cffffcc00撞击伤害|r: %s(|cff1111ff+%d|r)\n\
 |cff888888击退距离为%d\n击退速度为%d\n撞击后在%s秒内移动%d距离\n技能目标是女性则收入后宫,男性则开后宫",
         researchtip = "击退距离变为2倍",
         data = {
@@ -422,7 +422,7 @@
 |cff00ffcc伤害|r: 法术\
 |cff00ffcc宽度|r: %s\
 \
-|cffffcc00基础伤害|r:%s(|cff0000ff+%d|r)\
+|cffffcc00基础伤害|r:%s(|cff1111ff+%d|r)\
 |cffffcc00每损失1点法力额外造成的伤害|r:%s\
 |cffffcc00最大射程|r:%s\
 \
