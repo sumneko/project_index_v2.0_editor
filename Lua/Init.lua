@@ -52,7 +52,6 @@
             old.print(tostring(msg) .. "\n")
             old.print(debug.traceback())
             old.print("---------------------------------------")
-            runtime.error_handle = nil
         end
         
         runtime.handle_level = 2
