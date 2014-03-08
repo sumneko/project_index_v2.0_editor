@@ -4,7 +4,7 @@
         or GetTerrainCliffLevel(x, y) > 4
     end
 
-    local MoverDebug = function(u)
+    MoverDebug = function(u)
         if IsPath(GetXY(u)) then
             local a = GetRandomInt(1, 4) * 90
             local d = 0
