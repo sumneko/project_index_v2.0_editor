@@ -67,10 +67,12 @@
     end
     
     --移动数据, 每周期运行函数, 结束后运行函数
-    Mover = function(move, func, func2, func3)
+    Mover = function(move, func1, func2, func3)
         
         --排除一些异常参数
         if move.unit and GetUnitMoveSpeed(move.unit) == 0 then return end
+        
+        move.func1, move.func2, move.func3 = move.func1 or func1, move.func2 or func2, move.func3 or func3
         
         if not move.distance and move.target then
             move.distance = GetBetween(move.unit or move.from, move.target)
@@ -183,11 +185,11 @@
                 )
             end
             move.finish = b
-            if b and func2 then
-                func2(move)
+            if b and move.func2 then
+                move:func2()
             end
             if func3 then
-                func3(move)
+                move:func3()
             end
             Mark(move.unit, "移动器", false)
             if IsHero(move.unit) then
@@ -227,8 +229,8 @@
                     move.originz = move.nz
                     move.timed = move.timed + move.flash
                     move.moved = move.moved + move.speed
-                    if func then
-                        func(move)
+                    if move.func1 then
+                        move:func1()
                     end
                     if move.distance < move.speed * 1.5 or move.timed >= move.time then
                         EndLoop()
@@ -307,10 +309,10 @@
         --结束时运行
         local End = function(b)
             if move.func2 and b then
-                if move.func2(move) then return end
+                if move:func2() then return end
             end
             if move.func3 then
-                if move.func3(move) then return end
+                if move:func3() then return end
             end
             SetUnitLookAt(move.unit, "head", move.unit, (move.cx or 0) * 100, (move.cy or 0) * 100, 0)
             DestroyEffect(move.effect)
@@ -372,7 +374,7 @@
                         move.moved = move.moved + move.speed * move.flash
                         
                         if move.func1 then
-                            move.func1(move)
+                            move:func1()
                         end
                         
                         move.count = move.count + 1
