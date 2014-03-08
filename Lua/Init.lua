@@ -35,6 +35,11 @@
         luaVersion = jass_ext.runtime.version
     end
     
+    if luaVersion > 1 then
+        loadstring = load
+        unpack = table.unpack
+    end
+    
     require "AnsiWord.lua"
     
     local runtime = jass_ext.runtime
@@ -47,6 +52,7 @@
             old.print(tostring(msg) .. "\n")
             old.print(debug.traceback())
             old.print("---------------------------------------")
+            runtime.error_handle = nil
         end
         
         runtime.handle_level = 2
