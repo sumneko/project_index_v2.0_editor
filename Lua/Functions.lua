@@ -46,19 +46,20 @@
         DestroyTimer(GetExpiredTimer())
     end
     
-    ForLoop = function(t, a, b, f)
-        local i = a
+    ForLoop = function(t, a, b, f, f2)
         local ti = CreateTimer()
-        if not f then
-            f = b
-            b = a
-            a = 1
+        if type(b) == "function" then
+            a, b, f, f2 = 1, a, b, f
         end
+        local i = a
         TimerStart(ti, t, true,
             function()
                 f(i)
                 if i == b then
                     DestroyTimer(ti)
+                    if f2 then
+                        f2(i)
+                    end
                 elseif i < b then
                     i = i + 1
                 else
@@ -66,6 +67,7 @@
                 end
             end
         )
+        return ti, f, f2
     end
     
     --全局表
