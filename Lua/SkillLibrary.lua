@@ -621,6 +621,165 @@
         end
     )
     
+    --冻结单位
+    local Freeze = {
+        name = "冻结",
+        add = function(this, u)
+            local hp, mp = GetRecover(u)
+            SetUnitTimeScale(u, 0)
+            Recover(u, - hp, - mp)
+            
+            this.units[u] = {
+                timescale = 1, --动画播放速度
+                hp = hp, --回血速度
+                mp = mp, --回蓝速度
+                damages = {}, --伤害栈
+                heals = {}, --治疗栈
+            }
+            
+            this.count = this.count + 1
+            if this.count == 1 then
+                this.func1 = Event("伤害无效",
+                    function(damage)
+                        local data = this.units[damage.to]
+                        if data then
+                            table.insert(data.damages, damage)
+                            dodgeReason = this.name
+                            return true
+                        end
+                    end
+                )
+                
+                this.func2 = Event("治疗无效",
+                    function(heal)
+                        local data = this.units[heal.to]
+                        if data then
+                            table.insert(data.heals, heal)
+                            dodgeReason = this.name
+                            return true
+                        end
+                    end
+                )
+                
+                this.func3 = Reload("Recover",
+                    function(u, hp, mp)
+                        local data = this.units[u]
+                        if data then
+                            data.hp = data.hp + (hp or 0)
+                            data.mp = data.mp + (mp or 0)
+                        else
+                            Recover(u, hp, mp)
+                        end
+                    end
+                )
+                
+                this.func4 = Reload("SetUnitTimeScale",
+                    function(u, r)
+                        local data = this.units[u]
+                        if data then
+                            data.timescale = r
+                        else
+                            SetUnitTimeScale(u, r)
+                        end
+                    end
+                )
+            end
+        end,
+        remove = function(this, u)
+            local data = this.units[u]
+            
+            this.units[u] = nil
+            SetUnitTimeScale(u, data.timescale)
+            Recover(u, data.hp, data.mp)
+            
+            this:callback(data, u) --开始回溯生命与法力
+            
+            this.count = this.count - 1
+            if this.count == 0 then
+                --释放Reload节省资源
+                Event("-伤害无效", func1)
+                Event("-治疗无效", func2)
+                Reload("-Recover", func3)
+                Reload("-SetUnitTimeScale", func4)
+            end
+        end,
+        callback = function(this, data, u)
+            --开始回溯
+            MaxLife(u, 50000, true) --增加血量上限,维持当前血量
+            MaxMana(u, 50000, true) --增加法力上限,维持当前法力
+            local func = Reload("GetUnitState",
+                function(who, s)
+                    if who == u then
+                        if s == UNIT_STATE_MAX_LIFE then
+                            return GetUnitState(who, s) - 50000
+                        elseif s == UNIT_STATE_LIFE then
+                            return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_LIFE) - 50000)
+                        elseif s == UNIT_STATE_MAX_MANA then
+                            return GetUnitState(who, s) - 50000
+                        elseif s == UNIT_STATE_MANA then
+                            return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_MANA) - 50000)
+                        end
+                    end
+                    return GetUnitState(who, s)
+                end
+            )
+            
+            for _, heal in ipairs(data.heals) do
+                local heal = Heal(heal.from, heal.to, heal.sheal, heal)
+                Debug(("<冻结>回溯治疗:%.3f"):format(heal.heal))
+            end
+            
+            for _, damage in ipairs(data.damages) do
+                local damage = Damage(damage.from, damage.to, damage.sdamage, damage.def, damage.ant, damage)
+                if damage.result == "死亡" then
+                    break
+                end
+                Debug(("<冻结>回溯伤害:%.3f"):format(damage.damage))
+            end
+            MaxLife(u, -50000, true)
+            MaxMana(u, -50000, true)
+            Reload("-GetUnitState", func)
+        end,
+        units = {},
+        count = 0
+    }
+    
+    FreezeUnit = function(data)
+        if toEvent("debuff", "冻结", "无法施法", "无法控制", data) then return end
+        StunUnit(data) --直接回调击晕
+        local this = Mark(data.to, "冻结")
+        if not this then
+            this = {
+                unit = data.to,
+                effect = AddSpecialEffectTarget("war3mapImported\\falsepromise.mdx", data.to, "chest"),
+                timer = CreateTimer(),
+                func1 = function()
+                    DestroyEffect(this.effect)
+                    DestroyTimer(this.timer)
+                    Mark(this.unit, "冻结", false)
+                    Freeze:remove(this.unit)
+                end,
+                func2 = function(t)
+                    TimerStart(this.timer, t, false, this.func1)
+                end
+            }
+            Mark(data.to, "冻结", this)
+            Freeze:add(this.unit)
+        end
+        this.func2(data.time)
+    end
+    
+    Event("驱散",
+        function(data)
+            if data.debuff then
+                local this = Mark(data.to, "冻结")
+                if this then
+                    this.func1()
+                end
+            end
+        end
+    )
+    
     --无敌
     EnableGod = function(u, b)
         if b == false then
