@@ -193,7 +193,7 @@
 发射二之弹,减慢其行动速度.
 
 |cffff00cc再次激活:|r
-发射四之弹,令其时间倒流,其生命值,法力值与位置回溯到之前的位置
+发射四之弹,令其时间倒流,其生命值,法力值与位置回溯到之前的状态
 
 |cff00ffcc技能|r: 单位目标
 |cff00ffcc伤害|r: 混合
@@ -202,7 +202,7 @@
 |cffffcc00减速(攻击速度与移动速度)|r: %s  %s
 |cffffcc00持续时间|r: %s(|cff11ff11+%.2f|r)
 
-|cff888888施法延迟%s秒,施放失败冷却时间将变为1秒
+|cff888888施法延迟%s秒,施放失败冷却时间将变为3秒
 速度变化会随着时间推移而逐渐消失
 弹道速度为%s
 视为对自己造成伤害]],
@@ -447,7 +447,7 @@
                         DestroyTimer(ti)
                         UnitRemoveAbility(this.unit, this.id)
                         UnitAddAbility(this.unit, this.id)
-                        SetSkillCool(this.unit, this.id, 1, 1)
+                        SetSkillCool(this.unit, this.id, 3, 3)
                     end
                 end
             elseif this.event == "停止施放" then
@@ -471,18 +471,157 @@
         end
     }
     
-    --吞噬时间
+    --Zayin Chet
     InitSkill{
-        name = "吞噬时间3",
-        type = {"开关"},
+        name = "Zayin Chet",
+        type = {"主动", 3},
         ani = "stand",
         art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
-        tip = [[]],
+        targs = GetTargs("地面,空中,有机生物"),
+        rng = 1200,
+        area = 225,
+        cool = {30, 25, 20, 15},
+        time = 2.2,
+        tip = [[
+|cffff1111%d 生命值|r%s
+
+|cffff00cc对自己:|r
+发射八之弹,分裂出自己的分身.
+|cffff00cc对地面或其他单位:|r
+发射七之弹,将一条直线上的单位|cffffcc00冻结|r.如果是敌方单位还会造成伤害.
+
+|cff00ffcc技能|r: 点或单位目标
+|cff00ffcc伤害|r: 混合
+
+|cffffcc00分身攻击|r: %s%%
+|cffffcc00分身承受伤害|r: %s%%
+|cffffcc00分身持续时间|r: %s(|cff11ff11+%d|r)
+
+|cffffcc00造成伤害|r: %s(|cff1111ff+%d|r)
+|cffffcc00冻结时间|r: %s
+
+|cff888888施法延迟%s秒,施放失败冷却时间将变为5秒
+弹道速度为%s
+视为对自己造成伤害
+处于冻结状态的单位失去生命与法力恢复,受到的伤害或治疗被延后]],
         researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
         data = {
+            0, --消耗自己生命值1
+            "", --预留2
+            25, --分身攻击3
+            200, --分身承受伤害4
+            {30, 40, 50, 60}, --分身持续时间5
+            0, --分身持续时间加成6
+            {150, 300, 450, 600}, --造成伤害7
+            function(ap) --伤害加成8
+                return ap * 4 --AP * 4
+            end,
+            {2.5, 3, 3.5, 4}, --冻结时间9
+            1.8, --施法延迟10
+            2000, --弹道速度11
         },
-        events = {"获得技能", "失去技能", "发动技能", "关闭技能"},
+        events = {"获得技能", "失去技能", "发动技能", "停止施放"},
         code = function(this)
+            if this.event == "发动技能" then
+                local target = this.target
+                
+                if this.unit == target then
+                    SetUnitAnimation(this.unit, "spell one")
+                else
+                    SetUnitAnimation(this.unit, "spell two")
+                    if type(target) ~= "table" then
+                        target = GetUnitLoc(target)
+                    end
+                end
+                
+                local area = this:get("area")
+                local ftime = this:get(9)
+                local d = this:get(7) + this:get(8)
+                
+                local func1 = function()
+                    if type(target) == "table" then
+                        --七之弹
+                        Mover{
+                            modle = "a13_hong.mdx",
+                            from = this.unit,
+                            target = MovePoint(this.unit, {this:get("rng"), GetBetween(this.unit, target, true)}),
+                            speed = this:get(11),
+                            z = 100,
+                            func1 = function(move)
+                                if move.count % 5 == 0 then
+                                    --每0.1秒判定一次,间隔200
+                                    forRange(move.unit, area,
+                                        function(u)
+                                            if EnemyFilter(this.player, u, {["友军"] = true, ["别人"] = true}) then
+                                                SkillEffect{
+                                                    name = this.name,
+                                                    data = "七之弹",
+                                                    from = move.from,
+                                                    to = u,
+                                                    area = true,
+                                                    good = IsUnitEnemy(u, this.player),
+                                                    code = function(data)
+                                                        FreezeUnit{
+                                                            from = data.from,
+                                                            to = data.to,
+                                                            time = ftime
+                                                        }
+                                                        
+                                                        if IsUnitEnemy(data.to, GetOwningPlayer(data.from)) then
+                                                            Damage(data.from, data.to, d, true, true, {damageReason = "七之弹", aoe = true})
+                                                        end
+                                                    end
+                                                }
+                                                
+                                            end
+                                        end
+                                    )
+                                end
+                            end
+                        }
+                    else
+                        --八之弹
+                    end
+                end                
+                
+                local suc
+                
+                local ti = Wait(this:get(10),
+                    function()
+                        this._func(1)
+                    end
+                )
+                
+                this._func = function(t)
+                    if t == 1 then
+                        suc = true
+                        
+                        func1()
+                    elseif t == 2 and not suc then
+                        DestroyTimer(ti)
+                        UnitRemoveAbility(this.unit, this.id)
+                        UnitAddAbility(this.unit, this.id)
+                        SetSkillCool(this.unit, this.id, 3, 3)
+                    end
+                end
+            elseif this.event == "停止施放" then
+                this._func(2)
+            elseif this.event == "获得技能" then
+                local t = Loop(0.2,
+                    function()
+                        local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
+                        this.data[1] = hp
+                        this.data[6] = hp * 0.05
+                        SetSkillTip(this.unit, this.id)
+                    end
+                )
+                
+                this.flush = function()
+                    DestroyTimer(t)
+                end
+            elseif this.event == "失去技能" then
+                this.flush()
+            end
         end
     }
     
