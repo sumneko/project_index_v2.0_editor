@@ -56,6 +56,10 @@
                 else
                     print(f)
                 end
+            elseif s == ".test" then
+                for i = 2, 11 do
+                    TriggerRegisterPlayerChatEvent(trg, Player(i), "", false)
+                end
             else
                 stringTest(GetEventPlayerChatString(), i)
             end
