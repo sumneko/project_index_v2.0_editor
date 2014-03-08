@@ -57,47 +57,56 @@
                             
                             table.insert(damage.attackfuncs,
                                 function(damage)
-                                    local d = GetUnitState(damage.to, UNIT_STATE_LIFE) * x * 0.01
-                                    local damage = Damage(damage.from, damage.to, d, true, true, {damageReason = this.name})
-                                    
-                                    local hp = damage.damage
-                                    
-                                    if hp > 0 then
-                                        MoverEx(
-                                            {
-                                                from = damage.from,
-                                                source = damage.to,
-                                                target = MovePoint(damage.to, {GetRandomInt(100, 200), GetRandomInt(1, 360)}),
-                                                good = true,
-                                                modle = "a13_hong.mdx",
-                                                size = 1,
-                                                speed = GetRandomInt(200, 300),
-                                                z = 50,
-                                                tz = 0,
-                                                high = 150,
-                                            },
-                                            nil,
-                                            nil,
-                                            function(move)
-                                                move.func2 = function(move)
-                                                    if IsUnitAlive(move.target) then
-                                                        Heal(move.target, move.target, hp, {healReason = this.name})
+                                    SkillEffect{
+                                        name = this.name,
+                                        data = this,
+                                        from = damage.from,
+                                        to = damage.to,
+                                        code = function(data)
+                                            local d = GetUnitState(data.to, UNIT_STATE_LIFE) * x * 0.01
+                                            local damage = Damage(data.from, data.to, d, true, true, {damageReason = this.name})
+                                            
+                                            local hp = damage.damage
+                                            
+                                            if hp > 0 then
+                                                MoverEx(
+                                                    {
+                                                        from = damage.from,
+                                                        source = damage.to,
+                                                        target = MovePoint(damage.to, {GetRandomInt(100, 200), GetRandomInt(1, 360)}),
+                                                        good = true,
+                                                        modle = "a13_hong.mdx",
+                                                        size = 1,
+                                                        speed = GetRandomInt(200, 300),
+                                                        z = 50,
+                                                        tz = 0,
+                                                        high = 150,
+                                                    },
+                                                    nil,
+                                                    nil,
+                                                    function(move)
+                                                        move.func2 = function(move)
+                                                            if IsUnitAlive(move.target) then
+                                                                Heal(move.target, move.target, hp, {healReason = this.name})
+                                                            end
+                                                        end
+                                                        
+                                                        move.target = move.from
+                                                        move.speed = 300
+                                                        move.z = 0
+                                                        move.tz = 50
+                                                        move.func3 = nil
+                                                        
+                                                        move.initstep() --重置移动器计算
+                                                        
+                                                        return true --阻止移动器结束
+                                                        
                                                     end
-                                                end
-                                                
-                                                move.target = move.from
-                                                move.speed = 300
-                                                move.z = 0
-                                                move.tz = 50
-                                                move.func3 = nil
-                                                
-                                                move.initstep() --重置移动器计算
-                                                
-                                                return true --阻止移动器结束
-                                                
+                                                )
                                             end
-                                        )
-                                    end
+                                        end
+                                    }
+                                    
                                 end
                             )
                         end
@@ -255,58 +264,67 @@
                         modle = "a13_hong.mdx",
                         func2 = function(move)
                             if move.target and IsUnitAlive(move.target) then
-                                local stack = {}
-                                local dummy = CreateUnit(this.player, |h02D|, GetUnitX(move.target), GetUnitY(move.target), 270)
-                                
-                                SetUnitScale(dummy, 0.5, 0.5, 0.5)
-                                local ts = 1066 / count
-                                SetUnitTimeScale(dummy, ts)
-                                
-                                SetSkillCool(this.unit, this.id, 0)
-                                this.art, this._art = this._art, this.art
-                                this.type, this._type = this._type, this.type
-                                SetSkillTip(this.unit, this.id)
-                                this._lasttarget = target
-                                
-                                this._lastdata = {
-                                    unit = target,
-                                    dummy = dummy,
-                                    stack = stack,
-                                    as = as,
-                                    ms = ms,
-                                    ts = ts
+                                SkillEffect{
+                                    name = enemy and "二之弹" or "一之弹",
+                                    data = this,
+                                    from = move.from,
+                                    to = move.target,
+                                    code = function(data)
+                                        local stack = {}
+                                        local dummy = CreateUnit(Player(15), |h02D|, GetUnitX(data.to), GetUnitY(data.to), 270)
+                                        
+                                        SetUnitScale(dummy, 0.5, 0.5, 0.5)
+                                        local ts = 1066 / count
+                                        SetUnitTimeScale(dummy, ts)
+                                        
+                                        SetSkillCool(this.unit, this.id, 0)
+                                        this.art, this._art = this._art, this.art
+                                        this.type, this._type = this._type, this.type
+                                        SetSkillTip(this.unit, this.id)
+                                        this._lasttarget = data.to
+                                        
+                                        this._lastdata = {
+                                            unit = data.to,
+                                            dummy = dummy,
+                                            stack = stack,
+                                            as = as,
+                                            ms = ms,
+                                            ts = ts
+                                        }
+                                        
+                                        local data2 = this._lastdata
+                                        
+                                        data2.timer = ForLoop(0.02, count,
+                                            function(count)
+                                                if count % 50 == 0 then
+                                                    AttackSpeed(data.to, - fas)
+                                                    MoveSpeed(data.to, - fms)
+                                                    as, ms = as - fas, ms - fms
+                                                    data2.as, data2.ms = as, ms
+                                                end
+                                                local data2 = GetUnitLoc(data.to)
+                                                data2[3], data2[4], data2[5] = GetUnitState(data.to, UNIT_STATE_LIFE), GetUnitState(data.to, UNIT_STATE_MANA), GetUnitFlyHeight(data.to)
+                                                table.insert(stack, data2)
+                                                
+                                                SetUnitXY(dummy, data2)
+                                                SetUnitFlyHeight(dummy, data2[5], 0)
+                                                if IsUnitVisible(data.to, SELFP) then
+                                                    SetUnitScale(dummy, 0.5, 0.5, 0.5)
+                                                else
+                                                    SetUnitScale(dummy, 0, 0, 0)
+                                                end
+                                            end,
+                                            function(count)
+                                                AttackSpeed(data.to, - as)
+                                                MoveSpeed(data.to, - ms)
+                                                RemoveUnit(dummy)
+                                                this._lastdata = nil
+                                                func2()
+                                            end
+                                        )
+                                    end
                                 }
                                 
-                                local data = this._lastdata
-                                
-                                data.timer = ForLoop(0.02, count,
-                                    function(count)
-                                        if count % 50 == 0 then
-                                            AttackSpeed(move.target, - fas)
-                                            MoveSpeed(move.target, - fms)
-                                            as, ms = as - fas, ms - fms
-                                            data.as, data.ms = as, ms
-                                        end
-                                        local data = GetUnitLoc(move.target)
-                                        data[3], data[4] = GetUnitState(move.target, UNIT_STATE_LIFE), GetUnitState(move.target, UNIT_STATE_MANA)
-                                        table.insert(stack, data)
-                                        
-                                        SetUnitXY(dummy, data)
-                                        SetUnitFlyHeight(dummy, GetUnitFlyHeight(move.target), 0)
-                                        if IsUnitVisible(move.target, SELFP) then
-                                            SetUnitScale(dummy, 0.5, 0.5, 0.5)
-                                        else
-                                            SetUnitScale(dummy, 0, 0, 0)
-                                        end
-                                    end,
-                                    function(count)
-                                        AttackSpeed(move.target, - as)
-                                        MoveSpeed(move.target, - ms)
-                                        RemoveUnit(dummy)
-                                        this._lastdata = nil
-                                        func2()
-                                    end
-                                )
                             end
                         end
                     }
@@ -342,49 +360,66 @@
                             modle = "a13_hong.mdx",
                             func2 = function(move)
                                 if move.target and IsUnitAlive(move.target) then
-                                    local data = this._lastdata
-                                    if data then
-                                        this._lastdata = nil
-                                        if data.unit == target then
-                                            SetUnitTimeScale(data.dummy, - 2 * data.ts)
-                                            DestroyTimer(data.timer)
-                                            AttackSpeed(move.target, - data.as)
-                                            MoveSpeed(move.target, - data.ms - 10000)
-                                            local func1 = Event("伤害无效",
-                                                function(damage)
-                                                    if damage.to == data.unit then
-                                                        damage.dodgReason = this.name
-                                                        return true
-                                                    end
+                                    SkillEffect{
+                                        name = "四之弹",
+                                        data = this,
+                                        from = move.from,
+                                        to = move.target,
+                                        code = function(data2)
+                                            local data = this._lastdata
+                                            if data then
+                                                this._lastdata = nil
+                                                if data.unit == data2.to then
+                                                    SetUnitTimeScale(data.dummy, - 2 * data.ts)
+                                                    DestroyTimer(data.timer)
+                                                    AttackSpeed(data.unit, - data.as)
+                                                    MoveSpeed(data.unit, - data.ms - 10000)
+                                                    local func1 = Event("伤害无效",
+                                                        function(damage)
+                                                            if damage.to == data.unit then
+                                                                damage.dodgReason = this.name
+                                                                return true
+                                                            end
+                                                        end
+                                                    )
+                                                    local func2 = Event("治疗无效",
+                                                        function(damage)
+                                                            if damage.to == data.unit then
+                                                                damage.dodgReason = this.name
+                                                                return true
+                                                            end
+                                                        end
+                                                    )
+                                                    local high = GetUnitFlyHeight(data.unit)
+                                                    local lasthigh = 0
+                                                    Loop(0.01,
+                                                        function()
+                                                            local top = #data.stack
+                                                            if top == 1 or IsUnitDead(data.unit) then
+                                                                EndLoop()
+                                                                MoveSpeed(data.unit, 10000)
+                                                                SetUnitFlyHeight(data.unit, GetUnitFlyHeight(data.unit) - lasthigh + high, 0)
+                                                                Event("-伤害无效", func1)
+                                                                Event("-治疗无效", func2)
+                                                                RemoveUnit(data.dummy)
+                                                            end
+                                                            SetUnitXY(data.unit, data.stack[top])
+                                                            SetUnitXY(data.dummy, data.stack[top])
+                                                            
+                                                            SetUnitState(data.unit, UNIT_STATE_LIFE, data.stack[top][3])
+                                                            SetUnitState(data.unit, UNIT_STATE_MANA, data.stack[top][4])
+                                                            
+                                                            lasthigh = data.stack[top][5]
+                                                            SetUnitFlyHeight(data.unit, lasthigh, 0)
+                                                            SetUnitFlyHeight(data.dummy, lasthigh, 0)
+                                                            data.stack[top] = nil
+                                                        end
+                                                    )
                                                 end
-                                            )
-                                            local func2 = Event("治疗无效",
-                                                function(damage)
-                                                    if damage.to == data.unit then
-                                                        damage.dodgReason = this.name
-                                                        return true
-                                                    end
-                                                end
-                                            )
-                                            Loop(0.01,
-                                                function()
-                                                    local top = #data.stack
-                                                    if top == 1 or IsUnitDead(data.unit) then
-                                                        EndLoop()
-                                                        MoveSpeed(move.target, 10000)
-                                                        Event("-伤害无效", func1)
-                                                        Event("-治疗无效", func2)
-                                                        RemoveUnit(data.dummy)
-                                                    end
-                                                    SetUnitXY(data.unit, data.stack[top])
-                                                    SetUnitXY(data.dummy, data.stack[top])
-                                                    SetUnitState(data.unit, UNIT_STATE_LIFE, data.stack[top][3])
-                                                    SetUnitState(data.unit, UNIT_STATE_MANA, data.stack[top][4])
-                                                    data.stack[top] = nil
-                                                end
-                                            )
+                                            end
                                         end
-                                    end
+                                    }
+                                    
                                 end
                             end
                         }
