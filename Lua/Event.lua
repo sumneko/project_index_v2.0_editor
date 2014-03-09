@@ -169,7 +169,9 @@
     TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_HERO_SKILL)
     TriggerAddCondition(trg, Condition(
         function()
-            toEvent("学习技能", {unit = GetTriggerUnit(), skill = GetLearnedSkill()})
+            if not IsUnitIllusion(GetTriggerUnit()) then
+                toEvent("学习技能", {unit = GetTriggerUnit(), skill = GetLearnedSkill()})
+            end
         end
     ))
     
@@ -187,6 +189,7 @@
     TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_UNIT_SUMMON)
     TriggerAddCondition(trg, Condition(
         function()
+            toEvent("进入地图", {unit = GetTriggerUnit()})
             toEvent("召唤", {unit = GetTriggerUnit(), from = GetSummoningUnit()})
         end
     ))
