@@ -524,6 +524,8 @@
         code = function(this)
             if this.event == "发动技能" then
                 local target = this.target
+                local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
+                Damage(this.unit, this.unit, hp, true, true, {damageReason = this.name})
                 
                 if this.unit == target then
                     SetUnitAnimation(this.unit, "spell one")
@@ -537,6 +539,10 @@
                 local area = this:get("area")
                 local ftime = this:get(9)
                 local d = this:get(7) + this:get(8)
+                
+                local attack = this:get(3)
+                local damage = this:get(4)
+                local itime = this:get(5) + hp * 0.05
                 
                 local func1 = function()
                     if type(target) == "table" then
@@ -581,6 +587,26 @@
                         }
                     else
                         --八之弹
+                        local dummy = IllusionUnit{
+                            from = this.unit,
+                            to = this.unit,
+                            attack = attack,
+                            damage = damage,
+                            time = itime
+                        }
+                        
+                        if dummy then
+                            local a = GetUnitFacing(this.unit) - 90
+                            local loc = GetUnitLoc(this.unit)
+                            ForLoop(0.02, 10,
+                                function(i)
+                                    SetUnitVertexColor(dummy, 255, 255, 255, i * 25.5)
+                                    local loc = MovePoint(loc, {20 * i, a})
+                                    SetUnitXY(dummy, loc)
+                                end
+                            )
+                        end
+                        
                     end
                 end                
                 
