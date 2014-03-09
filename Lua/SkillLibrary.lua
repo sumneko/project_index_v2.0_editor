@@ -726,7 +726,7 @@
             
             for _, heal in ipairs(data.heals) do
                 local heal = Heal(heal.from, heal.to, heal.sheal, heal)
-                Debug(("<冻结>回溯治疗:%.3f"):format(heal.heal))
+                --Debug(("<冻结>回溯治疗:%.3f"):format(heal.heal))
             end
             
             for _, damage in ipairs(data.damages) do
@@ -734,7 +734,7 @@
                 if damage.result == "死亡" then
                     break
                 end
-                Debug(("<冻结>回溯伤害:%.3f"):format(damage.damage))
+                --Debug(("<冻结>回溯伤害:%.3f"):format(damage.damage))
             end
             MaxLife(u, -50000, true)
             MaxMana(u, -50000, true)
@@ -780,6 +780,53 @@
         end
     )
     
+    --召唤镜像
+    UnitAddAbility(Dummy, |A1A9|)
+    
+    do
+        local summoned
+        Event("召唤",
+            function(data)
+                summoned = data.unit
+            end
+        )
+    
+        IllusionUnit = function(data)
+            if toEvent("幻象", data) then return end
+            SetUnitOwner(Dummy, GetOwningPlayer(data.from), false)
+            local ab = japi.EXGetUnitAbility(Dummy, |A1A9|)
+            japi.EXSetAbilityDataReal(ab, 1, 102, data.time)
+            japi.EXSetAbilityDataReal(ab, 1, 103, data.time)
+            local u
+            if IssueTargetOrderById(Dummy, 852274, data.to) then
+                Mark(summoned, "幻象攻击", data.attack or 0)
+                Mark(summoned, "幻象伤害", data.damage or 100)
+                u = summoned
+            else
+            end            
+            SetUnitOwner(Dummy, Player(15), false)
+            return u
+        end
+        
+        Event("伤害前",
+            function(damage)
+                if damage.from then
+                    local attack = Mark(damage.from, "幻象攻击")
+                    if attack then
+                        damage.sdamage = damage.sdamage * attack * 0.01
+                        damage.damage = damage.damage * attack * 0.01
+                        damage.odamage = damage.odamage * attack * 0.01
+                    end
+                end
+                local d = Mark(damage.from, "幻象伤害")
+                if d then
+                    damage.sdamage = damage.sdamage * d * 0.01
+                    damage.damage = damage.damage * d * 0.01
+                    damage.odamage = damage.odamage * d * 0.01
+                end
+            end
+        )
+    end
     --无敌
     EnableGod = function(u, b)
         if b == false then
