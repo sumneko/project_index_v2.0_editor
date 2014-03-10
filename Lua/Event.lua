@@ -169,9 +169,7 @@
     TriggerRegisterAnyUnitEventBJ(trg, EVENT_PLAYER_HERO_SKILL)
     TriggerAddCondition(trg, Condition(
         function()
-            if not IsUnitIllusion(GetTriggerUnit()) then
-                toEvent("学习技能", {unit = GetTriggerUnit(), skill = GetLearnedSkill()})
-            end
+            toEvent("学习技能", {unit = GetTriggerUnit(), skill = GetLearnedSkill()})
         end
     ))
     
