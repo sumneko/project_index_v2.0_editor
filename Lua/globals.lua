@@ -38,6 +38,9 @@
         P[i+5] = PB[i]
     end
     
+    PA[-1] = Player(13)
+    PB[-1] = Player(14)
+    
     dummy = |e01B| --标准马甲单位的ID
     
     Color = {} --玩家颜色
