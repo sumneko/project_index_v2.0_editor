@@ -5,19 +5,23 @@
         wood = 0,
         hp = 1,
         
-        add = function(item, p)
+        add = function(item, p, u)
             local i = GetPlayerId(p)
             local t = PlayerItems[i]
-            t[item.name] = t[item.name] + 1
-            table.insert(PlayerItemList[i], item)
+            if not IsUnitIllusion(u) then
+                t[item.name] = t[item.name] + 1
+                table.insert(PlayerItemList[i], item)
+            end
             item.player = p
         end,        
-        remove = function(item)
+        remove = function(item, u)
             if not item.player then return end
             local i = GetPlayerId(item.player)
             local t = PlayerItems[i]
-            t[item.name] = t[item.name] - 1
-            table.remove2(PlayerItemList[i], item)
+            if not u or not IsUnitIllusion(u) then
+                t[item.name] = t[item.name] - 1
+                table.remove2(PlayerItemList[i], item)
+            end
             --额外的,在玩家失去物品时立即刷新商店显示(其实一般用不到)
             if Shop[i] then
                 RefreshShopPage(Shop[i])
@@ -234,7 +238,7 @@
         local it = CreateItem(item.id, x, y)
         InitNewItem(item, it)
         if type(u) ~= "table" then
-            item:add(GetOwningPlayer(u))
+            item:add(GetOwningPlayer(u), u)
             addItemFlag = true
             if not UnitAddItem(u, it) then
                 addItemFlag = false
@@ -487,7 +491,7 @@
             
             if item.sellflag then --如果是因为出售物品而触发丢弃物品事件则清除数据
                 sellflag = false
-                item:remove()
+                item:remove(u)
                 Mark(it)
             end
         end
@@ -519,6 +523,9 @@
     ))
     
     UnitLootItem = function(u, it)
+        if IsUnitIllusion(u) then
+            return true
+        end
         local item = Mark(it, "数据")
         local name = item.name
         local want = item.wantcomplex
