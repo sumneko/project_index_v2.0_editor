@@ -92,7 +92,7 @@
                 local t = tonumber(getObj(slk.unit, GetUnitTypeId(data.unit), "death", 3))
                 if t > 1000 then return end
                 units[data.unit] = CreateTimer()
-                TimerStart(units[data.unit], t, false,
+                TimerStart(units[data.unit], t + 5, false,
                     function()
                         RemoveUnit(data.unit)
                     end
