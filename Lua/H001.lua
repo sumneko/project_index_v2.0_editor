@@ -3,6 +3,7 @@
     HeroMain[1] = "敏捷"
     HeroType[1] = |Ekee|
     RDHeroType[1] = |h011|
+    IllHeroType[1] = |E035|
     HeroTypePic[1] = "ReplaceableTextures\\CommandButtons\\BTNSLHZ.blp"
     HeroSize[1] = 1.1
     LearnSkillId = {|A13T|, |A13U|, |A13V|, |A13W|}

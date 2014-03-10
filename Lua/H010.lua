@@ -3,6 +3,7 @@
     HeroMain[10] = "敏捷"
     HeroType[10] = |Oshd|
     RDHeroType[10] = |h01C|
+    IllHeroType[10] = |O007|
     HeroTypePic[10] = "ReplaceableTextures\\CommandButtons\\BTNQianFang.blp"
     HeroSize[10] = 1.2
     LearnSkillId = {|A17P|, |A17Q|, |A17R|, |A17S|}

@@ -3,6 +3,7 @@
     HeroMain[12] = "智力"
     HeroType[12] = |Hmkg|
     RDHeroType[12] = |h017|
+    IllHeroType[12] = |H02O|
     HeroTypePic[12] = "ReplaceableTextures\\CommandButtons\\BTNAiZaLi.blp"
     HeroSize[12] = 1.2
     LearnSkillId = {|A19S|, |A19T|, |A19U|, |A19V|}
@@ -869,7 +870,9 @@
                     end
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
                 Event("-伤害效果", this.func)
             end
         end
@@ -959,7 +962,9 @@
                     Event("-伤害效果", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -994,7 +999,9 @@
                     Event("-伤害减免", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -1119,7 +1126,9 @@
                     Event("-伤害效果", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -1388,7 +1397,9 @@
                     Event("-伤害效果", func2)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -1813,7 +1824,9 @@
                     AttackSpeed(this.unit, - as)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -1868,7 +1881,9 @@
                     Event("-伤害加成", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -2053,7 +2068,9 @@
                     Event("-伤害效果", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -2202,15 +2219,18 @@
                         Reload("-Recover", func3)
                         Recover(u, lasthp)
                         
+                        local hp = GetUnitState(u, UNIT_STATE_LIFE)
+                        local mhp = GetUnitState(u, UNIT_STATE_MAX_LIFE)
+                        
                         --开始回溯
                         MaxLife(u, 50000, true) --增加血量上限,维持当前血量
                         local func = Reload("GetUnitState",
                             function(who, s)
                                 if who == u then
                                     if s == UNIT_STATE_MAX_LIFE then
-                                        return GetUnitState(who, s) - 50000
+                                        return mhp
                                     elseif s == UNIT_STATE_LIFE then
-                                        return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_LIFE) - 50000)
+                                        return hp
                                     end
                                 end
                                 return GetUnitState(who, s)

@@ -3,6 +3,7 @@
     HeroMain[7] = "智力"
     HeroType[7] = |Eevi|
     RDHeroType[7] = |h01Q|
+    IllHeroType[7] = |E037|
     HeroTypePic[7] = "ReplaceableTextures\\CommandButtons\\BTNIndex.blp"
     HeroSize[7] = 0.9
     LearnSkillId = {|A168|, |A169|, |A16A|, |A16B|}
@@ -328,8 +329,10 @@
                 )
             elseif this.event == "失去技能" then
                 DestroyTimer(this.timer)
-                for _, u in ipairs(this.group) do
-                    Ant(u, -this.nowant)
+                if this.group then
+                    for _, u in ipairs(this.group) do
+                        Ant(u, -this.nowant)
+                    end
                 end
             elseif this.event == "发动技能" then
                 local area = this:get("area")

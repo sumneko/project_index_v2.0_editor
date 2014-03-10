@@ -3,6 +3,7 @@
     HeroMain[3] = "力量"
     HeroType[3] = |Edem|
     RDHeroType[3] = |h013|
+    IllHeroType[3] = |E036|
     HeroTypePic[3] = "ReplaceableTextures\\CommandButtons\\BTNTuYuMen.blp"
     HeroSize[3] = 1.2
     LearnSkillId = {|A14Q|, |A14R|, |A14S|, |A14T|}

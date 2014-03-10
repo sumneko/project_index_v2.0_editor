@@ -3,6 +3,7 @@
     HeroMain[8] = "智力"
     HeroType[8] = |Hkal|
     RDHeroType[8] = |h01P|
+    IllHeroType[8] = |H02M|
     HeroTypePic[8] = "ReplaceableTextures\\CommandButtons\\BTNMeiQin.blp"
     HeroSize[8] = 1.3
     LearnSkillId = {|A17H|, |A17I|, |A17J|, |A17K|}

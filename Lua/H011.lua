@@ -3,6 +3,7 @@
     HeroMain[11] = "智力"
     HeroType[11] = |Hjai|
     RDHeroType[11] = |h00U|
+    IllHeroType[11] = |H02N|
     HeroTypePic[11] = "ReplaceableTextures\\CommandButtons\\BTNlo.blp"
     HeroSize[11] = 1.2
     LearnSkillId = {|A19N|, |A19O|, |A19P|, |A19Q|}
@@ -286,9 +287,11 @@
             elseif this.event == "失去技能" then
                 UnitRemoveAbility(this.unit, |A19R|)
                 DestroyTimer(this.timer)
-                for u, data in pairs(this.units) do
-                    Recover(u, 0, - data[1])
-                    AddAP(u, - data[2])
+                if this.units then
+                    for u, data in pairs(this.units) do
+                        Recover(u, 0, - data[1])
+                        AddAP(u, - data[2])
+                    end
                 end
             end
         end

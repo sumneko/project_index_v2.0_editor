@@ -3,6 +3,7 @@
     HeroMain[9] = "智力"
     HeroType[9] = |Ntin|
     RDHeroType[9] = |h01I|
+    IllHeroType[9] = |N00G|
     HeroTypePic[9] = "ReplaceableTextures\\CommandButtons\\BTNMai.blp"
     HeroSize[9] = 1.2
     LearnSkillId = {|A17L|, |A17M|, |A17N|, |A17O|}

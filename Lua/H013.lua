@@ -3,6 +3,7 @@
     HeroMain[13] = "力量"
     HeroType[13] = |Ewrd|
     RDHeroType[13] = |h017|
+    IllHeroType[13] = |E038|
     HeroTypePic[13] = "ReplaceableTextures\\CommandButtons\\BTNSaber.blp"
     HeroSize[13] = 1.2
     LearnSkillId = {|A1A1|, |A1A2|, |A1A3|, |A1A4|}
@@ -137,7 +138,7 @@
                 Crit(this.unit, this._crit)
             elseif this.event == "失去技能" then
                 DestroyEffect(this._effect)
-                Crit(this.unit, - this._crit)
+                Crit(this.unit, - this._crit or 0)
             end
         end
     }
@@ -353,7 +354,9 @@
                     end
                 end
             elseif this.event == "失去技能" then
-                this._flush()
+                if this._flush then
+                    this._flush()
+                end
             end            
         end
     }
@@ -702,7 +705,9 @@
                     end
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             elseif this.event == "停止施放" then
                 if this._func3 then
                     this._func3()
@@ -1084,7 +1089,9 @@
                     Event("-发动英雄技能后", func1)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             elseif this.event == "研发" then
                 if this.lastResearch == 1 then
                     if this.tipname == "风王铁槌" then

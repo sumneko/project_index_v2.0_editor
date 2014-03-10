@@ -3,6 +3,7 @@
     HeroMain[6] = "敏捷"
     HeroType[6] = |Nngs|
     RDHeroType[6] = |h01H|
+    IllHeroType[6] = |N00F|
     HeroTypePic[6] = "ReplaceableTextures\\CommandButtons\\BTNmeimei.blp"
     HeroSize[6] = 1.2
     LearnSkillId = {|A15R|, |A15S|, |A15T|, |A15U|}

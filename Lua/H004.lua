@@ -3,6 +3,7 @@
     HeroMain[4] = "智力"
     HeroType[4] = |Udre|
     RDHeroType[4] = |h01F|
+    IllHeroType[4] = |U00C|
     HeroTypePic[4] = "ReplaceableTextures\\CommandButtons\\BTNYiFang.blp"
     HeroSize[4] = 1.3
     LearnSkillId = {|A14W|, |A14X|, |A14Y|, |A14Z|}
