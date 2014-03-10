@@ -32,6 +32,7 @@
     InitSkill = function(data)
         Y = Y + 1
         SkillTable[X*1000+Y] = data --先把技能数据完整的记录在表中
+        data.sid = X*1000+Y
         if SkillTable[data.name] then
             print("<加载技能错误:技能名重复>" .. data.name)
         else
@@ -407,7 +408,6 @@
                 t[k] = v
             end
         end
-        t.sid = sid
         
         --获取技能位置
         local scount
@@ -547,7 +547,7 @@
                 Sai(u, 3, 3, 3) --所有属性加成3点
                 return
             end
-            if IsUnitIllusion(data.unit) then
+            if IsUnitIllusion(u) then
                 uid = 0
             end
             local y = 0
