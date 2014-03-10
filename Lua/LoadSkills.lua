@@ -547,6 +547,9 @@
                 Sai(u, 3, 3, 3) --所有属性加成3点
                 return
             end
+            if IsUnitIllusion(data.unit) then
+                uid = 0
+            end
             local y = 0
             for i = 1, 4 do
                 if id == TrueSkillId["学习"][uid][i] then
