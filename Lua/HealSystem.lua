@@ -45,7 +45,7 @@
             heal.heal = 0
         end
         
-        SetUnitState(heal.to, UNIT_STATE_LIFE, GetUnitState(heal.to, UNIT_STATE_LIFE) + heal.heal)
+        jass.SetUnitState(heal.to, UNIT_STATE_LIFE, jass.GetUnitState(heal.to, UNIT_STATE_LIFE) + heal.heal)
         
         toEvent("治疗结算后", heal)
         

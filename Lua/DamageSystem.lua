@@ -79,7 +79,7 @@
         end
         
         eventDeadFlag = true
-        SetUnitState(damage.to, UNIT_STATE_LIFE, GetUnitState(damage.to, UNIT_STATE_LIFE) - damage.damage)
+        jass.SetUnitState(damage.to, UNIT_STATE_LIFE, jass.GetUnitState(damage.to, UNIT_STATE_LIFE) - damage.damage)
         eventDeadFlag = false
         
         toEvent("伤害结算后", damage)
