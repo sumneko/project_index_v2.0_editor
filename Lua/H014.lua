@@ -3,6 +3,7 @@
     HeroMain[14] = "敏捷"
     HeroType[14] = |Harf|
     RDHeroType[14] = |h017|
+    IllHeroType[14] = |H02J|
     HeroTypePic[14] = "ReplaceableTextures\\CommandButtons\\BTNSaber.blp"
     HeroSize[14] = 1.2
     LearnSkillId = {|A1A5|, |A1A6|, |A1A7|, |A1A8|}
@@ -167,7 +168,9 @@
                     Event("-死亡", func1)
                 end
             elseif this.event == "失去技能" then
-                this.loseflush()
+                if this.loseflush then
+                    this.loseflush()
+                end
             end
         end
     }
@@ -180,9 +183,10 @@
         art = {"BTNFeedBack.blp"},
         _art = {"BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         targs = GetTargs("地面,空中,有机生物"),
-        mana = {75, 100, 125, 150},
+        mana = {25, 30, 35, 40},
         time = 2.2,
-        cool = 30,
+        cool = 20,
+        _cool = 0,
         area = 1000,
         tip = [[
 |cffff1111%d 生命值|r%s
@@ -280,6 +284,7 @@
                                         SetSkillCool(this.unit, this.id, 0)
                                         this.art, this._art = this._art, this.art
                                         this.type, this._type = this._type, this.type
+                                        this.cool, this._cool = this._cool, this.cool
                                         SetSkillTip(this.unit, this.id)
                                         this._lasttarget = data.to
                                         
@@ -342,6 +347,7 @@
                     )
                     this.art, this._art = this._art, this.art
                     this.type, this._type = this._type, this.type
+                    this.cool, this._cool = this._cool, this.cool
                     SetSkillTip(this.unit, this.id)
                     
                     if not use then
@@ -466,7 +472,9 @@
                     DestroyTimer(t)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
@@ -480,19 +488,21 @@
         targs = GetTargs("地面,空中,有机生物"),
         rng = 1200,
         area = 225,
-        cool = {30, 25, 20, 15},
+        cool = 20,
+        mana = {70, 80, 90, 100},
         time = 2.2,
         tip = [[
-|cffff1111%d 生命值|r%s
+|cffff1111%d 生命值|r
 
 |cffff00cc对自己:|r
-发射八之弹,分裂出自己的分身.
+发射八之弹,分裂出自己的分身.这些分身将暂时潜伏起来.
 |cffff00cc对地面或其他单位:|r
 发射七之弹,将一条直线上的单位|cffffcc00冻结|r.如果是敌方单位还会造成伤害.
 
 |cff00ffcc技能|r: 点或单位目标
 |cff00ffcc伤害|r: 混合
 
+|cffffcc00分身数量|r: %s
 |cffffcc00分身攻击|r: %s%%
 |cffffcc00分身承受伤害|r: %s%%
 |cffffcc00分身持续时间|r: %s(|cff11ff11+%d|r)
@@ -507,10 +517,10 @@
         researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
         data = {
             0, --消耗自己生命值1
-            "", --预留2
-            25, --分身攻击3
-            200, --分身承受伤害4
-            {30, 40, 50, 60}, --分身持续时间5
+            {2, 3, 4, 5}, --分身数量2
+            20, --分身攻击3
+            500, --分身承受伤害4
+            30, --分身持续时间5
             0, --分身持续时间加成6
             {150, 300, 450, 600}, --造成伤害7
             function(ap) --伤害加成8
@@ -542,7 +552,7 @@
                 
                 local attack = this:get(3)
                 local damage = this:get(4)
-                local itime = this:get(5) + hp * 0.05
+                local itime = this:get(5) + hp * 0.03
                 
                 local func1 = function()
                     if type(target) == "table" then
@@ -587,26 +597,50 @@
                         }
                     else
                         --八之弹
-                        local dummy = IllusionUnit{
-                            from = this.unit,
-                            to = this.unit,
-                            attack = attack,
-                            damage = damage,
-                            time = itime
-                        }
+                        local count = this:get(2)
                         
-                        if dummy then
-                            local a = GetUnitFacing(this.unit) - 90
-                            local loc = GetUnitLoc(this.unit)
-                            ForLoop(0.02, 10,
-                                function(i)
-                                    SetUnitVertexColor(dummy, 255, 255, 255, i * 25.5)
-                                    local loc = MovePoint(loc, {20 * i, a})
-                                    SetUnitXY(dummy, loc)
-                                end
-                            )
+                        for n = 0, count - 1 do
+                            local dummy = IllusionUnit{
+                                from = this.unit,
+                                to = this.unit,
+                                attack = attack,
+                                damage = damage,
+                                time = itime
+                            }
+                            
+                            if dummy then
+                                local a = GetUnitFacing(this.unit) + 360 / count * n
+                                local loc = GetUnitLoc(this.unit)
+                                UnitAddAbility(dummy, |Aloc|)
+                                PauseUnit(dummy, true)
+                                
+                                ForLoop(0.02, 10,
+                                    function(i)
+                                        local c = i * 25.5
+                                        SetUnitVertexColor(dummy, c, c, c, c)
+                                        local loc = MovePoint(loc, {20 * i, a})
+                                        SetUnitXY(dummy, loc)
+                                    end,
+                                    function()
+                                        SetUnitTimeScale(dummy, - 0.166)
+                                        SetUnitAnimation(dummy, "spell channel two")
+                                        ForLoop(0.02, 30,
+                                            function(i)
+                                                local c = 255 - 255 / 30 * i
+                                                SetUnitVertexColor(dummy, c, c, c, 255)
+                                            end,
+                                            function()
+                                                Wait(0.3,
+                                                    function()
+                                                        ShowUnit(dummy, false)
+                                                    end
+                                                )
+                                            end
+                                        )
+                                    end
+                                )
+                            end
                         end
-                        
                     end
                 end                
                 
@@ -637,7 +671,7 @@
                     function()
                         local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
                         this.data[1] = hp
-                        this.data[6] = hp * 0.05
+                        this.data[6] = hp * 0.03
                         SetSkillTip(this.unit, this.id)
                     end
                 )
@@ -646,7 +680,9 @@
                     DestroyTimer(t)
                 end
             elseif this.event == "失去技能" then
-                this.flush()
+                if this.flush then
+                    this.flush()
+                end
             end
         end
     }
