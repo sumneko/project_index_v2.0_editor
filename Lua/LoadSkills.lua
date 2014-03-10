@@ -11,6 +11,21 @@
         ["开关"] = {buff = |B069|},
     }
     
+    TrueSkillId["学习"][0] = {|A1AA|, |A1AB|, |A1AC|, |A1AD|} --英雄幻象马甲使用该技能说明
+    
+    --所有通魔技能ID
+    TrueSkillId["技能"][0] = {|A13X|, |A13Y|, |A13Z|, |A140|, |A141|, |A142|} --英雄幻象马甲使用该技能说明
+    TrueSkillId["技能"][1] = {|A150|, |A16H|, |A16I|, |A16J|, |A16K|, |A16L|}
+    TrueSkillId["技能"][2] = {|A154|, |A16M|, |A16N|, |A157|, |A158|, |A16O|}
+    TrueSkillId["技能"][3] = {|A159|, |A15A|, |A16P|, |A15C|, |A16Q|, |A16R|}
+    TrueSkillId["技能"][4] = {|A15D|, |A15E|, |A15F|, |A16S|, |A16T|, |A16U|}
+    TrueSkillId["技能"][5] = {|A15M|, |A15N|, |A15O|, |A15P|, |A16V|, |A16W|}
+    TrueSkillId["技能"][6] = {|A15V|, |A15W|, |A15X|, |A15Y|, |A16X|, |A16Y|}
+    TrueSkillId["技能"][7] = {|A161|, |A162|, |A163|, |A164|, |A165|, |A16C|}
+    TrueSkillId["技能"][8] = {|A16Z|, |A170|, |A171|, |A172|, |A173|, |A174|}
+    TrueSkillId["技能"][9] = {|A175|, |A176|, |A177|, |A178|, |A179|, |A17A|}
+    TrueSkillId["技能"][10] = {|A17B|, |A17C|, |A17D|, |A17E|, |A17F|, |A17G|}
+    
     --注册所有技能
     SkillTable = {}
     
@@ -78,7 +93,54 @@
         end
     end
     
-    require "SkillLibrary.lua"
+    --获取目标允许
+    local targs = {
+        "地面",
+        "空中",
+        "建筑",
+        "守卫",
+        "物品",
+        "树木",
+        "墙",
+        "残骸",
+        "装饰物",
+        "桥",
+        "unknow",
+        "自己",
+        "玩家单位",
+        "联盟",
+        "中立",
+        "敌人",
+        "unknow",
+        "unknow",
+        "unknow",
+        "可攻击的",
+        "无敌",
+        "英雄",
+        "非-英雄",
+        "存活",
+        "死亡",
+        "有机生物",
+        "机械类",
+        "非-自爆工兵",
+        "自爆工兵",
+        "非-古树",
+        "古树",
+    }
+    
+    --反向表
+    for i, v in ipairs(targs) do
+        targs[v] = i
+    end
+    
+    GetTargs = function(s)
+        local t = string.split(s, ",")
+        local i = 0
+        for _, n in ipairs(t) do
+            i = i + 2 ^ targs[n]
+        end
+        return i
+    end
     
     HeroTypeCount = 14 --制作中
     
@@ -91,17 +153,8 @@
         TrueSkillId["学习"][x] = LearnSkillId
     end
     
-    --所有通魔技能ID
-    TrueSkillId["技能"][1] = {|A150|, |A16H|, |A16I|, |A16J|, |A16K|, |A16L|}
-    TrueSkillId["技能"][2] = {|A154|, |A16M|, |A16N|, |A157|, |A158|, |A16O|}
-    TrueSkillId["技能"][3] = {|A159|, |A15A|, |A16P|, |A15C|, |A16Q|, |A16R|}
-    TrueSkillId["技能"][4] = {|A15D|, |A15E|, |A15F|, |A16S|, |A16T|, |A16U|}
-    TrueSkillId["技能"][5] = {|A15M|, |A15N|, |A15O|, |A15P|, |A16V|, |A16W|}
-    TrueSkillId["技能"][6] = {|A15V|, |A15W|, |A15X|, |A15Y|, |A16X|, |A16Y|}
-    TrueSkillId["技能"][7] = {|A161|, |A162|, |A163|, |A164|, |A165|, |A16C|}
-    TrueSkillId["技能"][8] = {|A16Z|, |A170|, |A171|, |A172|, |A173|, |A174|}
-    TrueSkillId["技能"][9] = {|A175|, |A176|, |A177|, |A178|, |A179|, |A17A|}
-    TrueSkillId["技能"][10] = {|A17B|, |A17C|, |A17D|, |A17E|, |A17F|, |A17G|}
+    CheckHeroData()
+    CheckIllHeroData()
     
 	local Skill = {}
 	
@@ -174,6 +227,7 @@
     
     --刷新技能的说明  单位,第几个技能
     SetSkillTip = function(u, y)
+        if IsUnitIllusion(u) then return end
         local t = Mark(u, "技能")[y]
         if not t or t.lv == 0 then return end
         y = t.y
@@ -247,6 +301,7 @@
     
     --刷新技能的学习说明  单位,第几个技能
     SetLearnSkillTip = function(u, y)
+        if IsUnitIllusion(u) then return end
         local t = Mark(u, "技能")[y]
         if not t then return end
         y = t.y
@@ -317,16 +372,21 @@
     GetTrueSkillId = function(u, y)
         local x = Mark(u, "技能序号")
         if not x then
-            for i = 1, 10 do
-                if not TrueSkillId["技能"][i][0] then
-                    x = i
-                    TrueSkillId["技能"][i][0] = u
-                    Mark(u, "技能序号", x)
-                    break
+            if IsUnitType(u, UNIT_TYPE_SUMMONED) then
+                x = 0
+            else
+                for i = 1, 10 do
+                    if not TrueSkillId["技能"][i][0] then
+                        x = i
+                        TrueSkillId["技能"][i][0] = u
+                        Mark(u, "技能序号", x)
+                        break
+                    end
                 end
-            end
-            if not x then
-                print("<注册英雄数量超过10个>")
+                if not x then
+                    print("<注册英雄数量超过10个>")
+                    x = 0
+                end
             end
         end
         return TrueSkillId["技能"][x][y]
@@ -411,7 +471,7 @@
         return t
     end
 	
-	local GetSkill = function(u, x, y)
+	GetSkill = function(u, x, y)
         if x == 0 then --安装黄点
             local uc = Mark(u, "空余图标")
             if uc > 0 then --剩余图标大于0时替换成有图标的黄点
@@ -424,7 +484,7 @@
     end
     
     --安装技能
-    AddSkill = function(u, name, data)
+    AddSkill = function(u, name, data, b)
         local id = SkillTable[name]
         if not id then
             --如果是dummy技能或茵蒂克丝偷取技能等会在技能名后加括号,尝试去掉括号进行匹配
@@ -434,7 +494,7 @@
             id = SkillTable[name]
             if not id then return end
         end
-        return GetSkill2(u, id, data)
+        return GetSkill2(u, id, data, b)
     end
     
     --移除技能
