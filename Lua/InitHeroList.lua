@@ -221,4 +221,110 @@
     --主属性
     HeroMain = {}
     
-    luaDone()
+    --无头像英雄
+    IllHeroType = {}
+    
+    CheckHeroData = function()
+        if luaVersion < 2 then return end
+        for i = 1, HeroTypeCount do
+            local data = getObj(slk.unit, HeroType[i])
+            --核对数据
+            local name = data.Name
+            if tonumber(data.collision) ~= 24 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "碰撞体积"))
+            end
+            if tonumber(data.castpt) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "魔法施放点"))
+            end
+            if tonumber(data.castbsw) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "魔法施放回复"))
+            end
+            if tonumber(data.propWin) ~= 180 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "转向角度"))
+            end
+            if tonumber(data.orientInterp) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "转向补正"))
+            end
+            if tonumber(data.fatLOS) ~= 1 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "不可见区域显示单位"))
+            end
+            if tonumber(data.turnRate) ~= 3 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "转身速度"))
+            end
+            if data.weapTp1 ~= "normal" then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "武器类型"))
+            end
+            if tonumber(data.backSw1) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "动画回复点"))
+            end
+            if tonumber(data.cool1) ~= 2 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "攻击间隔"))
+            end
+            if tonumber(data.goldcost) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "黄金消耗"))
+            end
+            if tonumber(data.lumbercost) ~= 10000 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "木材消耗"))
+            end
+            if tonumber(data.regenMana) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "魔法回复"))
+            end
+            if tonumber(data.mana0) ~= 100 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "魔法初始数量"))
+            end
+            if tonumber(data.HP) ~= 200 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "生命最大值"))
+            end
+            if data.regenType ~= "none" then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "生命回复类型"))
+            end
+            if tonumber(data.stockStart) ~= 15 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "雇佣开始时间"))
+            end
+            if tonumber(data.stockRegen) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "雇佣时间间隔"))
+            end
+            if tonumber(data.sight) ~= 1200 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "视野范围(白天)"))
+            end
+            if tonumber(data.nsight) ~= 800 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "视野范围(夜晚)"))
+            end
+            if tonumber(data.stockMax) ~= 1 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "最大库存量"))
+            end
+            if tonumber(data.hideHeroDeathMsg) ~= 1 then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "隐藏英雄死亡信息"))
+            end
+            if tonumber(data.points) ~= i then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "单位附加值"))
+            end
+            if tonumber(data.canFlee) ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "可以逃跑"))
+            end
+        end
+    end
+    
+    CheckIllHeroData = function()
+        if luaVersion < 2 then return end
+        for i = 1, HeroTypeCount do
+            local data = getObj(slk.unit, HeroType[i])
+            local data2 = getObj(slk.unit, IllHeroType[i])
+            --核对数据
+            local name = data.Name
+            for k, v in pairs(data2) do
+                if k == "heroAbilList" then
+                    if v ~= "A1AA,A1AB,A1AC,A1AD" then
+                        Debug(("<幻象英雄数据错误>[%s][%s]"):format(name, "英雄技能"))
+                    end
+                elseif k == "EditorSuffix" then
+                elseif k == "hideHeroBar" then
+                    if tonumber(v) ~= 1 then
+                        Debug(("<幻象英雄数据错误>[%s][%s]"):format(name, "隐藏英雄栏图标"))
+                    end
+                elseif v ~= data[k] then
+                    Debug(("<幻象英雄数据错误>[%s][%s]"):format(name, k))
+                end
+            end
+        end
+    end
