@@ -21,7 +21,9 @@
         return unpack(returns)
     end
     
-    if jass then
+    local _, cj = pcall(require, 'jass.common')
+    
+    if not cj then
         jass_ext.EnableConsole() --打开Lua引擎控制台
         luaVersion = 0
     else
@@ -29,7 +31,7 @@
         jass_ext.runtime = require 'jass.runtime'
         jass_ext.hook = require 'jass.hook'
         jass_ext.runtime.console = true --打开Lua引擎控制台
-        jass = require 'jass.common'
+        jass = cj
         japi = require 'jass.japi'
         slk  = require 'jass.slk'
         luaVersion = jass_ext.runtime.version
@@ -52,6 +54,8 @@
             old.print(tostring(msg) .. "\n")
             old.print(debug.traceback())
             old.print("---------------------------------------")
+
+            Debug(tostring(msg))
         end
         
         runtime.handle_level = 2
@@ -62,5 +66,5 @@
         runtime.sleep = false --关闭掉等待功能以提升效率
     end
 
-    setmetatable(_G, { __index = getmetatable(jass).__index})
+    setmetatable(_ENV, { __index = getmetatable(jass).__index})
 
