@@ -467,55 +467,6 @@
         SetUnitMoveSpeed(u, m + GetUnitDefaultMoveSpeed(u))
     end
     
-    --获取目标允许
-    local targs = {
-        "地面",
-        "空中",
-        "建筑",
-        "守卫",
-        "物品",
-        "树木",
-        "墙",
-        "残骸",
-        "装饰物",
-        "桥",
-        "unknow",
-        "自己",
-        "玩家单位",
-        "联盟",
-        "中立",
-        "敌人",
-        "unknow",
-        "unknow",
-        "unknow",
-        "可攻击的",
-        "无敌",
-        "英雄",
-        "非-英雄",
-        "存活",
-        "死亡",
-        "有机生物",
-        "机械类",
-        "非-自爆工兵",
-        "自爆工兵",
-        "非-古树",
-        "古树",
-    }
-    
-    --反向表
-    for i, v in ipairs(targs) do
-        targs[v] = i
-    end
-    
-    GetTargs = function(s)
-        local t = string.split(s, ",")
-        local i = 0
-        for _, n in ipairs(t) do
-            i = i + 2 ^ targs[n]
-        end
-        return i
-    end
-    
     --允许攻击
     EnableAttack = function(u, b)
         if b == false then
@@ -704,6 +655,12 @@
             end
         end,
         callback = function(this, data, u)
+        
+            local hp = GetUnitState(u, UNIT_STATE_LIFE)
+            local mhp = GetUnitState(u, UNIT_STATE_MAX_LIFE)
+            local mp = GetUnitState(u, UNIT_STATE_MANA)
+            local mmp = GetUnitState(u, UNIT_STATE_MAX_MANA)
+                        
             --开始回溯
             MaxLife(u, 50000, true) --增加血量上限,维持当前血量
             MaxMana(u, 50000, true) --增加法力上限,维持当前法力
@@ -711,13 +668,13 @@
                 function(who, s)
                     if who == u then
                         if s == UNIT_STATE_MAX_LIFE then
-                            return GetUnitState(who, s) - 50000
+                            return mhp
                         elseif s == UNIT_STATE_LIFE then
-                            return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_LIFE) - 50000)
+                            return hp
                         elseif s == UNIT_STATE_MAX_MANA then
-                            return GetUnitState(who, s) - 50000
+                            return mmp
                         elseif s == UNIT_STATE_MANA then
-                            return math.min(GetUnitState(who, s), GetUnitState(who, UNIT_STATE_MAX_MANA) - 50000)
+                            return mp
                         end
                     end
                     return GetUnitState(who, s)
@@ -780,53 +737,155 @@
         end
     )
     
-    --召唤镜像
-    UnitAddAbility(Dummy, |A1A9|)
+    --幻象
+    for i = 1, 5 do
+        ---[[
+        for y = 1, 6 do
+            SetPlayerAbilityAvailable(PA[i], TrueSkillId["技能"][0][y], false)
+            
+            SetPlayerAbilityAvailable(PB[i], TrueSkillId["技能"][0][y], false)
+        end
+        --]]
+    end
     
-    do
-        local summoned
-        Event("召唤",
-            function(data)
-                summoned = data.unit
+    IsUnitIllusion = function(u)
+        return Mark(u, "幻象")
+    end
+    
+    IllusionUnit = function(data)
+        local p = GetOwningPlayer(data.from)
+        local ut = GetUnitTypeId(data.to)
+        if IsHeroUnitId(ut) then
+            ut = IllHeroType[GetUnitPointValue(data.to)]
+        end
+        local u = CreateUnitAtLoc(p, ut, GetUnitLoc(data.to), GetUnitFacing(data.to))
+        Mark(u, "幻象", true)
+        
+        --英雄
+        if IsHeroUnitId(ut) then
+            local id = GetUnitPointValue(u) --获取英雄的编号
+            UnitAddType(u, UNIT_TYPE_SUMMONED)
+            
+            Mark(u, "模型缩放", HeroSize[id])
+            SetUnitScale(u, HeroSize[id], HeroSize[id], HeroSize[id])
+            
+            --处理技能
+            local lv = GetHeroLevel(data.to)
+            if lv > 1 then
+                SetHeroLevel(u, lv, false)
             end
-        )
-    
-        IllusionUnit = function(data)
-            if toEvent("幻象", data) then return end
-            SetUnitOwner(Dummy, GetOwningPlayer(data.from), false)
-            local ab = japi.EXGetUnitAbility(Dummy, |A1A9|)
-            japi.EXSetAbilityDataReal(ab, 1, 102, data.time)
-            japi.EXSetAbilityDataReal(ab, 1, 103, data.time)
-            local u
-            if IssueTargetOrderById(Dummy, 852274, data.to) then
-                Mark(summoned, "幻象攻击", data.attack or 0)
-                Mark(summoned, "幻象伤害", data.damage or 100)
-                u = summoned
-            else
-            end            
-            SetUnitOwner(Dummy, Player(15), false)
-            return u
+            local skills = Mark(data.to, "技能")
+            Mark(u, "技能", {}) --保存英雄的技能
+            Mark(u, "空余图标", 6) --英雄的空余图标为6
+            for i = 1, 4 do
+                local t = skills[i]
+                if t then
+                    AddSkill(u, t.name, nil, true)
+                end
+            end
+            for i = 1, 4 do
+                local t = skills[i]
+                if t then
+                    SetPlayerAbilityAvailable(p, TrueSkillId["学习"][0][i], true)
+                    for i = 1, t.lv do
+                        SelectHeroSkill(u, TrueSkillId["学习"][0][i])
+                    end
+                    SetPlayerAbilityAvailable(p, TrueSkillId["学习"][0][i], false)
+                end
+            end
+            for i = 5, 6 do
+                local t = skills[i]
+                if t and not findSkillData(u, t.name) then
+                    AddSkill(u, t.name)
+                end
+            end
+            for i = 1, math.max(GetUnitAbilityLevel(u, |A00J|), GetUnitAbilityLevel(u, |A0L0|)) do
+                SelectHeroSkill(u, |A00J|)
+                SelectHeroSkill(u, |A0L0|)
+            end
+            
+            --处理物品
+            UnitRemoveAbility(u, |AInv|)
+            UnitAddAbility(u, |A1AE|)
+            for i = 0, 5 do
+                local it = UnitItemInSlot(data.to, i)
+                if it then
+                    local item = Mark(it, "数据")
+                    AddItem(u, item.name)
+                end
+            end
+            
+            --处理属性
+            local str1, agi1, int1 = GetHeroStr(data.to, false), GetHeroAgi(data.to, false), GetHeroInt(data.to, false)
+            local str2, agi2, int2 = GetHeroStr(data.to, true) - str1, GetHeroAgi(data.to, true) - agi1, GetHeroInt(data.to, true) - int1
+            local str3, agi3, int3 = GetHeroStr(u, false), GetHeroAgi(u, false), GetHeroInt(u, false)
+            local str4, agi4, int4 = GetHeroStr(u, true) - str1, GetHeroAgi(u, true) - agi1, GetHeroInt(u, true) - int1
+            SetHeroStr(u, str1)
+            SetHeroAgi(u, agi1)
+            SetHeroInt(u, int1)
+            Sai(u, str2 - str4, agi2 - agi4, int2 - int4)
         end
         
-        Event("伤害前",
-            function(damage)
-                if damage.from then
-                    local attack = Mark(damage.from, "幻象攻击")
-                    if attack then
-                        damage.sdamage = damage.sdamage * attack * 0.01
-                        damage.damage = damage.damage * attack * 0.01
-                        damage.odamage = damage.odamage * attack * 0.01
-                    end
-                end
-                local d = Mark(damage.from, "幻象伤害")
-                if d then
-                    damage.sdamage = damage.sdamage * d * 0.01
-                    damage.damage = damage.damage * d * 0.01
-                    damage.odamage = damage.odamage * d * 0.01
+        --最终处理
+        MaxLife(u, GetUnitState(data.to, UNIT_STATE_MAX_LIFE) - GetUnitState(data.to, UNIT_STATE_MAX_LIFE))
+        MaxMana(u, GetUnitState(data.to, UNIT_STATE_MAX_MANA) - GetUnitState(data.to, UNIT_STATE_MAX_MANA))
+        SetUnitState(u, UNIT_STATE_LIFE, GetUnitState(data.to, UNIT_STATE_LIFE))
+        SetUnitState(u, UNIT_STATE_MANA, GetUnitState(data.to, UNIT_STATE_MANA))
+        
+        Attack(u, GetUnitState(data.to, UNIT_STATE_ADD_ATTACK) - GetUnitState(u, UNIT_STATE_ADD_ATTACK))
+        Def(u, GetUnitState(data.to, UNIT_STATE_DEFENCE) - GetUnitState(u, UNIT_STATE_DEFENCE))
+        
+        SetUnitColor(u, ConvertPlayerColor(GetPlayerId(p)))
+        if IsUnitAlly(u, SELFP) then
+            SetUnitVertexColor(u, 0, 0, 255, 255)
+        end
+        UnitApplyTimedLife(u, 'BTLF', data.time)
+        
+        Mark(u, "幻象攻击", data.attack or 0)
+        Mark(u, "幻象伤害", data.damage or 0)
+        
+        return u
+    end
+    
+    Event("伤害前",
+        function(damage)
+            if damage.from then
+                local attack = Mark(damage.from, "幻象攻击")
+                if attack then
+                    attack = attack * 0.01
+                    damage.sdamage = damage.sdamage * attack
+                    damage.odamage = damage.odamage * attack
+                    damage.damage = damage.damage * attack
                 end
             end
-        )
-    end
+            local attack = Mark(damage.to, "幻象伤害")
+            if attack then
+                attack = attack * 0.01
+                damage.sdamage = damage.sdamage * attack
+                damage.odamage = damage.odamage * attack
+                damage.damage = damage.damage * attack
+            end
+        end
+    )
+    
+    Event("死亡",
+        function(data)
+            if IsUnitIllusion(data.unit) then
+                local skills = Mark(data.unit, "技能")
+                if skills then
+                    for i = 1, 6 do
+                        RemoveSkill(data.unit, i)
+                    end
+                    for i = 0, 5 do
+                        local it = UnitItemInSlot(data.unit, i)
+                        RemoveItem(it)
+                    end
+                end
+                ShowUnit(data.unit, false)
+            end
+        end
+    )
+        
     --无敌
     EnableGod = function(u, b)
         if b == false then
