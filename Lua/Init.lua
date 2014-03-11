@@ -21,17 +21,17 @@
         return unpack(returns)
     end
     
-    local _, cj = pcall(require, 'jass.common')
+    local _, runtime = pcall(require, 'jass.runtime')
     
-    if not cj then
+    if not runtime then
         jass_ext.EnableConsole() --打开Lua引擎控制台
         luaVersion = 0
     else
         jass_ext = {}
-        jass_ext.runtime = require 'jass.runtime'
+        jass_ext.runtime = runtime
         jass_ext.hook = require 'jass.hook'
         jass_ext.runtime.console = true --打开Lua引擎控制台
-        jass = cj
+        jass = require 'jass.common'
         japi = require 'jass.japi'
         slk  = require 'jass.slk'
         luaVersion = jass_ext.runtime.version
