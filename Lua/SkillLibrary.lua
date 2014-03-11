@@ -693,9 +693,10 @@
                 end
                 --Debug(("<冻结>回溯伤害:%.3f"):format(damage.damage))
             end
+            Reload("-GetUnitState", func)
             MaxLife(u, -50000, true)
             MaxMana(u, -50000, true)
-            Reload("-GetUnitState", func)
+            
         end,
         units = {},
         count = 0
