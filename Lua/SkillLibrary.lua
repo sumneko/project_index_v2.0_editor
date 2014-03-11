@@ -648,10 +648,10 @@
             this.count = this.count - 1
             if this.count == 0 then
                 --释放Reload节省资源
-                Event("-伤害无效", func1)
-                Event("-治疗无效", func2)
-                Reload("-Recover", func3)
-                Reload("-SetUnitTimeScale", func4)
+                Event("-伤害无效", this.func1)
+                Event("-治疗无效", this.func2)
+                Reload("-Recover", this.func3)
+                Reload("-SetUnitTimeScale", this.func4)
             end
         end,
         callback = function(this, data, u)
