@@ -26,7 +26,7 @@
         function()
             local hero = GetTriggerUnit()
             local order = GetIssuedOrderId()
-            if order == attack or order == smart or order == move or order == patrol or order == hold then
+            if order == attack or order == move or order == patrol or order == hold then
                 last[hero] = order
                 if order == hold then
                     lasttype[hero] = "nil"
@@ -65,8 +65,14 @@
             if lasttype[hero] == "nil" then
                 IssueImmediateOrderById(hero, last)
             elseif lasttype[hero] == "target" then
-                if IsUnitVisible(lasttarget[hero], GetOwningPlayer(hero)) then
+                local target = lasttarget[hero]
+                local p = GetOwningPlayer(hero)
+                if IsUnitVisible(target, p) then
+                    IssueTargetOrderById(hero, last, target)
+                elseif last == attack and IsUnitType(target, UNIT_TYPE_STRUCTURE) then
+                    UnitShareVision(target, p, true)
                     IssueTargetOrderById(hero, last, lasttarget[hero])
+                    UnitShareVision(target, p, false)
                 end
             else
                 IssuePointOrderByIdLoc(hero, last, lasttarget[hero])

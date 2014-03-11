@@ -645,15 +645,17 @@
                 if GetIssuedOrderId() == smart then
                     local p = GetTriggerPlayer()
                     local loc = GetOrderPointLoc()
+                    local u1 = GetTriggerUnit()
+                    IssuePointOrderLoc(u1, "move", loc)
                     if IsLocationVisibleToPlayer(loc, p) == false then
                         forRange(loc, 0,
                             function(u2)
                                 if GetUnitX(u2) == loc[1] and GetUnitY(u2) == loc[2] and IsUnitType(u2, UNIT_TYPE_STRUCTURE) then
-                                    local u1 = GetTriggerUnit()
                                     if IsUnitEnemy(u2, p) then
                                         UnitShareVision(u2, p, true)
                                         IssueTargetOrder(u1, "attack", u2)
                                         UnitShareVision(u2, p, false)
+                                        return true
                                     end
                                 end
                             end
