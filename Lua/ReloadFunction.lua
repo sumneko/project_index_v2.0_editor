@@ -13,14 +13,14 @@
                 end
             end
             if #funcs == 1 then
-                _G[name] = funcs[1]
+                _ENV[name] = funcs[1]
                 reload[name] = nil
             end
         else
             local funcs = reload[name]
             if not funcs then
                 funcs = {
-                    _G[name],
+                    _ENV[name],
                     index = 0,
                     code = function(...)
                         local i = math.max(1, #funcs - funcs.index)
@@ -31,7 +31,7 @@
                     end
                 }
                 reload[name] = funcs
-                _G[name] = funcs.code
+                _ENV[name] = funcs.code
             end
             table.insert(funcs, func)
             return func
