@@ -451,7 +451,9 @@
         local funcs = {}
         local e = Condition(
             function()
-                funcs[i](GetFilterUnit())
+                if funcs[i](GetFilterUnit()) then
+                    GroupClear(gs[i])
+                end
             end
         )
         forRange = function(where, range, func)
@@ -482,7 +484,7 @@
                 local x0, y0 = GetUnitX(u), GetUnitY(u)
                 local d = math.abs(A*x0 + B*y0 + C) / s
                 if d <= w then
-                    func(u)
+                    return func(u)
                 end
             end
         )
