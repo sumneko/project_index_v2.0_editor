@@ -57,10 +57,10 @@
                 return damage
             end
             
-            if damage.damage + 0.5 > GetUnitState(damage.to, UNIT_STATE_LIFE) then
+            if damage.damage + 0.5 > jass.GetUnitState(damage.to, UNIT_STATE_LIFE) then
             
                 if toEvent("伤害致死", damage) then --返回true表示发动不屈
-                    damage.damage = GetUnitState(damage.to, UNIT_STATE_LIFE) - 0.5
+                    damage.damage = jass.GetUnitState(damage.to, UNIT_STATE_LIFE) - 0.5
                 end
             end
             
