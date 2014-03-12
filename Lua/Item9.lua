@@ -80,11 +80,13 @@
                                 if Random(33) then
                                     Wait(0.2,
                                         function()
+                                            if GetUnitTypeId(this.unit) == 0 then return end
                                             local ob = getObj(slk.unit, GetUnitTypeId(this.unit))
                                             local t = tonumber(ob.dmgpt1 or 0.1)
                                             SetUnitAnimation(this.unit, "attack")
                                             Wait(t,
                                                 function()
+                                                    if GetUnitTypeId(this.unit) == 0 then return end
                                                     StartWeaponAttack(this.unit, damage.to)
                                                 end
                                             )
