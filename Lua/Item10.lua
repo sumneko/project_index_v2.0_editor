@@ -28,7 +28,7 @@
                 data.effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\ANrm\\ANrmTarget.mdl", data.unit, "origin")
                 data.func2 = Event("伤害后",
                     function(damage)
-                        if damage.to == data.unit and damage.from and IsUser(GetOwningPlayer(damage.from)) then
+                        if damage.to == data.unit and damage.from and damage.from ~= damage.to and IsUser(GetOwningPlayer(damage.from)) then
                             if not damage.dot or damage.damage > 20 then 
                                 data.func()
                             end
@@ -76,7 +76,7 @@
                 data.effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\ANrl\\ANrlTarget.mdl", data.unit, "origin")
                 data.func2 = Event("伤害后",
                     function(damage)
-                        if damage.to == data.unit and damage.from and IsUser(GetOwningPlayer(damage.from)) then
+                        if damage.to == data.unit and damage.from and damage.from ~= damage.to and IsUser(GetOwningPlayer(damage.from)) then
                             if not damage.dot or damage.damage > 20 then 
                                 data.func()
                             end
