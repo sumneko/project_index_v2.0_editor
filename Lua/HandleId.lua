@@ -1,8 +1,8 @@
-    do return end
+    --do return end
     TimerStart(CreateTimer(), 1, true,
         function()
             local h = jass.CreateTimer()
-            Debug(GetHandleId(h))
+            old.print(GetHandleId(h))
             jass.DestroyTimer(h)
         end
     )

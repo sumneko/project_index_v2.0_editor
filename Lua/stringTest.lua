@@ -45,6 +45,8 @@
             end
         elseif s[1] == ".count" then
             print(("Lua脚本当前占用的内存为: |cffffcc00%.2f|r KB"):format(collectgarbage("count")))
+        elseif s[1] == ".handle" then
+            GetLocalizedHotkey("yd_leak_monitor::create_report")
         elseif s[1] == ".mhp" then
             MaxLife(Hero[i], tonumber(s[2] or 0))
         end
