@@ -21,9 +21,11 @@
         return unpack(returns)
     end
     
-    local _, runtime = pcall(require, 'jass.runtime')
+    jass_ext.EnableConsole()
     
-    if not runtime then
+    local suc, runtime = pcall(require, 'jass.runtime')
+    
+    if not suc then
         jass_ext.EnableConsole() --打开Lua引擎控制台
         luaVersion = 0
     else
@@ -37,15 +39,9 @@
         luaVersion = jass_ext.runtime.version
     end
     
-    if luaVersion > 1 then
-        loadstring = load
-        unpack = table.unpack
-    end
-    
     require "AnsiWord.lua"
     
-    local runtime = jass_ext.runtime
-    if runtime then
+    if luaVersion > 0 then
     
         runtime.error_handle = function(msg) --调用栈
             old.print("---------------------------------------")
@@ -64,6 +60,11 @@
         --2:handle使用userdata,lua持有handle时增加引用计数
         
         runtime.sleep = false --关闭掉等待功能以提升效率
+    end
+    
+    if luaVersion > 1 then
+        loadstring = load
+        unpack = table.unpack
     end
 
     setmetatable(_ENV, { __index = getmetatable(jass).__index})
