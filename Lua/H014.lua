@@ -613,7 +613,8 @@
                                 local loc = GetUnitLoc(this.unit)
                                 UnitAddAbility(dummy, |Aloc|)
                                 PauseUnit(dummy, true)
-                                
+                                SetUnitAcquireRange(dummy, 1000)
+                                RemoveGuardPosition(dummy)
                                 ForLoop(0.02, 10,
                                     function(i)
                                         local c = i * 25.5
@@ -882,7 +883,7 @@
                 
                 --损耗生命
                 local dummyshow = function(u)
-                    SetUnitXY(u, MovePoint(cent, {GetRandomInt(0, area), GetRandomInt(1, 360)}))
+                    SetUnitPositionLoc(u, MovePoint(cent, {GetRandomInt(0, area), GetRandomInt(1, 360)}))
                     ShowUnit(u, true)
                     UnitAddAbility(u, |Aloc|)
                     SetUnitTimeScale(u, 1)
