@@ -254,6 +254,9 @@
             if data.weapTp1 ~= "normal" then
                 Debug(("<英雄数据错误>[%s][%s]"):format(name, "武器类型"))
             end
+            if data.unitShadow ~= nil then
+                Debug(("<英雄数据错误>[%s][%s]"):format(name, "阴影图像(单位)"))
+            end
             if tonumber(data.backSw1) ~= nil then
                 Debug(("<英雄数据错误>[%s][%s]"):format(name, "动画回复点"))
             end
