@@ -972,11 +972,11 @@
         japi.EXSetAbilityDataReal(skill, 2, 108, -hp)
         SetUnitAbilityLevel(u, |A0P1|, 2)
         if b then
-            b = GetUnitState(u, UNIT_STATE_LIFE)
+            b = jass.GetUnitState(u, UNIT_STATE_LIFE)
         end
         UnitRemoveAbility(u, |A0P1|)
         if b then
-            SetUnitState(u, UNIT_STATE_LIFE, b)
+            jass.SetUnitState(u, UNIT_STATE_LIFE, b)
         end
     end
     
@@ -987,11 +987,11 @@
         japi.EXSetAbilityDataReal(skill, 2, 108, -mp)
         SetUnitAbilityLevel(u, |A18I|, 2)
         if b then
-            b = GetUnitState(u, UNIT_STATE_MANA)
+            b = jass.GetUnitState(u, UNIT_STATE_MANA)
         end
         UnitRemoveAbility(u, |A18I|)
         if b then
-            SetUnitState(u, UNIT_STATE_MANA, b)
+            jass.SetUnitState(u, UNIT_STATE_MANA, b)
         end
     end
     
