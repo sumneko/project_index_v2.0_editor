@@ -794,15 +794,17 @@
                     SetPlayerAbilityAvailable(p, TrueSkillId["学习"][0][i], false)
                 end
             end
+            
+            for i = 1, math.max(GetUnitAbilityLevel(u, |A00J|), GetUnitAbilityLevel(u, |A0L0|)) do
+                SelectHeroSkill(u, |A00J|)
+                SelectHeroSkill(u, |A0L0|)
+            end
+            
             for i = 5, 6 do
                 local t = skills[i]
                 if t and not findSkillData(u, t.name) then
                     AddSkill(u, t.name)
                 end
-            end
-            for i = 1, math.max(GetUnitAbilityLevel(u, |A00J|), GetUnitAbilityLevel(u, |A0L0|)) do
-                SelectHeroSkill(u, |A00J|)
-                SelectHeroSkill(u, |A0L0|)
             end
             
             --处理物品
@@ -843,7 +845,7 @@
         UnitApplyTimedLife(u, 'BTLF', data.time)
         
         Mark(u, "幻象攻击", data.attack or 0)
-        Mark(u, "幻象伤害", data.damage or 0)
+        Mark(u, "幻象伤害", data.damage or 1)
         
         return u
     end
