@@ -106,7 +106,7 @@
         end
     ))
     
-    --初始化选取地图上所有单位添加事件
+    --[[初始化选取地图上所有单位添加事件
     local g = CreateGroup()
     GroupEnumUnitsInRect(g, GetPlayableMapRect(), nil)
     for _,u in group(g) do
@@ -114,12 +114,24 @@
         Mark(u, "伤害系统", true)
     end
     DestroyGroup(g)
+    --]]
     
-    --当有单位进入地图时,添加事件
-    Event("进入地图",
+    local units = {}
+    
+    --当有单位被攻击时,添加事件
+    Event("攻击",
         function(data)
-            local u = data.unit
-            TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_DAMAGED)
+            local u = data.to
+            if not units[u] then
+                TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_DAMAGED)
+                units[u] = true
+            end
+        end
+    )
+    
+    Event("删除单位",
+        function(data)
+            units[data.unit] = nil
         end
     )
     
