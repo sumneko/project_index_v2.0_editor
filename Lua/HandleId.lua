@@ -1,4 +1,4 @@
-    --do return end
+    do return end
     TimerStart(CreateTimer(), 1, true,
         function()
             local h = jass.CreateTimer()
