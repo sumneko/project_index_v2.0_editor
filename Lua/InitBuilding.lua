@@ -174,7 +174,7 @@
                             function(damage)
                                 if damage.attack and damage.from == this.unit then
                                     local ut = GetUnitTypeId(damage.to)
-                                    if IsHeroUnitId(ut) then
+                                    if IsHero(ut) then
                                         local up = Mark(this.unit, name)
                                         Mark(this.unit, name, up + 75)
                                         damage.damage = damage.damage + damage.odamage * up / 100
