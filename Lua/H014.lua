@@ -519,7 +519,7 @@
             0, --消耗自己生命值1
             {2, 3, 4, 5}, --分身数量2
             20, --分身攻击3
-            500, --分身承受伤害4
+            300, --分身承受伤害4
             30, --分身持续时间5
             0, --分身持续时间加成6
             {150, 300, 450, 600}, --造成伤害7
@@ -633,6 +633,7 @@
                                                 Wait(0.3,
                                                     function()
                                                         ShowUnit(dummy, false)
+                                                        this.units[dummy] = true
                                                     end
                                                 )
                                             end
@@ -676,8 +677,19 @@
                     end
                 )
                 
+                this.units = {}
+                
+                local func1 = Event("死亡",
+                    function(data)
+                        this.units[data.unit] = nil
+                    end
+                )
+                
                 this.flush = function()
                     DestroyTimer(t)
+                    for u in pairs(this.units) do
+                        RemoveUnit(u)
+                    end
                 end
             elseif this.event == "失去技能" then
                 if this.flush then
@@ -687,22 +699,319 @@
         end
     }
     
-    --吞噬时间
+    --食时之城
     InitSkill{
-        name = "吞噬时间4",
+        name = "食时之城",
         type = {"开关"},
-        ani = "stand",
+        ani = "spell four",
         art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
-        tip = [[]],
+        area = 1000,
+        mana = 100,
+        tip = [[
+|cffff1111%d 生命值|r
+
+展开大范围的结界,吞噬其中的生命,吸取他们的时间.之前潜伏着的分身将现身一起战斗.
+结界需要在结界范围内持续消耗时间才能维持发动.
+
+|cff00ffcc技能|r: 无目标
+|cff00ffcc伤害|r: 混合
+
+|cffffcc00吸取时间|r: %s(|cff1111ff+%d|r)
+|cffffcc00吸取间隔|r: %s
+|cffffcc00每秒消耗生命|r: |cffff1111%d|r(当前生命值的%s%%)
+
+|cff888888视为对自己造成伤害
+分身不能离开结界
+可以提前关闭结界]],
         researchtip = {
             "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
             "",
             "",
         },
         data = {
+            0, --生命消耗1
+            {40, 70, 100}, --吸取时间2
+            function(ap) --吸取加成3
+                return ap * 1
+            end,
+            {1, 0.9, 0.8}, --吸取间隔4
+            0, --每秒消耗生命5
+            25, --百分比6
+            
         },
         events = {"获得技能", "失去技能", "发动技能", "关闭技能"},
         code = function(this)
+            if this.event == "发动技能" then
+                local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
+                Damage(this.unit, this.unit, hp, true, true, {damageReason = this.name})
+                
+                Wait(0.01,
+                    function()
+                        PauseUnit(this.unit, true)
+                        SetUnitAnimation(this.unit, "spell four")
+                        Wait(1.2,
+                            function()
+                                PauseUnit(this.unit, false)
+                                QueueUnitAnimation(this.unit, "stand")
+                            end
+                        )
+                    end
+                )
+                
+                local cent = GetUnitLoc(this.unit) --结界中心
+                
+                --创建时钟特效
+                local dummy = {
+                    units = {},
+                    create = function(this, loc)
+                        local u = CreateModle("clockwisetimer.mdl", loc, {remove = true})
+                        local x, y = GetXY(loc)
+                        local x2, y2 = GetXY(cent)
+                        local size = 1
+                        local ps = 0.5
+                        this.units[u] = {
+                            unit = u,
+                            x = x - x2,
+                            y = y - y2,
+                            timer = ForLoop(0.05, 100,
+                                function(count)
+                                    size = size + ps
+                                    ps = ps * 0.5
+                                    SetUnitScale(u, size, size, size)
+                                end
+                            )
+                        }
+                        --[[
+                        Wait(GetRandomInt(10, 30),
+                            function()
+                                this:remove(u)
+                            end
+                        )
+                        --]]
+                    end,
+                    remove = function(this, u)
+                        local data = this.units[u]
+                        if data then
+                            DestroyTimer(data.timer)
+                            KillUnit(data.unit)
+                            this.units[u] = nil
+                        end
+                    end,
+                    removeall = function(this)
+                        for _, data in pairs(this.units) do
+                            this:remove(data.unit)
+                        end
+                    end
+                }
+                
+                dummy:create(this.unit)
+                
+                local area = this:get("area")
+                local t1, t2
+                t1 = Wait(0.2,
+                    function()
+                        t2 = ForLoop(0.05, 16,
+                            function(count)
+                                MoverEx{
+                                    from = this.unit,
+                                    target = MovePoint(cent, {GetRandomInt(200, area - 200), GetRandomInt(1, 360)}),
+                                    speed = 2000,
+                                    z = GetRandomInt(200, 400),
+                                    modle = "a13_hong.mdx",
+                                    func2 = function(move)
+                                        if this.openflag then
+                                            dummy:create(move.target)
+                                        end
+                                    end
+                                }
+                            end
+                        )
+                    end
+                )
+                
+                --生命吸取
+                local d = this:get(2) + this:get(3)
+                local t3 = Loop(this:get(4),
+                    function()
+                        local g = {}
+                        forRange(cent, area,
+                            function(u)
+                                if EnemyFilter(this.player, u) then
+                                    table.insert(g, u)
+                                end
+                            end
+                        )
+                        local count = #g
+                        if count > 0 then
+                            local u = g[GetRandomInt(1, count)]
+                            SkillEffect{
+                                name = this.name,
+                                data = this,
+                                from = this.unit,
+                                to = u,
+                                aoe = true,
+                                code = function(data)
+                                    local damage = Damage(data.from, data.to, d, true, true, {aoe = true, damageReason = this.name})
+                                    local hp = damage.damage
+                                    if hp > 0 then
+                                        MoverEx{
+                                            from = data.from,
+                                            target = data.from,
+                                            source = data.to,
+                                            good = true,
+                                            modle = "a13_hong.mdx",
+                                            speed = 400,
+                                            z = 100,
+                                            tz = 100,
+                                            high = 200,
+                                            func2 = function(move)
+                                                if IsUnitAlive(move.target) then
+                                                    Heal(move.target, move.target, hp, {healReason = this.name})
+                                                end
+                                            end
+                                        }
+                                    end
+                                end
+                            }
+                        end
+                    end
+                )
+                
+                local ally = IsPlayerAlly(this.player, SELFP)
+                local units = {}
+                
+                --损耗生命
+                local dummyshow = function(u)
+                    SetUnitXY(u, MovePoint(cent, {GetRandomInt(0, area), GetRandomInt(1, 360)}))
+                    ShowUnit(u, true)
+                    UnitAddAbility(u, |Aloc|)
+                    SetUnitTimeScale(u, 1)
+                    SetUnitAnimation(u, "spell channel two")
+                    ForLoop(0.02, 30,
+                        function(i)
+                            local c = 255 / 30 * i
+                            SetUnitVertexColor(u, c, c, c, 255)
+                        end,
+                        function()
+                            if units[u] ~= true then
+                                UnitRemoveAbility(u, |Aloc|)
+                                ShowUnit(u, false)
+                                Wait(0,
+                                    function()
+                                        ShowUnit(u, true)
+                                        SetUnitAnimation(u, "stand")
+                                        PauseUnit(u, false)
+                                        if ally then
+                                            SetUnitVertexColor(u, 0, 0, 255, 255)
+                                        end
+                                    end
+                                )
+                            end
+                        end
+                    )
+                end
+                
+                local dummyhide = function(u)
+                    UnitAddAbility(u, |Aloc|)
+                    PauseUnit(u, true)
+                    SetUnitTimeScale(u, - 0.166)
+                    SetUnitAnimation(u, "spell channel two")
+                    ForLoop(0.02, 30,
+                        function(i)
+                            local c = 255 - 255 / 30 * i
+                            SetUnitVertexColor(u, c, c, c, 255)
+                        end,
+                        function()
+                            Wait(0.3,
+                                function()
+                                    ShowUnit(u, false)
+                                end
+                            )
+                        end
+                    )
+                end
+                
+                local t4 = Loop(1,
+                    function()
+                        local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 0.01 * this:get(6)
+                        Damage(this.unit, this.unit, hp, true, true, {damageReason = this.name})
+                        --dummy:create(MovePoint(cent, {GetRandomInt(200, area - 200), GetRandomInt(1, 360)}))
+                        if GetBetween(this.unit, cent) > area then
+                            this:closeskill()
+                        end
+                        --分身
+                        local that = findSkillData(this.unit, "Zayin Chet")
+                        if that then
+                            units = that.units
+                            if units then
+                                local flag = true
+                                local time = GetTime()
+                                for u, v in pairs(units) do
+                                    if v == true then
+                                        if flag then
+                                            flag = false
+                                            units[u] = time
+                                            dummyshow(u)
+                                        end
+                                    elseif time - v > 5 then
+                                        dummyhide(u)
+                                        units[u] = true
+                                    elseif GetBetween(u, cent) > area then
+                                        dummyhide(u)
+                                        units[u] = true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                )
+                
+                local func1 = Event("攻击",
+                    function(data)
+                        if units[data.from] then
+                            units[data.from] = GetTime()
+                        end
+                    end
+                )
+                
+                this.flush = function()
+                    DestroyTimer(t1)
+                    DestroyTimer(t2)
+                    DestroyTimer(t3)
+                    DestroyTimer(t4)
+                    dummy:removeall()
+                    local that = findSkillData(this.unit, "Zayin Chet")
+                    if that then
+                        local units = that.units
+                        if units then
+                            for u, v in pairs(units) do
+                                dummyhide(u)
+                            end
+                        end
+                    end
+                    Event("-攻击", func1)
+                end
+                
+            elseif this.event == "关闭技能" then
+                this.flush()
+            elseif this.event == "获得技能" then
+                local t = Loop(0.2,
+                    function()
+                        local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 0.01
+                        this.data[1] = hp * 50
+                        this.data[5] = hp * this:get(6)
+                        SetSkillTip(this.unit, this.id)
+                    end
+                )
+                
+                this.loseskill = function()
+                    DestroyTimer(t)
+                end
+            elseif this.event == "失去技能" then
+                if this.loseskill then
+                    this.loseskill()
+                end
+            end
         end
     }
     
