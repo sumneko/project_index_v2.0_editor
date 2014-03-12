@@ -89,6 +89,7 @@
                     end
                 end
             )
+            return true
         end
     end
     
@@ -703,8 +704,7 @@
     }
     
     FreezeUnit = function(data)
-        if toEvent("debuff", "冻结", "无法施法", "无法控制", data) then return end
-        StunUnit(data) --直接回调击晕
+        if not StunUnit(data) then return end --直接回调击晕
         local this = Mark(data.to, "冻结")
         if not this then
             this = {
@@ -877,8 +877,10 @@
                     for i = 1, 6 do
                         RemoveSkill(data.unit, i)
                     end
-                    for i = 0, 5 do
-                        local it = UnitItemInSlot(data.unit, i)
+                end
+                for i = 0, 5 do
+                    local it = UnitItemInSlot(data.unit, i)
+                    if it then
                         RemoveItem(it)
                     end
                 end
