@@ -31,10 +31,10 @@
 |cffffcc00此技能已经为你提升的生命值上限|r: %s
 
 |cff888888视为对自己造成伤害]],
-        researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
+        researchtip = "开启后有50%的几率再次攻击另一个目标.取代夺取时间",
         data = {
             0, --消耗生命1
-            10, --消耗百分比2
+            8, --消耗百分比2
             {10, 12, 14, 16}, --对方生命百分比3
             {10, 15, 20, 25}, --生命上限(英雄)4
             function(ap) --生命上限(英雄)加成5
@@ -54,62 +54,79 @@
                             local d = GetUnitState(this.unit, UNIT_STATE_LIFE) * this:get(2) * 0.01
                             Damage(this.unit, this.unit, d, true, true, {damageReason = this.name})
                             
-                            local x = this:get(3)
-                            
-                            table.insert(damage.attackfuncs,
-                                function(damage)
-                                    SkillEffect{
-                                        name = this.name,
-                                        data = this,
-                                        from = damage.from,
-                                        to = damage.to,
-                                        code = function(data)
-                                            local d = GetUnitState(data.to, UNIT_STATE_LIFE) * x * 0.01
-                                            local damage = Damage(data.from, data.to, d, true, true, {damageReason = this.name})
-                                            
-                                            local hp = damage.damage
-                                            
-                                            if hp > 0 then
-                                                MoverEx(
-                                                    {
-                                                        from = damage.from,
-                                                        source = damage.to,
-                                                        target = MovePoint(damage.to, {GetRandomInt(100, 200), GetRandomInt(1, 360)}),
-                                                        good = true,
-                                                        modle = "a13_hong.mdx",
-                                                        size = 1,
-                                                        speed = GetRandomInt(200, 300),
-                                                        z = 50,
-                                                        tz = 0,
-                                                        high = 150,
-                                                    },
-                                                    nil,
-                                                    nil,
-                                                    function(move)
-                                                        move.func2 = function(move)
-                                                            if IsUnitAlive(move.target) then
-                                                                Heal(move.target, move.target, hp, {healReason = this.name})
-                                                            end
-                                                        end
-                                                        
-                                                        move.target = move.from
-                                                        move.speed = 300
-                                                        move.z = 0
-                                                        move.tz = 50
-                                                        move.func3 = nil
-                                                        
-                                                        move.initstep() --重置移动器计算
-                                                        
-                                                        return true --阻止移动器结束
-                                                        
-                                                    end
-                                                )
+                            if this.research then
+                                if Random(50) then
+                                    local g = {}
+                                    forRange(damage.from, japi.GetUnitState(damage.from, UNIT_STATE_ATTACK_RANGE),
+                                        function(u)
+                                            if damage.to ~= u and EnemyFilter(this.player, u, {["建筑"] = true, ["魔免"] = true}) then
+                                                table.insert(g, u)
                                             end
                                         end
-                                    }
-                                    
+                                    )
+                                    local count = #g
+                                    if count > 0 then
+                                        StartWeaponAttack(damage.from, g[GetRandomInt(1, count)], true)
+                                    end
                                 end
-                            )
+                            else
+                                local x = this:get(3)
+                            
+                                table.insert(damage.attackfuncs,
+                                    function(damage)
+                                        SkillEffect{
+                                            name = this.name,
+                                            data = this,
+                                            from = damage.from,
+                                            to = damage.to,
+                                            code = function(data)
+                                                local d = GetUnitState(data.to, UNIT_STATE_LIFE) * x * 0.01
+                                                local damage = Damage(data.from, data.to, d, true, true, {damageReason = this.name})
+                                                
+                                                local hp = damage.damage
+                                                
+                                                if hp > 0 then
+                                                    MoverEx(
+                                                        {
+                                                            from = damage.from,
+                                                            source = damage.to,
+                                                            target = MovePoint(damage.to, {GetRandomInt(100, 200), GetRandomInt(1, 360)}),
+                                                            good = true,
+                                                            modle = "a13_hong.mdx",
+                                                            size = 1,
+                                                            speed = GetRandomInt(200, 300),
+                                                            z = 50,
+                                                            tz = 0,
+                                                            high = 150,
+                                                        },
+                                                        nil,
+                                                        nil,
+                                                        function(move)
+                                                            move.func2 = function(move)
+                                                                if IsUnitAlive(move.target) then
+                                                                    Heal(move.target, move.target, hp, {healReason = this.name})
+                                                                end
+                                                            end
+                                                            
+                                                            move.target = move.from
+                                                            move.speed = 300
+                                                            move.z = 0
+                                                            move.tz = 50
+                                                            move.func3 = nil
+                                                            
+                                                            move.initstep() --重置移动器计算
+                                                            
+                                                            return true --阻止移动器结束
+                                                            
+                                                        end
+                                                    )
+                                                end
+                                            end
+                                        }
+                                        
+                                    end
+                                )
+                            end
                         end
                     end
                 )
@@ -210,7 +227,7 @@
 速度变化会随着时间推移而逐渐消失
 弹道速度为%s
 视为对自己造成伤害]],
-        researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
+        researchtip = "四之弹将立即令其回到最初的状态",
         data = {
             0, --生命值消耗1
             "", --预留2
@@ -398,6 +415,9 @@
                                                     )
                                                     local high = GetUnitFlyHeight(data.unit)
                                                     local lasthigh = 0
+                                                    if this.research then
+                                                        data.stack = {data.stack[1], data.stack[2]}
+                                                    end
                                                     Loop(0.01,
                                                         function()
                                                             local top = #data.stack
@@ -419,6 +439,7 @@
                                                             SetUnitFlyHeight(data.unit, lasthigh, 0)
                                                             SetUnitFlyHeight(data.dummy, lasthigh, 0)
                                                             data.stack[top] = nil
+                                                            
                                                         end
                                                     )
                                                 end
@@ -514,17 +535,17 @@
 弹道速度为%s
 视为对自己造成伤害
 处于冻结状态的单位失去生命与法力恢复,受到的伤害或治疗被延后]],
-        researchtip = "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
+        researchtip = "分身可以先战斗5秒再潜伏.七之弹冻结友方的时间减半.",
         data = {
             0, --消耗自己生命值1
-            {2, 3, 4, 5}, --分身数量2
-            20, --分身攻击3
-            300, --分身承受伤害4
-            30, --分身持续时间5
+            {1, 2, 3, 4}, --分身数量2
+            10, --分身攻击3
+            500, --分身承受伤害4
+            20, --分身持续时间5
             0, --分身持续时间加成6
-            {150, 300, 450, 600}, --造成伤害7
+            {125, 250, 375, 500}, --造成伤害7
             function(ap) --伤害加成8
-                return ap * 4 --AP * 4
+                return ap * 3 --AP * 3
             end,
             {2.5, 3, 3.5, 4}, --冻结时间9
             1.8, --施法延迟10
@@ -552,7 +573,7 @@
                 
                 local attack = this:get(3)
                 local damage = this:get(4)
-                local itime = this:get(5) + hp * 0.03
+                local itime = this:get(5) + hp * 0.02
                 
                 local func1 = function()
                     if type(target) == "table" then
@@ -577,14 +598,31 @@
                                                     area = true,
                                                     good = IsUnitEnemy(u, this.player),
                                                     code = function(data)
-                                                        FreezeUnit{
-                                                            from = data.from,
-                                                            to = data.to,
-                                                            time = ftime
-                                                        }
+                                                        
                                                         
                                                         if IsUnitEnemy(data.to, GetOwningPlayer(data.from)) then
+                                                            FreezeUnit{
+                                                                from = data.from,
+                                                                to = data.to,
+                                                                time = ftime
+                                                            }
+                                                            
                                                             Damage(data.from, data.to, d, true, true, {damageReason = "七之弹", aoe = true})
+                                                        else
+                                                            if this.research then
+                                                                FreezeUnit{
+                                                                    from = data.from,
+                                                                    to = data.to,
+                                                                    time = ftime / 2
+                                                                }
+                                                            else
+                                                                FreezeUnit{
+                                                                    from = data.from,
+                                                                    to = data.to,
+                                                                    time = ftime
+                                                                }
+                                                            end
+                                                            
                                                         end
                                                     end
                                                 }
@@ -623,22 +661,42 @@
                                         SetUnitXY(dummy, loc)
                                     end,
                                     function()
-                                        SetUnitTimeScale(dummy, - 0.166)
-                                        SetUnitAnimation(dummy, "spell channel two")
-                                        ForLoop(0.02, 30,
-                                            function(i)
-                                                local c = 255 - 255 / 30 * i
-                                                SetUnitVertexColor(dummy, c, c, c, 255)
-                                            end,
-                                            function()
-                                                Wait(0.3,
-                                                    function()
-                                                        ShowUnit(dummy, false)
-                                                        this.units[dummy] = true
+                                        local func = function()
+                                            SetUnitTimeScale(dummy, - 0.166)
+                                            SetUnitAnimation(dummy, "spell channel two")
+                                            ForLoop(0.02, 30,
+                                                function(i)
+                                                    local c = 255 - 255 / 30 * i
+                                                    SetUnitVertexColor(dummy, c, c, c, 255)
+                                                end,
+                                                function()
+                                                    Wait(0.3,
+                                                        function()
+                                                            ShowUnit(dummy, false)
+                                                            this.units[dummy] = true
+                                                        end
+                                                    )
+                                                end
+                                            )
+                                        end
+                                        if this.research then
+                                            UnitRemoveAbility(dummy, |Aloc|)
+                                            PauseUnit(dummy, false)
+                                            ShowUnit(dummy, false)
+                                            ShowUnit(dummy, true)
+                                            SetUnitVertexColor(dummy, 0, 0, 255, 255)
+                                            Wait(5,
+                                                function()
+                                                    if IsUnitAlive(dummy) then
+                                                        UnitAddAbility(dummy, |Aloc|)
+                                                        PauseUnit(dummy, true)
+                                                        func()
                                                     end
-                                                )
-                                            end
-                                        )
+                                                end
+                                            )                                                
+                                        else
+                                            func()
+                                        end
                                     end
                                 )
                             end
@@ -673,7 +731,7 @@
                     function()
                         local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
                         this.data[1] = hp
-                        this.data[6] = hp * 0.03
+                        this.data[6] = hp * 0.02
                         SetSkillTip(this.unit, this.id)
                     end
                 )
@@ -708,6 +766,7 @@
         art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         area = 1000,
         mana = 100,
+        dur = 30,
         tip = [[
 |cffff1111%d 生命值|r
 
@@ -725,15 +784,15 @@
 分身不能离开结界
 可以提前关闭结界]],
         researchtip = {
-            "单位被麻痹时受到伤害,数值相当于额外伤害的5倍",
-            "",
-            "",
+            "你自己离开结界后依然可以维持结界",
+            "在结界内受到致命伤害时将有一个分身代替你死亡,其当前生命值的10%转化为治疗",
+            "展开结界时的射击会附带你攻击力2倍的混合伤害,范围200",
         },
         data = {
             0, --生命消耗1
-            {40, 70, 100}, --吸取时间2
+            {30, 50, 70}, --吸取时间2
             function(ap) --吸取加成3
-                return ap * 1
+                return ap * 0.5
             end,
             {1, 0.9, 0.8}, --吸取间隔4
             0, --每秒消耗生命5
@@ -807,6 +866,8 @@
                 
                 dummy:create(this.unit)
                 
+                local attack = GetUnitState(this.unit, UNIT_STATE_MAX_ATTACK) + GetUnitState(this.unit, UNIT_STATE_MIN_ATTACK)
+                
                 local area = this:get("area")
                 local t1, t2
                 t1 = Wait(0.2,
@@ -822,6 +883,15 @@
                                     func2 = function(move)
                                         if this.openflag then
                                             dummy:create(move.target)
+                                            if this.research[3] then
+                                                forRange(move.target, 200,
+                                                    function(u)
+                                                        if EnemyFilter(this.player, u) then
+                                                            Damage(this.unit, u, attack, true, true, {damageReason = this.name, aoe = true})
+                                                        end
+                                                    end
+                                                )
+                                            end
                                         end
                                     end
                                 }
@@ -937,7 +1007,7 @@
                         local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 0.01 * this:get(6)
                         Damage(this.unit, this.unit, hp, true, true, {damageReason = this.name})
                         --dummy:create(MovePoint(cent, {GetRandomInt(200, area - 200), GetRandomInt(1, 360)}))
-                        if GetBetween(this.unit, cent) > area then
+                        if not this.research[1] and GetBetween(this.unit, cent) > area then
                             this:closeskill()
                         end
                         --分身
@@ -975,6 +1045,57 @@
                     end
                 )
                 
+                local func2 = Event("伤害致死",
+                    function(damage)
+                        if this.research[2] and damage.to == this.unit then
+                            local that = findSkillData(this.unit, "Zayin Chet")
+                            if that then
+                                units = that.units
+                                if units then
+                                    local g = {}
+                                    for u, v in pairs(units) do
+                                        if v ~= true then
+                                            table.insert(g, u)
+                                        end
+                                    end
+                                    local u = table.getone(g,
+                                        function(u1, u2)
+                                            return GetUnitState(u1, UNIT_STATE_LIFE) > GetUnitState(u2, UNIT_STATE_LIFE)
+                                        end
+                                    )
+                                    if u then
+                                        local hp = GetUnitState(u, UNIT_STATE_LIFE)
+                                        CleanUnit{
+                                            from = this.unit,
+                                            to = u,
+                                            debuff = true,
+                                        }
+                                        Damage(this.unit, u, hp, false, false, {
+                                            damageReason = this.name,
+                                            skipup = true,
+                                            skipdown = true,
+                                            skipeffect = true,
+                                            skipdying = true,
+                                            skipdamaged = true
+                                        })
+                                        damage[this.name] = hp * 0.1
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                )
+                
+                local func3 = Event("伤害结算后",
+                    function(damage)
+                        local h = damage[this.name]
+                        if h then
+                            Heal(damage.to, damage.to, h, {healReason = this.name})
+                        end
+                    end
+                )
+                
                 this.flush = function()
                     DestroyTimer(t1)
                     DestroyTimer(t2)
@@ -991,6 +1112,8 @@
                         end
                     end
                     Event("-攻击", func1)
+                    Event("-伤害致死", func2)
+                    Event("-伤害结算后", func3)
                 end
                 
             elseif this.event == "关闭技能" then
