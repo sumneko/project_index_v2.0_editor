@@ -36,20 +36,26 @@
             return damage
         end
         
-        if toEvent("伤害转移", damage) then return end
+        if not damage.skipchange and toEvent("伤害转移", damage) then return end
         
-        if toEvent("伤害无效", damage) then --各种闪躲
+        if not damage.skipdodge and toEvent("伤害无效", damage) then --各种闪躲
             damage.damage = 0
             
             toEvent("伤害无效后", damage) --闪躲后触发
-        else            
-            toEvent("伤害加成", damage)
+        else     
+            if not damage.skipup then
+                toEvent("伤害加成", damage)
+            end
             
             damage.mdamage = damage.damage
             
-            toEvent("伤害减免", damage)
+            if not damage.skipdown then
+                toEvent("伤害减免", damage)
+            end
             
-            toEvent("伤害效果", damage) --法球等
+            if not damage.skipeffect then
+                toEvent("伤害效果", damage) --法球等
+            end
             
             if IsUnitDead(damage.to) then
                 damage.damage = 0
@@ -59,12 +65,14 @@
             
             if damage.damage + 0.5 > jass.GetUnitState(damage.to, UNIT_STATE_LIFE) then
             
-                if toEvent("伤害致死", damage) then --返回true表示发动不屈
+                if not damage.skipdying and toEvent("伤害致死", damage) then --返回true表示发动不屈
                     damage.damage = jass.GetUnitState(damage.to, UNIT_STATE_LIFE) - 0.5
                 end
             end
             
-            toEvent("伤害后", damage)
+            if not damage.skipdamaged then
+                toEvent("伤害后", damage)
+            end
             
         end
         
