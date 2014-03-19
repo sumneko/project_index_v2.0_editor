@@ -122,6 +122,9 @@
                 for _, this in pairs(SkillTable) do
                     if type(this) == "table" then
                         this.cool = 0
+                        if this._cool then
+                            this._cool = 0
+                        end
                     end
                 end
             end
@@ -132,6 +135,9 @@
                 for _, this in pairs(SkillTable) do
                     if type(this) == "table" then
                         this.mana = 0
+                        if this._mana then
+                            this._mana = 0
+                        end
                     end
                 end
             end
