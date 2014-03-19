@@ -24,13 +24,4 @@
             return old(ab, st, cd)
         end
     end
-    
-    do
-        StartSound = function(s)
-            if not s then
-                print("音效文件不存在")
-                return
-            end
-            jass.StartSound(s)
-        end
-    end
+
