@@ -57,6 +57,7 @@
     
     RecommandHero = function(hero)
         local last = last[hero]
+        SetUnitTimeScale(hero, 1)
         if last == nil then
             return
         elseif last == false then

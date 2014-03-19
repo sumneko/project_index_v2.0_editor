@@ -620,6 +620,9 @@
                 local y = skill.y
                 
                 if data.event == "发动技能" then
+                    if skill.timescale then
+                        SetUnitTimeScale(data.unit, skill.timescale)
+                    end
                     if skill.type[1] == "开关" and skill.openflag then
                         skill.closereason = "手动关闭"
                         skill:closeskill()
