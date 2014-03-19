@@ -82,6 +82,8 @@
                 Crit(this.unit, - this._crit)
                 if state == 2 then
                     --风王结界爆发
+                    StartSound("sound\\H013_Q1.mp3", this.player)
+                    
                     local modle = CreateModle("CycloneShield.mdx", this.unit, {z = 50, time = 2, size = 3})
                     local d = this:get(2) + this:get(3)
                     local as, ms = this:get(4), this:get(5)
@@ -240,6 +242,7 @@
                         this.flush1 = nil
                     end
                 elseif this.tipname == "远离尘世的理想乡" then
+                    StartSound("sound\\H013_W2.mp3", this.player)
                     if this.flush2 then
                         TimerRestart(this._timer2)
                         return
@@ -803,6 +806,9 @@
                     for i = 1, 8 do
                         mod[i] = CreateModle("Abilities\\Spells\\Other\\Tornado\\TornadoElementalSmall.mdl", MovePoint(this.unit, {area / 2, angle + 45 * i}), {size = 0.5})
                     end
+                    
+                    StartSound("sound\\H013_R1.mp3", this.player)
+                    
                     local mover = Mover(
                         {
                             from = this.unit,
@@ -884,6 +890,13 @@
                     end
                     SetSkillCool(this.unit, this.id, min, min) --激活2秒冷却(作为最小间隔)
                     
+                    local sound = StartSound("sound\\H013_R2.mp3", this.player)
+                    Wait(1.5,
+                        function()
+                            StopSound(sound, true, false)
+                        end
+                    )
+                    
                     Wait(0,
                         function()
                             local ab = japi.EXGetUnitAbility(this.unit, this.id)
@@ -938,6 +951,9 @@
                             end
                         )
                         local loc = GetUnitLoc(this.unit)
+                        
+                        local sound = StartSound("sound\\H013_R2.mp3", this.player)
+                        SetSoundPlayPosition(sound, 1500)
                         
                         local t = GetTime() - opentime
                         local s = (t - t1) / (t2 - t1)
