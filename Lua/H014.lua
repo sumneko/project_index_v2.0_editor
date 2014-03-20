@@ -804,6 +804,7 @@
         events = {"获得技能", "失去技能", "发动技能", "关闭技能"},
         code = function(this)
             if this.event == "发动技能" then
+                StartSound("sound\\H014_R.mp3", this.player)
                 local hp = GetUnitState(this.unit, UNIT_STATE_LIFE) * 50 * 0.01
                 Damage(this.unit, this.unit, hp, true, true, {damageReason = this.name})
                 
@@ -867,10 +868,15 @@
                 }
                 
                 dummy:create(this.unit)
+                local area = this:get("area")
+                
+                for i = 1, 8 do
+                    dummy:create(MovePoint(this.unit, {area - 200, 45 * i}))
+                end
                 
                 local attack = GetUnitState(this.unit, UNIT_STATE_MAX_ATTACK) + GetUnitState(this.unit, UNIT_STATE_MIN_ATTACK)
                 
-                local area = this:get("area")
+                
                 local t1, t2
                 t1 = Wait(0.2,
                     function()
