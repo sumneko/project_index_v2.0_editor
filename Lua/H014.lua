@@ -4,7 +4,7 @@
     HeroType[14] = |Harf|
     RDHeroType[14] = |h017|
     IllHeroType[14] = |H02J|
-    HeroTypePic[14] = "ReplaceableTextures\\CommandButtons\\BTNSaber.blp"
+    HeroTypePic[14] = "ReplaceableTextures\\CommandButtons\\BTNSQKS.blp"
     HeroSize[14] = 1.2
     LearnSkillId = {|A1A5|, |A1A6|, |A1A7|, |A1A8|}
     
