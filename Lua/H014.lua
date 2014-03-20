@@ -31,7 +31,7 @@
 |cffffcc00此技能已经为你提升的生命值上限|r: %s
 
 |cff888888视为对自己造成伤害]],
-        researchtip = "开启后有50%的几率再次攻击另一个目标.取代夺取时间",
+        researchtip = "开启后可以同时攻击3个单位,每个单位都要消耗一次时间,取代吸取时间",
         data = {
             0, --消耗生命1
             8, --消耗百分比2
@@ -54,19 +54,21 @@
                             local d = GetUnitState(this.unit, UNIT_STATE_LIFE) * this:get(2) * 0.01
                             Damage(this.unit, this.unit, d, true, true, {damageReason = this.name})
                             
-                            if this.research then
-                                if Random(50) then
-                                    local g = {}
-                                    forRange(damage.from, japi.GetUnitState(damage.from, UNIT_STATE_ATTACK_RANGE),
-                                        function(u)
-                                            if damage.to ~= u and EnemyFilter(this.player, u, {["建筑"] = true, ["魔免"] = true}) then
-                                                table.insert(g, u)
-                                            end
+                            if this.research and damage.attackReason ~= this.name then
+                                local g = {}
+                                forRange(damage.from, japi.GetUnitState(damage.from, UNIT_STATE_ATTACK_RANGE),
+                                    function(u)
+                                        if damage.to ~= u and EnemyFilter(this.player, u, {["建筑"] = true, ["魔免"] = true}) then
+                                            table.insert(g, u)
                                         end
-                                    )
+                                    end
+                                )
+                                for i = 1, 2 do
                                     local count = #g
                                     if count > 0 then
-                                        StartWeaponAttack(damage.from, g[GetRandomInt(1, count)], true)
+                                        local i = GetRandomInt(1, count)
+                                        StartWeaponAttack(damage.from, g[i], true, this.name)
+                                        table.remove(g, i)
                                     end
                                 end
                             else
