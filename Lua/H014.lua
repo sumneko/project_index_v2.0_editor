@@ -767,7 +767,7 @@
         name = "食时之城",
         type = {"开关"},
         ani = "spell four",
-        art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNH014_R.blp", "BTNH014_R.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         area = 1000,
         mana = 100,
         dur = 30,
@@ -965,6 +965,7 @@
                 local dummyshow = function(u)
                     SetUnitPositionLoc(u, MovePoint(cent, {GetRandomInt(0, area), GetRandomInt(1, 360)}))
                     ShowUnit(u, true)
+                    UnitRemoveAbility(u, |Aloc|)
                     UnitAddAbility(u, |Aloc|)
                     SetUnitTimeScale(u, 1)
                     SetUnitAnimation(u, "spell channel two")
@@ -975,11 +976,11 @@
                         end,
                         function()
                             if units[u] ~= true then
-                                UnitRemoveAbility(u, |Aloc|)
                                 ShowUnit(u, false)
                                 Wait(0,
                                     function()
                                         ShowUnit(u, true)
+                                        UnitRemoveAbility(u, |Aloc|)
                                         SetUnitAnimation(u, "stand")
                                         PauseUnit(u, false)
                                         if ally then
