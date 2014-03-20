@@ -96,12 +96,12 @@
     end
     
     --物理攻击
-    StartWeaponAttack = function(u1, u2, b)
+    StartWeaponAttack = function(u1, u2, b, reason)
         local d = GetRandomInt(GetUnitState(u1, ConvertUnitState(0x14)), GetUnitState(u1, ConvertUnitState(0x15)))
         if b and japi.EXGetEventDamageData(6) == 5 then --混乱攻击无视50%护甲值
-            Damage(u1, u2, d, true, false, {attack = true, weapon = true, def2 = 50, damageReason = "普通攻击"})
+            Damage(u1, u2, d, true, false, {attack = true, weapon = true, def2 = 50, damageReason = "普通攻击", attackReason = reason})
         else
-            Damage(u1, u2, d, true, false, {attack = true, weapon = true, damageReason = "普通攻击"})    
+            Damage(u1, u2, d, true, false, {attack = true, weapon = true, damageReason = "普通攻击", attackReason = reason})    
         end
     end
     
