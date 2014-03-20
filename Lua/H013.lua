@@ -6,6 +6,7 @@
     IllHeroType[13] = |E038|
     HeroTypePic[13] = "ReplaceableTextures\\CommandButtons\\BTNSaber.blp"
     HeroSize[13] = 1.2
+    HeroReadySound[13] = "sound\\H013_Ready.mp3"
     LearnSkillId = {|A1A1|, |A1A2|, |A1A3|, |A1A4|}
     
     --解放真名

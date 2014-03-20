@@ -45,3 +45,13 @@
         end
     )
     
+    Event("创建英雄", "复活",
+        function(data)
+            local i = GetUnitPointValue(data.unit)
+            local p = GetOwningPlayer(data.unit)
+            if HeroReadySound[i] then
+                StartSound(HeroReadySound[i], p)
+            end
+        end
+    )
+    

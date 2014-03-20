@@ -224,6 +224,9 @@
     --无头像英雄
     IllHeroType = {}
     
+    --英雄创建音效
+    HeroReadySound = {}
+    
     CheckHeroData = function()
         if luaVersion < 2 then return end
         for i = 1, HeroTypeCount do
