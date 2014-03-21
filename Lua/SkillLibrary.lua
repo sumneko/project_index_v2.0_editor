@@ -526,8 +526,8 @@
     
     --增加移动速度
     MoveSpeed = function(u, m, m2)
-        local m = m + (Mark(u, "额外移动速度") or 0)
-        local m2 = m2 + (Mark(u, "移动速度倍率") or 0)
+        local m = (m or 0) + (Mark(u, "额外移动速度") or 0)
+        local m2 = (m2 or 0) + (Mark(u, "移动速度倍率") or 0)
         Mark(u, "额外移动速度", m)
         Mark(u, "移动速度倍率", m2)
         SetUnitMoveSpeed(u, (m + GetUnitDefaultMoveSpeed(u)) * (1 + m2 * 0.01))
