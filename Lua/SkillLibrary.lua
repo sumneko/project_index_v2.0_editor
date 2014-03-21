@@ -483,7 +483,7 @@
         end
     end
     
-    --缴械单位
+    --缴械单位    
     DisarmUnit = function(data)
         if toEvent("debuff", "缴械", data) then return end
         local t = Mark(data.to, "缴械")
@@ -496,6 +496,7 @@
                     Mark(data.to, "缴械", false)
                     EnableAttack(data.to)
                     DestroyEffect(t.effect)
+                    UnitRemoveAbility(data.to, |A1AF|)
                 end,
                 effect = AddSpecialEffectTarget("Abilities\\Spells\\Other\\TalkToMe\\TalkToMe.mdl", data.to, "overhead")
             }
@@ -504,6 +505,9 @@
         end
         local target = data.time + GetTime()
         if target > t.targettime then
+            UnitRemoveAbility(data.to, |A1AF|)
+            UnitAddAbility(data.to, |A1AF|)
+            SetSkillCool(data.to, |A1AF|, data.time, data.time)
             TimerStart(t.timer, data.time, false, t.func)
         end
     end
