@@ -25,7 +25,7 @@
     --从表中获取极值
     table.getone = function(t, func)
         local v1
-        for _, v in pairs(t) do
+        for _, v in ipairs(t) do
             if v1 then
                 if not func(v1, v) then
                     v1 = v
