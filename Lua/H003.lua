@@ -79,6 +79,7 @@
                                 to = data.to,
                                 attack = move.data.slow,
                                 time = move.data.dur,
+                                effect = "Abilities\\Spells\\Human\\Banish\\BanishTarget.mdl"
                             }
                             BlindUnit{
                                 from = data.from,

@@ -91,7 +91,9 @@
                                                 to = data.to,
                                                 time = t,
                                                 aoe = true,
-                                                move = ms
+                                                move = ms,
+                                                effect = "Abilities\\Spells\\Orc\\StasisTrap\\StasisTotemTarget.mdl",
+                                                point = "overhead"
                                             }
                                             Damage(data.from, data.to, d * dd, true, false, {aoe = true, damageReason = this.name})
                                         end
@@ -179,14 +181,14 @@
                                                         else
                                                             g[data.to] = s1
                                                         end
-                                                        DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl", data.to, "origin"))
                                                         SlowUnit{
                                                             from = data.from,
                                                             to = data.to,
                                                             attack = g[data.to],
                                                             speed = g[data.to],
                                                             time = t,
-                                                            aoe = true
+                                                            aoe = true,
+                                                            effect = "Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl"
                                                         }
                                                     end
                                                     Damage(data.from, data.to, d, false, true, {aoe = true, damageReason = this.name})

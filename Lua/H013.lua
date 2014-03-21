@@ -126,6 +126,7 @@
                                                     move = ms,
                                                     time = t,
                                                     aoe = true,
+                                                    effect = "Abilities\\Spells\\Other\\Tornado\\Tornado_Target.mdl",
                                                 }
                                                 Damage(data.from, data.to, d, false, true, {aoe = true, damageReason = this.name})
                                             end
