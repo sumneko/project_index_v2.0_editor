@@ -144,22 +144,85 @@
     )
     
     --减速单位
-    UnitAddAbility(Dummy, |A14A|)
+    --现在多个减速可以同时作用于1个单位,攻速与移速分别表现为当前效果最好的那一个
+    --UnitAddAbility(Dummy, |A14A|)
     
     SlowUnit = function(data)
         if toEvent("debuff", "减速", data) then return end
-        local skill = japi.EXGetUnitAbility(Dummy, |A14A|)
-        japi.EXSetAbilityDataReal(skill, 1, 109, (data.attack or 0)*0.01) --攻击速度
-        japi.EXSetAbilityDataReal(skill, 1, 108, (data.move or 0)*0.01) --移动速度
-        japi.EXSetAbilityDataReal(skill, 1, 102, data.time or 1) --持续时间
-        japi.EXSetAbilityDataReal(skill, 1, 103, data.time or 1) --持续时间
-        IssueTargetOrder(Dummy, "slow", data.to)
+        local this = Mark(data.to, "减速效果")
+        if not this then
+            this = {
+                unit = data.to,
+                attack = 0,
+                move = 0,
+                add = function(this, data)
+                    table.insert(this, data)
+                    data.attack = data.attack or 0
+                    data.move = data.move or 0
+                    data.effect = AddSpecialEffectTarget(data.effect or "Abilities\\Spells\\Human\\slow\\slowtarget.mdl", data.to, data.point or "origin")
+                    data.timer = CreateTimer()
+                    TimerStart(data.timer, data.time or 1, false,
+                        function()
+                            this:remove(data)
+                        end
+                    )
+                    this:refresh()
+                end,
+                remove = function(this, data)
+                    table.remove2(this, data)
+                    DestroyEffect(data.effect)
+                    DestroyTimer(data.timer)
+                    this:refresh()
+                end,
+                refresh = function(this)
+                    local attack = table.getone(this,
+                        function(data1, data2)
+                            return data1.attack > data2.attack
+                        end
+                    )
+                    local move = table.getone(this,
+                        function(data1, data2)
+                            return data1.attack > data2.attack
+                        end
+                    )
+                    if attack then
+                        attack = attack.attack
+                    else
+                        attack = 0
+                    end
+                    if move then
+                        move = move.move
+                    else
+                        move = 0
+                    end
+                    AttackSpeed(this.unit, this.attack - attack)
+                    MoveSpeed(this.unit, 0, this.move - move)
+                    this.attack = attack
+                    this.move = move
+                end,
+                flush = function(this)
+                    for i, data in ipairs(this) do
+                        DestroyEffect(data.effect)
+                        DestroyTimer(data.timer)
+                        this[i] = nil
+                    end
+                    AttackSpeed(this.unit, this.attack)
+                    MoveSpeed(this.unit, 0, this.move)
+                    
+                end
+            }
+            Mark(data.to, "减速效果", this)
+        end
+        this:add(data)        
     end
     
     Event("驱散",
         function(this)
             if this.debuff then
-                UnitRemoveAbility(this.to, |B02R|)
+                local that = Mark(data.to, "减速效果")
+                if that and #that > 0 then
+                    that:flush()
+                end
             end
         end
     )
@@ -462,10 +525,12 @@
     end
     
     --增加移动速度
-    MoveSpeed = function(u, m)
+    MoveSpeed = function(u, m, m2)
         local m = m + (Mark(u, "额外移动速度") or 0)
+        local m2 = m2 + (Mark(u, "移动速度倍率") or 0)
         Mark(u, "额外移动速度", m)
-        SetUnitMoveSpeed(u, m + GetUnitDefaultMoveSpeed(u))
+        Mark(u, "移动速度倍率", m2)
+        SetUnitMoveSpeed(u, (m + GetUnitDefaultMoveSpeed(u)) * (1 + m2 * 0.01))
     end
     
     --允许攻击
