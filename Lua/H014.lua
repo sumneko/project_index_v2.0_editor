@@ -52,7 +52,6 @@
                     function(damage)
                         if damage.from == this.unit then
                             local d = GetUnitState(this.unit, UNIT_STATE_LIFE) * this:get(2) * 0.01
-                            Damage(this.unit, this.unit, d, true, true, {damageReason = this.name})
                             
                             if this.research and damage.attackReason ~= this.name then
                                 local g = {}
@@ -129,6 +128,8 @@
                                     end
                                 )
                             end
+                            
+                            Damage(this.unit, this.unit, d, true, true, {damageReason = this.name})
                         end
                     end
                 )
