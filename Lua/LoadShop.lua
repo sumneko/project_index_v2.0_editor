@@ -66,7 +66,7 @@
                 local ab = japi.EXGetUnitAbility(Dummy, id)
                 local mlv = tonumber(getObj(slk.ability, id, "levels", 1))
                 for i = 1, mlv do
-                    japi.EXSetAbilityDataReal(ab, 110, i, 1)
+                    japi.EXSetAbilityDataReal(ab, i, 110, 1) --显示图标
                 end
                 UnitRemoveAbility(Dummy, id)
             end
