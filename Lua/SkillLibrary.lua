@@ -36,7 +36,7 @@
     end
     
     --通用马甲
-    local Dummy = CreateUnitAtLoc(Player(15), |e01B|, MH.temp, 0)
+    Dummy = CreateUnitAtLoc(Player(15), |e01B|, MH.temp, 0)
     
     --自定义技能
     DummySkill = function(data)

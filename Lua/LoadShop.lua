@@ -53,8 +53,25 @@
         for y = 1, 3 do
             local id = shopSkills[x][y]
             shopSkills[id] = {x, y}
+            table.insert(shopSkills, id)
         end
     end
+    
+    --预读商店图标
+    ForLoop(0.5, #shopSkills,
+        function(i)
+            local id = shopSkills[i]
+            if type(id) == "number" then
+                UnitAddAbility(Dummy, id)
+                local ab = japi.EXGetUnitAbility(Dummy, id)
+                local mlv = tonumber(getObj(slk.ability, id, "levels", 1))
+                for i = 1, mlv do
+                    japi.EXSetAbilityDataReal(ab, 110, i, 1)
+                end
+                UnitRemoveAbility(Dummy, id)
+            end
+        end
+    )
     
     GetShopItemXY = function(id)
         return unpack(shopSkills[id])
