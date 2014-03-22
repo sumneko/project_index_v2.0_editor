@@ -96,6 +96,32 @@
     Shop[0] = gg_unit_e032_0004
     Shop[1] = gg_unit_e032_0003
     
+    OldShop = {}
+    
+    OldShop[0] = {
+        gg_unit_e002_0009,
+        gg_unit_e000_0010,
+        gg_unit_e007_0011,
+        gg_unit_e00B_0032,
+        gg_unit_e01S_0045,
+        gg_unit_e001_0046,
+        gg_unit_e00E_0055,
+        gg_unit_e00A_0057,
+        gg_unit_e00C_0098,
+    }
+    
+    OldShop[1] = {
+        gg_unit_e002_0099,
+        gg_unit_e000_0100,
+        gg_unit_e007_0101,
+        gg_unit_e00B_0102,
+        gg_unit_e01S_0103,
+        gg_unit_e001_0104,
+        gg_unit_e00E_0105,
+        gg_unit_e00A_0116,
+        gg_unit_e00C_0117,
+    }
+    
     --涡点
     Gate = {}
     local g = CreateGroup()

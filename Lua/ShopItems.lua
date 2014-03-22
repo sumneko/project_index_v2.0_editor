@@ -270,5 +270,10 @@
         return tip
     end
     
-    return shopAction
+    --传统商店
+    
+    local oldShopAction = function()
+    end    
+    
+    return shopAction, oldShopAction
     

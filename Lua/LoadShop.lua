@@ -105,7 +105,7 @@
         }
     }
     
-    local shopAction = require "ShopItems.lua"
+    local shopAction, oldShopAction = require "ShopItems.lua"
     local trg = CreateTrigger()
     TriggerAddCondition(trg, Condition(shopAction))
     
@@ -379,4 +379,50 @@
         tip = "查看你背包中已经拥有的物品类型",
     }
     
+    --传统商店
     
+    local ou = {OldShop[0], OldShop[1]}
+    OldShop[0], OldShop[1] = nil, nil
+    
+    for _, u in ipairs(ou[1]) do
+        ShowUnit(u, false)
+    end
+    for _, u in ipairs(ou[2]) do
+        ShowUnit(u, false)
+    end
+    
+    Event("创建英雄",
+        function(data)
+            local p = GetOwningPlayer(data.unit)
+            local i = GetPlayerId(p)
+            if not OldShop[i] then
+                local tid = GetPlayerTeam(p) + 1
+                OldShop[i] = {}
+                for count, u in ipairs(ou[tid]) do
+                    OldShop[i][count] = CreateUnit(p, GetUnitTypeId(u), GetUnitX(u), GetUnitY(u), 270)
+                    if SELF ~= i then
+                        SetUnitFlyHeight(OldShop[i][count], 5000, 0)
+                    end
+                    UnitRemoveAbility(OldShop[i][count], |Amov|)
+                    SetUnitUserData(OldShop[i][count], count)
+                    InitOldShop(OldShop[i][count], count)
+                end
+            end
+        end
+    )
+    
+    trg = CreateTrigger()
+    TriggerAddCondition(trg, Condition(oldShopAction))
+    
+    InitOldShop = function(u, count)
+        for x = 1, 4 do
+            for y = 1, 3 do
+                UnitAddAbility(u, shopSkills[x][y])
+                SetUnitAbilityLevel(u, shopSkills[x][y], count)
+            end
+        end
+        
+        TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_SPELL_EFFECT)
+        
+        
+    end
