@@ -105,7 +105,8 @@
                                             lv = this.lv,
                                             art = {"BTNInvisibility.blp", getObj(slk.unit, GetUnitTypeId(u2), "Art", "\\BTNInvisibility.blp"):match("([^\\]+.blp)"), "BTNWispSplode.blp"},
                                             data = {name, skill, skill},
-                                            unittype = GetUnitTypeId(u2)
+                                            unittype = GetUnitTypeId(u2),
+                                            icon = this.icon
                                         })
                                     end
                                 end
@@ -502,6 +503,7 @@
         ani = "stand",
         art = {"BTNInvisibility.blp", "BTNInvisibility.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         mana = 50,
+        icon = 2,
         cool = 0,
         cast = 3,
         tip = "\
@@ -791,10 +793,8 @@
                 end
                 Wait(0.01,
                     function()
-                        if this.icon > 1 then
-                            RemoveSkill(this.unit, this.name)
-                            AddSkill(this.unit, this.name, this.newdata or {type = {"被动"}})
-                        end
+                        RemoveSkill(this.unit, this.name)
+                        AddSkill(this.unit, this.name, this.newdata or {type = {"被动"}})
                     end
                 )
             end
