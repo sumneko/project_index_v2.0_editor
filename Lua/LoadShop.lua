@@ -49,27 +49,27 @@
     --根据技能ID获取该技能的位置
     local nowPage = {}
     
+    local shopSkillsList = {}
+    
     for x = 1, 4 do
         for y = 1, 3 do
             local id = shopSkills[x][y]
             shopSkills[id] = {x, y}
-            table.insert(shopSkills, id)
+            table.insert(shopSkillsList, id)
         end
     end
     
     --预读商店图标
-    ForLoop(0.5, #shopSkills,
+    ForLoop(0.5, #shopSkillsList,
         function(i)
-            local id = shopSkills[i]
-            if type(id) == "number" then
-                UnitAddAbility(Dummy, id)
-                local ab = japi.EXGetUnitAbility(Dummy, id)
-                local mlv = tonumber(getObj(slk.ability, id, "levels", 1))
-                for i = 1, mlv do
-                    japi.EXSetAbilityDataReal(ab, i, 110, 1) --显示图标
-                end
-                UnitRemoveAbility(Dummy, id)
+            local id = shopSkillsList[i]
+            UnitAddAbility(Dummy, id)
+            local ab = japi.EXGetUnitAbility(Dummy, id)
+            local mlv = tonumber(getObj(slk.ability, id, "levels", 1))
+            for i = 1, mlv do
+                japi.EXSetAbilityDataReal(ab, i, 110, 1) --显示图标
             end
+            UnitRemoveAbility(Dummy, id)
         end
     )
     
@@ -174,9 +174,9 @@
     SetShopItem = function(u, x, y, name)
         local p = GetOwningPlayer(u)
         nowPage[u][x][y] = name
+        local ab = japi.EXGetUnitAbility(u, shopSkills[x][y])
         if name then
-            SetPlayerAbilityAvailable(p, shopSkills[x][y], true)
-            local ab = japi.EXGetUnitAbility(u, shopSkills[x][y])
+            japi.EXSetAbilityDataReal(ab, 1, 110, 1) --图标可见
             local first = string.sub(name, 1, 1)
             if first == "#" then
                 --页面
@@ -227,7 +227,7 @@
             end
             
         elseif name == false then
-            SetPlayerAbilityAvailable(p, shopSkills[x][y], false)
+            japi.EXSetAbilityDataReal(ab, 1, 110, 0) --图标不可见
         end
     end
     
@@ -379,7 +379,7 @@
         tip = "查看你背包中已经拥有的物品类型",
     }
     
-    --传统商店
+    ---------------------------传统商店--------------------------
     
     local ou = {OldShop[0], OldShop[1]}
     OldShop[0], OldShop[1] = nil, nil
@@ -411,18 +411,29 @@
         end
     )
     
-    trg = CreateTrigger()
-    TriggerAddCondition(trg, Condition(oldShopAction))
+    local oldShopRefreshTrg = CreateTrigger()
+    
+    local trg2 = CreateTrigger()
+    TriggerAddCondition(trg2, Condition(oldShopAction))
+    
+    local oldPages
     
     InitOldShop = function(u, count)
         for x = 1, 4 do
             for y = 1, 3 do
                 UnitAddAbility(u, shopSkills[x][y])
-                SetUnitAbilityLevel(u, shopSkills[x][y], count)
+                SetUnitAbilityLevel(u, shopSkills[x][y], count + 1)
+                
             end
         end
         
-        TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_SPELL_EFFECT)
-        
+        TriggerRegisterUnitEvent(trg2, u, EVENT_UNIT_SPELL_EFFECT)
+        TriggerRegisterUnitEvent(oldShopRefreshTrg, u, EVENT_UNIT_SELECTED)
         
     end
+    
+    oldPages = {
+        {
+            
+        },
+    }
