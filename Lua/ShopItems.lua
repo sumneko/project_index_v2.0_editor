@@ -275,5 +275,17 @@
     local oldShopAction = function()
     end    
     
+    GetOldShopItemTip = function(item, page)
+        local tip = item.tip --物品的基础说明文字
+        if item.complex then
+            local list = {tip, "\n"}
+            for _, name in ipairs(item.complex) do 
+                table.insert(list, ("|cff8888ff%-30s - %-4s    [%s]"):format(name, GetItemData(name, "gold"), page[name] or "点击购买"))                
+            end
+            tip = table.concat(list, "\n")
+        end
+        return tip
+    end
+    
     return shopAction, oldShopAction
     

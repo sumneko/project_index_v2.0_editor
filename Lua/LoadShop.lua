@@ -407,16 +407,21 @@
                     SetUnitUserData(OldShop[i][count], count)
                     InitOldShop(OldShop[i][count], count)
                 end
+                InitOldShopEnd(OldShop[i], p)
             end
         end
     )
     
     local oldShopRefreshTrg = CreateTrigger()
+    TriggerAddCondition(oldShopRefreshTrg, Condition(
+        function()
+        end
+    ))
     
     local trg2 = CreateTrigger()
     TriggerAddCondition(trg2, Condition(oldShopAction))
-    
-    local oldPages
+
+    local OldShopPage = {}
     
     InitOldShop = function(u, count)
         for x = 1, 4 do
@@ -430,10 +435,58 @@
         TriggerRegisterUnitEvent(trg2, u, EVENT_UNIT_SPELL_EFFECT)
         TriggerRegisterUnitEvent(oldShopRefreshTrg, u, EVENT_UNIT_SELECTED)
         
+        --记录物品所在的商店
+        local uname = GetUnitName(u)
+        local name = "#" .. uname
+        local page = shopPages[name].items
+        for x = 1, 4 do
+            for y = 1, 3 do
+                local i = xy2i(x, y)
+                local name = page[i]
+                if type(name) == "string" and name:sub(1, 1) == "$" then
+                    name = name:sub(2)
+                end
+                if name and not OldShopPage[name] then
+                    OldShopPage[name] = uname
+                end
+            end
+        end
+        
     end
     
-    oldPages = {
-        {
-            
-        },
-    }
+    --传统商店创建完毕
+    InitOldShopEnd = function(shops, p)
+        for count, u in ipairs(shops) do
+            local level = count + 1
+            local uname = GetUnitName(u)
+            local name = "#" .. uname
+            local page = shopPages[name].items
+            for x = 1, 4 do
+                for y = 1, 3 do
+                    local i = xy2i(x, y)
+                    local name = page[i]
+                    if type(name) == "string" and name:sub(1, 1) == "$" then
+                        name = name:sub(2)
+                    end
+                    local item = GetItem(name)
+                    
+                    --准备修改技能数据
+                    local ab = japi.EXGetUnitAbility(u, shopSkills[x][y])
+                    if SELFP == p then
+                        --进行本地修改
+                        if item then
+                            japi.EXSetAbilityDataReal(ab, level, 110, 1) --图标可见
+                            --japi.EXSetAbilityDataString(ab, level, 204, item.art) --修改图标
+                            japi.EXSetAbilityDataString(ab, level, 215, item.complex and "|cffffcc00合成公式|r" or "|cffffcc00购买|r") --修改标题
+                            japi.EXSetAbilityDataString(ab, level, 218, string.format("[|cffffcc00%s|r] - [%s] - [|cffffcc00%s|r]\n\n%s", item.name, item.coststring, shopSkillKeys[x][y], GetOldShopItemTip(item, OldShopPage))) --修改文字内容
+                        else
+                            japi.EXSetAbilityDataReal(ab, level, 110, 0) --图标不可见
+                        end
+                    end
+                end
+            end
+            RefreshTips(u)
+        end
+    end
+
+    
