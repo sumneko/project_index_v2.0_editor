@@ -13,7 +13,7 @@
         name = "吞噬时间",
         type = {"开关"},
         ani = "stand",
-        art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNH014_Q.blp", "BTNH014_Q.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         tip = [[
 |cffff00cc开启:|r
 攻击时以消耗自身时间为代价,夺取对方的时间.
@@ -200,7 +200,7 @@
         name = "Alef Bet Dalet",
         type = {"主动", 1},
         _type = {"主动"},
-        art = {"BTNFeedBack.blp"},
+        art = {"BTNH014_W.blp"},
         _art = {"BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
         targs = GetTargs("地面,空中,有机生物"),
         mana = {25, 30, 35, 40},
@@ -509,7 +509,7 @@
         name = "Zayin Chet",
         type = {"主动", 3},
         ani = "stand",
-        art = {"BTNFeedBack.blp", "BTNFeedBack.blp", "BTNWispSplode.blp"}, --左边是学习,右边是普通.不填右边视为左边
+        art = {"BTNH014_E.blp"}, --左边是学习,右边是普通.不填右边视为左边
         targs = GetTargs("地面,空中,有机生物"),
         rng = 1200,
         area = 225,
