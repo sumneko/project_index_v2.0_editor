@@ -64,11 +64,6 @@
         function(i)
             local id = shopSkillsList[i]
             UnitAddAbility(Dummy, id)
-            local ab = japi.EXGetUnitAbility(Dummy, id)
-            local mlv = tonumber(getObj(slk.ability, id, "levels", 1))
-            for i = 1, mlv do
-                japi.EXSetAbilityDataReal(ab, i, 110, 1) --显示图标
-            end
             UnitRemoveAbility(Dummy, id)
         end
     )
@@ -105,7 +100,7 @@
         }
     }
     
-    local shopAction, oldShopAction = require "ShopItems.lua"
+    require "ShopItems.lua"
     local trg = CreateTrigger()
     TriggerAddCondition(trg, Condition(shopAction))
     
@@ -450,36 +445,32 @@
     TriggerAddCondition(trg2, Condition(oldShopAction))
     
     local OldShopPage = {}
+    OldShopPageItems = {}
     
     InitOldShop = function(u, count)
+        local uname = GetUnitName(u)
+        local name = "#" .. uname
+        local page = shopPages[name].items
+        OldShopPageItems[count] = {}
         for x = 1, 4 do
             for y = 1, 3 do
                 UnitAddAbility(u, shopSkills[x][y])
                 SetUnitAbilityLevel(u, shopSkills[x][y], count + 1)
-                
+                local i = xy2i(x, y)
+                local name = page[i]
+                if type(name) == "string" and name:sub(1, 1) == "$" then
+                    name = name:sub(2)
+                end
+                OldShopPageItems[count][shopSkills[x][y]] = name
+                if name and not OldShopPage[name] then
+                    OldShopPage[name] = uname
+                end
             end
         end
         
         SetUnitUserData(u, count)
         TriggerRegisterUnitEvent(trg2, u, EVENT_UNIT_SPELL_EFFECT)
         TriggerRegisterUnitEvent(oldShopRefreshTrg, u, EVENT_UNIT_SELECTED)
-        
-        --记录物品所在的商店
-        local uname = GetUnitName(u)
-        local name = "#" .. uname
-        local page = shopPages[name].items
-        for x = 1, 4 do
-            for y = 1, 3 do
-                local i = xy2i(x, y)
-                local name = page[i]
-                if type(name) == "string" and name:sub(1, 1) == "$" then
-                    name = name:sub(2)
-                end
-                if name and not OldShopPage[name] then
-                    OldShopPage[name] = uname
-                end
-            end
-        end
         
     end
     
@@ -505,7 +496,6 @@
                         --进行本地修改
                         if item then
                             japi.EXSetAbilityDataReal(ab, level, 110, 1) --图标可见
-                            --japi.EXSetAbilityDataString(ab, level, 204, item.art) --修改图标
                             japi.EXSetAbilityDataString(ab, level, 215, item.complex and "|cffffcc00合成公式|r" or "|cffffcc00购买|r") --修改标题
                             japi.EXSetAbilityDataString(ab, level, 218, string.format("[|cffffcc00%s|r] - [%s] - [|cffffcc00%s|r]\n\n%s", item.name, item.coststring, shopSkillKeys[x][y], GetOldShopItemTip(item, OldShopPage))) --修改文字内容
                         else

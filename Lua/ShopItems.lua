@@ -3,7 +3,7 @@
         return x + y * 4 - 4
     end
     
-    local shopAction = function()
+    shopAction = function()
         local u = GetTriggerUnit()
         local id = GetSpellAbilityId()
         local name = GetShopItemName(u, id)
@@ -272,7 +272,37 @@
     
     --传统商店
     
-    local oldShopAction = function()
+    oldShopAction = function()
+        local u = GetTriggerUnit()
+        local id = GetSpellAbilityId()
+        local count = GetUnitUserData(u)
+        local p = GetOwningPlayer(u)
+        local i = GetPlayerId(p)
+        local name = OldShopPageItems[count][id]
+        local item = GetItem(name)
+        if item then
+            if item.complex then
+                name = "合成卷轴(" .. name .. ")"
+                item = GetItem(name)
+            end
+            local gold = GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
+            if gold < item.gold then
+                printTo(p, 15, "|cffffcc00金钱不足(还差" .. (item.gold - gold) .. ")|r")
+                if SELFP == p then
+                    StartSound(gg_snd_Error)
+                end
+            else
+                if SELFP == p then
+                    StartSound(gg_snd_ReceiveGold)
+                end
+                SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold - item.gold)
+                if IsUnitAlive(Hero[i]) and GetBetween(u, Hero[i]) < 1000 then
+                    AddItems(Hero[i], {name})
+                else
+                    AddItems(Maid[i], {name})
+                end
+            end
+        end        
     end    
     
     GetOldShopItemTip = function(item, page)
@@ -286,6 +316,4 @@
         end
         return tip
     end
-    
-    return shopAction, oldShopAction
     
