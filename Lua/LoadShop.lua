@@ -412,15 +412,43 @@
         end
     )
     
+    
+    
     local oldShopRefreshTrg = CreateTrigger()
     TriggerAddCondition(oldShopRefreshTrg, Condition(
         function()
+            local u = GetTriggerUnit()
+            local p = GetOwningPlayer(u)
+            local count = GetUnitUserData(u)
+            local uname = GetUnitName(u)
+            local name = "#" .. uname
+            local page = shopPages[name].items
+            for x = 1, 4 do
+                for y = 1, 3 do
+                    local i = xy2i(x, y)
+                    local name = page[i]
+                    if type(name) == "string" and name:sub(1, 1) == "$" then
+                        name = name:sub(2)
+                    end
+                    local item = GetItem(name)
+                    
+                    --准备修改技能数据
+                    local ab = japi.EXGetUnitAbility(u, shopSkills[x][y])
+                    if SELFP == p then
+                        --进行本地修改
+                        if item then
+                            japi.EXSetAbilityDataString(ab, 1, 204, item.art) --修改图标
+                        end
+                    end
+                end
+            end
+            RefreshTips(u)
         end
     ))
     
     local trg2 = CreateTrigger()
     TriggerAddCondition(trg2, Condition(oldShopAction))
-
+    
     local OldShopPage = {}
     
     InitOldShop = function(u, count)
@@ -432,6 +460,7 @@
             end
         end
         
+        SetUnitUserData(u, count)
         TriggerRegisterUnitEvent(trg2, u, EVENT_UNIT_SPELL_EFFECT)
         TriggerRegisterUnitEvent(oldShopRefreshTrg, u, EVENT_UNIT_SELECTED)
         
