@@ -22,10 +22,12 @@
                 t[item.name] = t[item.name] - 1
                 table.remove2(PlayerItemList[i], item)
             end
-            --额外的,在玩家失去物品时立即刷新商店显示(其实一般用不到)
+            --[[额外的,在玩家失去物品时立即刷新商店显示(其实一般用不到)
+            --不使用
             if Shop[i] then
                 RefreshShopPage(Shop[i])
             end
+            --]]
             item.player = nil
         end,        
         --替换物品
