@@ -115,11 +115,11 @@
     
     --256进制转换
     get256s = function(a)
-        local s1 = a/256/256/256%256
-        local s2 = a/256/256%256
-        local s3 = a/256%256
+        local s1 = math.floor(a/256/256/256)%256
+        local s2 = math.floor(a/256/256)%256
+        local s3 = math.floor(a/256)%256
         local s4 = a%256
-        return string.format("%s%s%s%s", string.char(s1), string.char(s2), string.char(s3), string.char(s4))
+        return string.char(s1, s2, s3, s4)
     end
     
     id2string = get256s

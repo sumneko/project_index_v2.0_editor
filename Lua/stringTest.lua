@@ -49,6 +49,12 @@
             GetLocalizedHotkey("yd_leak_monitor::create_report")
         elseif s[1] == ".mhp" then
             MaxLife(Hero[i], tonumber(s[2] or 0))
+        elseif s[1] == ".upload" then
+            table.remove(s, 1)
+            upload.start{
+                player = Player(i),
+                text = table.concat(s, " ")
+            }
         end
     end
 
