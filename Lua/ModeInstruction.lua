@@ -142,6 +142,80 @@
                 end
             end
         },
-        
+        MD = {
+            name = "启用主机MOD",
+            code = function()
+                local texts = {}
+                if SELFP == FirstPlayer then
+                    local mods = {}
+                    for i = 1, 100 do
+                        local suc, mod = pcall(old.require, "MoeUshio\\PI2\\Mod" .. i .. ".lua")
+                        if suc then
+                            table.insert(mods, mod)
+                        end
+                    end
+                    
+                    for i, mod in ipairs(mods) do
+                        table.insert(texts, mod.name)
+                        table.insert(texts, mod.author)
+                        table.insert(texts, mod.tip)
+                        table.insert(texts, mod.script)
+                    end
+                end
+                local chars = table.concat(texts, "><") or ""
+                local text = [[
+Mod大小 |cffffcc00% 6s|r 字节        压缩后大小 |cffffcc00% 6s|r 字节
+经过时间 |cffffcc00% 6.2f|r 秒            已传输 |cffffcc00% 6s|r 字节
+传输进度 |cffffcc00% 6.2f|r%%            传输速度 |cffffcc00% 5.2f|r 字节/秒
+
+文本传输器版本 |cffffcc00%s|r           文本压缩器版本 |cffffcc00%s|r
+%s
+]]
+                upload.start{
+                    player = FirstPlayer,
+                    text = chars,
+                    ready = function(data)
+                        local id = |A1AG|
+                        UnitAddAbility(gg_unit_h000_0024, id)
+                        UnitAddAbility(gg_unit_h000_0025, id)
+                        print("提示:你可以在泉水处查看Mod传输进度")
+                    end,
+                    past = function(data)
+                        local ab = japi.EXGetUnitAbility(gg_unit_h000_0024, |A1AG|)
+                        local text = text:format(
+                            data.len, data.size,
+                            data.pasttime, data.pastbyte,
+                            math.min(100, data.pastbyte / math.max(1, data.size) * 100), data.speed,
+                            upload.ver, upload.zipver,
+                            ""
+                        )
+                        japi.EXSetAbilityDataString(ab, 1, 218, text)
+                        RefreshTips(gg_unit_h000_0024)
+                    end,
+                    finish = function(data)
+                        local texts = string.split(data.text, "><")
+                        local names = {}
+                        local authors = {}
+                        local tips = {}
+                        local scripts = {}
+                        for i, text in ipairs(texts) do
+                            if i % 4 == 1 then
+                                table.insert(names, text)
+                            elseif i % 4 == 2 then
+                                table.insert(authors, text)
+                            elseif i % 4 == 3 then
+                                table.insert(tips, text)
+                            else
+                                table.insert(scripts, text)
+                            end
+                        end
+                        for i = 1, #names do
+                            print(("已加载Mod[%s] 作者[%s]\n%s"):format(names[i], authors[i], tips[i]))
+                            loadstring(scripts[i])()
+                        end
+                    end
+                }
+            end
+        }
     }
     
