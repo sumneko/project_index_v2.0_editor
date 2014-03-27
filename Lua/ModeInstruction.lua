@@ -157,6 +157,7 @@
                     
                     for i, mod in ipairs(mods) do
                         table.insert(texts, mod.name)
+                        table.insert(texts, mod.ver)
                         table.insert(texts, mod.author)
                         table.insert(texts, mod.tip)
                         table.insert(texts, mod.script)
@@ -169,12 +170,17 @@ Mod大小 |cffffcc00% 6s|r 字节        压缩后大小 |cffffcc00% 6s|r 字节
 传输进度 |cffffcc00% 6.2f|r%%            传输速度 |cffffcc00% 5.2f|r 字节/秒
 
 文本传输器版本 |cffffcc00%s|r           文本压缩器版本 |cffffcc00%s|r
+
 %s
 ]]
                 upload.start{
                     player = FirstPlayer,
                     text = chars,
                     ready = function(data)
+                        if data.len == 0 then
+                            print("没有检测到任何有效的Mod!")
+                            return true
+                        end
                         local id = |A1AG|
                         UnitAddAbility(gg_unit_h000_0024, id)
                         UnitAddAbility(gg_unit_h000_0025, id)
@@ -195,24 +201,44 @@ Mod大小 |cffffcc00% 6s|r 字节        压缩后大小 |cffffcc00% 6s|r 字节
                     finish = function(data)
                         local texts = string.split(data.text, "><")
                         local names = {}
+                        local vers = {}
                         local authors = {}
                         local tips = {}
                         local scripts = {}
                         for i, text in ipairs(texts) do
-                            if i % 4 == 1 then
+                            if i % 5 == 1 then
                                 table.insert(names, text)
-                            elseif i % 4 == 2 then
+                            elseif i % 5 == 2 then
+                                table.insert(vers, text)
+                            elseif i % 5 == 3 then
                                 table.insert(authors, text)
-                            elseif i % 4 == 3 then
+                            elseif i % 5 == 4 then
                                 table.insert(tips, text)
                             else
                                 table.insert(scripts, text)
                             end
                         end
+                        local modtips = {}
+                        local modtip = [[
+Mod名称:|cffffcc00%s|r[%s]
+Mod作者:|cffffcc00%s|r
+%s
+]]
                         for i = 1, #names do
-                            print(("已加载Mod[%s] 作者[%s]\n%s"):format(names[i], authors[i], tips[i]))
+                            print(("已加载Mod:|cffffcc00%s|r[%s]"):format(names[i], vers[i]))
                             loadstring(scripts[i])()
+                            table.insert(modtips, modtip:format(names[i], vers[i], authors[i], tips[i]))
                         end
+                        local ab = japi.EXGetUnitAbility(gg_unit_h000_0024, |A1AG|)
+                        local text = text:format(
+                            data.len, data.size,
+                            data.pasttime, data.pastbyte,
+                            math.min(100, data.pastbyte / math.max(1, data.size) * 100), data.speed,
+                            upload.ver, upload.zipver,
+                            "====================================\n\n" .. table.concat(modtips, "\n\n")
+                        )
+                        japi.EXSetAbilityDataString(ab, 1, 218, text)
+                        RefreshTips(gg_unit_h000_0024)
                     end
                 }
             end

@@ -30,6 +30,16 @@
                     local len = sync[1]
                     data.len = len --记录文本长度
                     data.size = len
+                    local starttime = GetTime()
+                    data.starttime = starttime
+                    data.pastbyte = 0
+                    data.pasttime = 0
+                    data.speed = 0
+                    local last = 0
+                    local st = {}
+                    if data.ready and data:ready() then
+                        return
+                    end
                     len = data.size
                     local count = math.ceil(len / 4) --拆成x份
                     if len < count * 4 then
@@ -54,17 +64,7 @@
                         StoreInteger(upload.gc, "", k, - upload.byte)
                     end
                     StoreInteger(upload.gc, "", "", 0)
-                    local starttime = GetTime()
-                    data.starttime = starttime
-                    data.pastbyte = 0
-                    data.pasttime = 0
-                    data.speed = 0
                     data.text = nil
-                    local last = 0
-                    local st = {}
-                    if data.ready then
-                        data:ready()
-                    end
                     Loop(0.1,
                         function()
                             for x = last + 1, count do
