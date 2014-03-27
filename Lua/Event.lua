@@ -250,3 +250,14 @@
         end
     ))
     
+    --聊天事件
+    trg = CreateTrigger()
+    for i = 1, 15 do
+        TriggerRegisterPlayerChatEvent(trg, Player(i), "", false)
+    end
+    TriggerAddCondition(trg, Condition(
+        function()
+            toEvent("聊天", {player = GetTriggerPlayer(), chat = GetEventPlayerChatString()})
+        end
+    ))
+    
