@@ -408,7 +408,6 @@
     )
     
     
-    
     local oldShopRefreshTrg = CreateTrigger()
     TriggerAddCondition(oldShopRefreshTrg, Condition(
         function()
