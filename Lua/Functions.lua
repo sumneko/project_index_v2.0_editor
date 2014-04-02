@@ -534,7 +534,7 @@
     end
     
     --数据同步
-    local syncgc = InitGameCache("Sync")
+    local syncgc = InitGameCache("S")
     local synctable = {}
     
     Sync = function(p, data, code)

@@ -406,7 +406,7 @@
             end
         end
     )
-    
+
     
     local oldShopRefreshTrg = CreateTrigger()
     TriggerAddCondition(oldShopRefreshTrg, Condition(

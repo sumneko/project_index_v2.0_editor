@@ -1,10 +1,9 @@
     
     upload = {
-        gc = InitGameCache("Upload"),
-        max = 25, --同时传输25*4个字节
+        gc = InitGameCache("U"),
         byte = 2 ^ 31,
         chars = "123456789abcdefghijklmnopqrstuvwxyz",
-        ver = "1.0",
+        ver = "1.1",
         zipver = "0.0",
         i2k = function(i)
 			if i == 0 then return "0" end
