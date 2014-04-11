@@ -166,8 +166,7 @@
                 if this.event == "获得" then
                     local u = this.unit
                     local data = {c = 0}
-                    data.timer = Mark(this.unit, this.skillname, data)
-                    Loop(1,
+                    data.timer = Loop(1,
                         function()
                             local tc = 20 - GetUnitState(u, UNIT_STATE_MANA) / GetUnitState(u, UNIT_STATE_MAX_MANA) * 20
                             if math.abs(tc - data.c) < 0.1 then return end
@@ -175,6 +174,7 @@
                             data.c = tc
                         end
                     )
+                    Mark(this.unit, this.skillname, data)
                 elseif this.event == "失去" then
                     local data = Mark(this.unit, this.skillname)
                     Mark(this.unit, this.skillname, false)
