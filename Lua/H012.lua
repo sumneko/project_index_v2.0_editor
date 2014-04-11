@@ -2192,7 +2192,7 @@
                 )
                 
                 local lasthp = GetRecover(u)
-                local mhp = 0
+                local ahp = 0
                 Recover(u, - lasthp)
                 local lasttime = this.spellflag
                 
@@ -2201,7 +2201,7 @@
                         if who == u then
                             local nowtime = GetTime()
                             local passtime = nowtime - lasttime
-                            mhp = mhp + lasthp * passtime --记录这段时间内的总恢复
+                            ahp = ahp + lasthp * passtime --记录这段时间内的总恢复
                             lasttime = nowtime
                             lasthp = lasthp + hp --记录新的恢复速度
                             hp = 0
@@ -2236,7 +2236,7 @@
                                 return GetUnitState(who, s)
                             end
                         )
-                        local heal = Heal(this.unit, u, mhp * a1, {healReason = this.name})
+                        local heal = Heal(this.unit, u, ahp * a1, {healReason = this.name})
                         Debug(("<虚妄诺言>生命恢复:%.3f"):format(heal.heal))
                         for _, heal in ipairs(heals) do
                             local heal = Heal(heal.from, heal.to, heal.sheal * a1, heal)
