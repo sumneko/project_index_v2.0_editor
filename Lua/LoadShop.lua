@@ -171,7 +171,9 @@
         nowPage[u][x][y] = name
         local ab = japi.EXGetUnitAbility(u, shopSkills[x][y])
         if name then
-            japi.EXSetAbilityDataReal(ab, 1, 110, 1) --图标可见
+            if SELFP == p then
+                japi.EXSetAbilityDataReal(ab, 1, 110, 1) --图标可见
+            end
             local first = string.sub(name, 1, 1)
             if first == "#" then
                 --页面
@@ -222,7 +224,9 @@
             end
             
         elseif name == false then
-            japi.EXSetAbilityDataReal(ab, 1, 110, 0) --图标不可见
+            if SELFP == p then
+                japi.EXSetAbilityDataReal(ab, 1, 110, 0) --图标不可见
+            end
         end
     end
     
