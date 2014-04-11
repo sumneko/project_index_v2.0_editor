@@ -219,7 +219,7 @@
     Event("驱散",
         function(this)
             if this.debuff then
-                local that = Mark(data.to, "减速效果")
+                local that = Mark(this.to, "减速效果")
                 if that and #that > 0 then
                     that:flush()
                 end
